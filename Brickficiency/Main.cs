@@ -1190,7 +1190,7 @@ namespace Brickficiency {
                     dr["type"] = "P";
                     dr["typename"] = db_typenames["P"];
                     dr["status"] = "I";
-                    dr["condition"] = "N";
+                    dr["condition"] = "U";
                     dr["price"] = "0";
                     dr["comments"] = "";
                     dr["remarks"] = "";
@@ -1844,7 +1844,7 @@ namespace Brickficiency {
             dr["name"] = db_blitems[id].name;
             dr["colour"] = colour;
             dr["colourname"] = db_colours[colour].name;
-            dr["condition"] = "N";
+            dr["condition"] = "U";
             dr["qty"] = "0";
             dr["price"] = 0;
             dr["total"] = 0;
@@ -1961,9 +1961,9 @@ namespace Brickficiency {
                         dgv[currenttab].Rows[dgv[currenttab].HitTest(e.X, e.Y).RowIndex].Selected = true;
                     }
                 }
-
             }
         }
+
         private void dgv_MouseUp(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Right) {
                 //if (dgv[currenttab].HitTest(e.X, e.Y).Type == DataGridViewHitTestType.Cell)
