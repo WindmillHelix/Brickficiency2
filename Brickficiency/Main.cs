@@ -919,6 +919,12 @@ namespace Brickficiency {
         }
         #endregion
 
+
+        public static void dgv_ImageDisplay(DataGridViewRow theRow)
+        {
+            dgv_ImageDisplay(theRow.Cells["id"].Value.ToString(), theRow.Cells["colour"].Value.ToString());
+        }
+
         #region display image on dgv
         public static void dgv_ImageDisplay(string id, string colour = "0") {
             string imgfilename = GenerateImageFilename(id, colour);
@@ -1184,7 +1190,7 @@ namespace Brickficiency {
                     dr["type"] = "P";
                     dr["typename"] = db_typenames["P"];
                     dr["status"] = "I";
-                    dr["condition"] = "N";
+                    dr["condition"] = "U";
                     dr["price"] = "0";
                     dr["comments"] = "";
                     dr["remarks"] = "";
@@ -1842,7 +1848,7 @@ namespace Brickficiency {
             dr["name"] = db_blitems[id].name;
             dr["colour"] = colour;
             dr["colourname"] = db_colours[colour].name;
-            dr["condition"] = "N";
+            dr["condition"] = "U";
             dr["qty"] = "0";
             dr["price"] = 0;
             dr["total"] = 0;
@@ -1959,9 +1965,9 @@ namespace Brickficiency {
                         dgv[currenttab].Rows[dgv[currenttab].HitTest(e.X, e.Y).RowIndex].Selected = true;
                     }
                 }
-
             }
         }
+
         private void dgv_MouseUp(object sender, MouseEventArgs e) {
             if (e.Button == MouseButtons.Right) {
                 //if (dgv[currenttab].HitTest(e.X, e.Y).Type == DataGridViewHitTestType.Cell)
@@ -2243,16 +2249,14 @@ namespace Brickficiency {
 
         #region Set Colour Dialog
         private void setColourDialog() {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    colourPickerWindow.num = row.Cells["colour"].Value.ToString();
-                    break;
-                }
-            }
+
+            // Set the selected colour of the colourPicker to be the colour of the first selected brick.
+            colourPickerWindow.num = dgv[currenttab].SelectedRows[0].Cells["colour"].Value.ToString();
+
             DialogResult result = colourPickerWindow.ShowDialog();
             if (result == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if ((row.Selected == true) && ((row.Cells["type"].Value.ToString() == "P") || (row.Cells["type"].Value.ToString() == "G"))) {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    if ((row.Cells["type"].Value.ToString() == "P") || (row.Cells["type"].Value.ToString() == "G")) {
                         row.Cells["colour"].Value = colourPickerWindow.num;
                         row.Cells["colourname"].Value = db_colours[colourPickerWindow.num].name;
                         row.Cells["imageloaded"].Value = "n";
@@ -2262,7 +2266,6 @@ namespace Brickficiency {
                         dgv_ImageDisplay((string)row.Cells["id"].Value, (string)row.Cells["colour"].Value);
                     }
                 }
-
             }
         }
         #endregion
@@ -2572,6 +2575,7 @@ namespace Brickficiency {
         #endregion
 
         #region (Context -> Delete)
+
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e) {
             for (int i = dgv[currenttab].Rows.Count - 1; i >= 0; i--) {
                 if (dgv[currenttab].Rows[i].Selected == true) {
@@ -2600,46 +2604,95 @@ namespace Brickficiency {
         }
         #endregion
 
-        #region (Context -> Status -> Include)
-        private void includeToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    row.Cells["status"].Value = "I";
-                    row.Cells["displaystatus"].Value = Properties.Resources.check;
+        /// <summary>
+        /// Creates a Unique ID by combining the colour and part number
+        /// </summary>
+        /// <param name="theRow">The row of the table for which the UID is required</param>
+        /// <returns></returns>
+        /// <comment>
+        /// I tried to use "id", "colour" tuples but had trouble getting them to match.
+        /// </comment>
+        private string GetUID(DataGridViewRow theRow)
+        {
+            return theRow.Cells["id"].Value.ToString() + ":" + theRow.Cells["colour"].Value.ToString();
+        }
+
+        /// <summary>
+        /// Set the selected cells with the given value
+        /// </summary>
+        /// <param name="fieldValues">List of columns/values pairs to set for the selected records</param>
+        /// <comment>
+        /// If sorted by the column being written to the DataGridView has a tendency to reorder the rows mid operation
+        /// And given the selected are defined by index when the rows are reordered the wrong records end up being written to
+        /// This method is an attempt to ensure the correct records are written to even if the effect of writing causes the rows to be reordered
+        /// </comment>
+        private void SortSafeSet(List<Tuple<string, object>> fieldValues)
+        {
+            // First save the ids of the selected rows
+            List<string> selectedUIDs = new List<string>();
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                selectedUIDs.Add(GetUID(row));
+
+            foreach (string uid in selectedUIDs)
+            {
+                // Find the row with the given id in the table
+                foreach (DataGridViewRow row in dgv[currenttab].Rows)
+                {
+                    if (GetUID(row) == uid)
+                    {
+                        foreach (Tuple<string, object> pair in fieldValues)
+                        {
+                            row.Cells[pair.Item1].Value = pair.Item2;
+                        }
+                        break;
+                    }
                 }
             }
+
+            // Finally ensure the correct rows are highlighted after operation is complete and redraw the images in the first column.
+            foreach (DataGridViewRow row in dgv[currenttab].Rows)
+            {
+                row.Selected = selectedUIDs.Contains(GetUID(row));
+            }
+            dgv[currenttab].Refresh();
+        }
+
+        #region (Context -> Status -> Include)
+        private void includeToolStripMenuItem_Click(object sender, EventArgs e) {
+
+            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
+            valuesList.Add( new Tuple<string, object>("status", "I") );
+            SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Status -> Exclude)
         private void excludeToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    row.Cells["status"].Value = "X";
-                    row.Cells["displaystatus"].Value = Properties.Resources.x;
-                }
-            }
+            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
+            valuesList.Add(new Tuple<string, object>("status", "X"));
+            valuesList.Add(new Tuple<string, object>("displaystatus", Properties.Resources.x));
+
+            SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Status -> Extra)
         private void extraToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    row.Cells["status"].Value = "E";
-                    row.Cells["displaystatus"].Value = Properties.Resources.add;
-                }
-            }
+            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
+            valuesList.Add(new Tuple<string, object>("status", "E"));
+            valuesList.Add(new Tuple<string, object>("displaystatus", Properties.Resources.add));
+
+            SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Status -> Toggle)
         private void toggleStatusToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if ((row.Selected == true) && (row.Cells["status"].Value.ToString() == "I")) {
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                if (row.Cells["status"].Value.ToString() == "I") {
                     row.Cells["status"].Value = "X";
                     row.Cells["displaystatus"].Value = Properties.Resources.x;
-                } else if ((row.Selected == true) && (row.Cells["status"].Value.ToString() == "X")) {
+                } else if (row.Cells["status"].Value.ToString() == "X") {
                     row.Cells["status"].Value = "I";
                     row.Cells["displaystatus"].Value = Properties.Resources.check;
                 }
@@ -2649,33 +2702,29 @@ namespace Brickficiency {
 
         #region (Context -> Condition -> New)
         private void newToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    row.Cells["condition"].Value = "N";
-                }
-            }
+            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
+            valuesList.Add(new Tuple<string, object>("condition", "N"));
+
+            SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Condition -> Used)
         private void usedToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    row.Cells["condition"].Value = "U";
-                }
-            }
+            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
+            valuesList.Add(new Tuple<string, object>("condition", "U"));
+
+            SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Condition -> Toggle)
         private void toggleCondToolStripMenuItem1_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    if (row.Cells["Condition"].Value.ToString() == "U") {
-                        row.Cells["Condition"].Value = "N";
-                    } else {
-                        row.Cells["Condition"].Value = "U";
-                    }
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                if (row.Cells["Condition"].Value.ToString() == "U") {
+                    row.Cells["Condition"].Value = "N";
+                } else {
+                    row.Cells["Condition"].Value = "U";
                 }
             }
         }
@@ -2691,11 +2740,9 @@ namespace Brickficiency {
         private void multiplyToolStripMenuItem_Click(object sender, EventArgs e) {
             DialogResult dialogresult = multiplyItemsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        row.Cells["qty"].Value = (int)row.Cells["qty"].Value * multiplyItemsWindow.num;
-                        row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    row.Cells["qty"].Value = (int)row.Cells["qty"].Value * multiplyItemsWindow.num;
+                    row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                 }
             }
         }
@@ -2705,11 +2752,9 @@ namespace Brickficiency {
         private void divideToolStripMenuItem_Click(object sender, EventArgs e) {
             DialogResult dialogresult = divideItemsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        row.Cells["qty"].Value = (int)row.Cells["qty"].Value / divideItemsWindow.num;
-                        row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    row.Cells["qty"].Value = (int)row.Cells["qty"].Value / divideItemsWindow.num;
+                    row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                 }
             }
         }
@@ -2719,11 +2764,9 @@ namespace Brickficiency {
         private void addToolStripMenuItem_Click(object sender, EventArgs e) {
             DialogResult dialogresult = addItemsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        row.Cells["qty"].Value = (int)row.Cells["qty"].Value + addItemsWindow.num;
-                        row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    row.Cells["qty"].Value = (int)row.Cells["qty"].Value + addItemsWindow.num;
+                    row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                 }
             }
         }
@@ -2733,13 +2776,11 @@ namespace Brickficiency {
         private void subtractToolStripMenuItem_Click(object sender, EventArgs e) {
             DialogResult dialogresult = subtractItemsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        row.Cells["qty"].Value = (int)row.Cells["qty"].Value - subtractItemsWindow.num;
-                        if ((int)row.Cells["qty"].Value < 0)
-                            row.Cells["qty"].Value = 0;
-                        row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    row.Cells["qty"].Value = (int)row.Cells["qty"].Value - subtractItemsWindow.num;
+                    if ((int)row.Cells["qty"].Value < 0)
+                        row.Cells["qty"].Value = 0;
+                    row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                 }
             }
         }
@@ -2747,19 +2788,13 @@ namespace Brickficiency {
 
         #region (Context -> Price -> Set)
         private void setToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    setPriceWindow.num = Convert.ToDecimal(row.Cells["price"].Value);
-                    break;
-                }
-            }
+            setPriceWindow.num = Convert.ToDecimal(dgv[currenttab].SelectedRows[0].Cells["price"].Value);
+
             DialogResult dialogresult = setPriceWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        row.Cells["price"].Value = setPriceWindow.num;
-                        row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    row.Cells["price"].Value = setPriceWindow.num;
+                    row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                 }
             }
         }
@@ -2767,32 +2802,28 @@ namespace Brickficiency {
 
         #region (Context -> Price -> Inc or Dec)
         private void incOrDecToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    setCommentsWindow.text = row.Cells["comments"].Value.ToString();
-                    break;
-                }
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                setCommentsWindow.text = row.Cells["comments"].Value.ToString();
+                break;
             }
             DialogResult dialogresult = incdecPriceWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        if (incdecPriceWindow.percent) {
-                            if (incdecPriceWindow.increase) {
-                                row.Cells["price"].Value = (decimal)row.Cells["price"].Value + ((decimal)row.Cells["price"].Value * incdecPriceWindow.num / 100);
-                                row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                            } else {
-                                row.Cells["price"].Value = (decimal)row.Cells["price"].Value - ((decimal)row.Cells["price"].Value * incdecPriceWindow.num / 100);
-                                row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                            }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    if (incdecPriceWindow.percent) {
+                        if (incdecPriceWindow.increase) {
+                            row.Cells["price"].Value = (decimal)row.Cells["price"].Value + ((decimal)row.Cells["price"].Value * incdecPriceWindow.num / 100);
+                            row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                         } else {
-                            if (incdecPriceWindow.increase) {
-                                row.Cells["price"].Value = (decimal)row.Cells["price"].Value + incdecPriceWindow.num;
-                                row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                            } else {
-                                row.Cells["price"].Value = (decimal)row.Cells["price"].Value - incdecPriceWindow.num;
-                                row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                            }
+                            row.Cells["price"].Value = (decimal)row.Cells["price"].Value - ((decimal)row.Cells["price"].Value * incdecPriceWindow.num / 100);
+                            row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
+                        }
+                    } else {
+                        if (incdecPriceWindow.increase) {
+                            row.Cells["price"].Value = (decimal)row.Cells["price"].Value + incdecPriceWindow.num;
+                            row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
+                        } else {
+                            row.Cells["price"].Value = (decimal)row.Cells["price"].Value - incdecPriceWindow.num;
+                            row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                         }
                     }
                 }
@@ -2805,18 +2836,12 @@ namespace Brickficiency {
 
         #region (Context -> Comments -> Set)
         private void setToolStripMenuItem1_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    setCommentsWindow.text = row.Cells["comments"].Value.ToString();
-                    break;
-                }
-            }
+            setCommentsWindow.text = dgv[currenttab].SelectedRows[0].Cells["comments"].Value.ToString();
+
             DialogResult dialogresult = setCommentsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        row.Cells["comments"].Value = setCommentsWindow.text;
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    row.Cells["comments"].Value = setCommentsWindow.text;
                 }
             }
         }
@@ -2827,13 +2852,11 @@ namespace Brickficiency {
             addCommentsWindow.text = "";
             DialogResult dialogresult = addCommentsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        if (row.Cells["comments"].Value.ToString().Length == 0)
-                            row.Cells["comments"].Value = addCommentsWindow.text;
-                        else
-                            row.Cells["comments"].Value = row.Cells["comments"].Value.ToString().Trim(' ') + " " + addCommentsWindow.text.Trim(' ');
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    if (row.Cells["comments"].Value.ToString().Length == 0)
+                        row.Cells["comments"].Value = addCommentsWindow.text;
+                    else
+                        row.Cells["comments"].Value = row.Cells["comments"].Value.ToString().Trim(' ') + " " + addCommentsWindow.text.Trim(' ');
                 }
             }
         }
@@ -2844,25 +2867,23 @@ namespace Brickficiency {
             removeCommentsWindow.text = "";
             DialogResult dialogresult = removeCommentsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        string replace = removeCommentsWindow.text.Trim(' ');
-                        if (row.Cells["comments"].Value.ToString().ToUpper() == replace.ToUpper()) {
-                            row.Cells["comments"].Value = "";
-                            continue;
-                        } else {
-                            Match midmatch = Regex.Match(row.Cells["comments"].Value.ToString(), replace, RegexOptions.IgnoreCase);
-                            if (midmatch.Success) {
-                                row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
-                            }
-                            Match beginmatch = Regex.Match(row.Cells["comments"].Value.ToString(), "^" + replace, RegexOptions.IgnoreCase);
-                            if (beginmatch.Success) {
-                                row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
-                            }
-                            Match endmatch = Regex.Match(row.Cells["comments"].Value.ToString(), replace + "$", RegexOptions.IgnoreCase);
-                            if (endmatch.Success) {
-                                row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
-                            }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    string replace = removeCommentsWindow.text.Trim(' ');
+                    if (row.Cells["comments"].Value.ToString().ToUpper() == replace.ToUpper()) {
+                        row.Cells["comments"].Value = "";
+                        continue;
+                    } else {
+                        Match midmatch = Regex.Match(row.Cells["comments"].Value.ToString(), replace, RegexOptions.IgnoreCase);
+                        if (midmatch.Success) {
+                            row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
+                        }
+                        Match beginmatch = Regex.Match(row.Cells["comments"].Value.ToString(), "^" + replace, RegexOptions.IgnoreCase);
+                        if (beginmatch.Success) {
+                            row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
+                        }
+                        Match endmatch = Regex.Match(row.Cells["comments"].Value.ToString(), replace + "$", RegexOptions.IgnoreCase);
+                        if (endmatch.Success) {
+                            row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
                         }
                     }
                 }
@@ -2872,18 +2893,12 @@ namespace Brickficiency {
 
         #region (Context -> Remarks -> Set)
         private void setToolStripMenuItem2_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    setRemarksWindow.text = row.Cells["remarks"].Value.ToString();
-                    break;
-                }
-            }
+            setRemarksWindow.text = dgv[currenttab].SelectedRows[0].Cells["remarks"].Value.ToString();
             DialogResult dialogresult = setRemarksWindow.ShowDialog(this);
+
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        row.Cells["remarks"].Value = setRemarksWindow.text;
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    row.Cells["remarks"].Value = setRemarksWindow.text;
                 }
             }
         }
@@ -2894,13 +2909,11 @@ namespace Brickficiency {
             addRemarksWindow.text = "";
             DialogResult dialogresult = addRemarksWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        if (row.Cells["remarks"].Value.ToString().Length == 0)
-                            row.Cells["remarks"].Value = addRemarksWindow.text;
-                        else
-                            row.Cells["remarks"].Value = row.Cells["remarks"].Value.ToString().Trim(' ') + " " + addRemarksWindow.text.Trim(' ');
-                    }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    if (row.Cells["remarks"].Value.ToString().Length == 0)
+                        row.Cells["remarks"].Value = addRemarksWindow.text;
+                    else
+                        row.Cells["remarks"].Value = row.Cells["remarks"].Value.ToString().Trim(' ') + " " + addRemarksWindow.text.Trim(' ');
                 }
             }
         }
@@ -2911,25 +2924,23 @@ namespace Brickficiency {
             removeRemarksWindow.text = "";
             DialogResult dialogresult = removeRemarksWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (row.Selected == true) {
-                        string replace = removeRemarksWindow.text.Trim(' ');
-                        if (row.Cells["remarks"].Value.ToString().ToUpper() == replace.ToUpper()) {
-                            row.Cells["remarks"].Value = "";
-                            continue;
-                        } else {
-                            Match midmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), replace, RegexOptions.IgnoreCase);
-                            if (midmatch.Success) {
-                                row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
-                            }
-                            Match beginmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), "^" + replace, RegexOptions.IgnoreCase);
-                            if (beginmatch.Success) {
-                                row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
-                            }
-                            Match endmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), replace + "$", RegexOptions.IgnoreCase);
-                            if (endmatch.Success) {
-                                row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
-                            }
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                    string replace = removeRemarksWindow.text.Trim(' ');
+                    if (row.Cells["remarks"].Value.ToString().ToUpper() == replace.ToUpper()) {
+                        row.Cells["remarks"].Value = "";
+                        continue;
+                    } else {
+                        Match midmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), replace, RegexOptions.IgnoreCase);
+                        if (midmatch.Success) {
+                            row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
+                        }
+                        Match beginmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), "^" + replace, RegexOptions.IgnoreCase);
+                        if (beginmatch.Success) {
+                            row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
+                        }
+                        Match endmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), replace + "$", RegexOptions.IgnoreCase);
+                        if (endmatch.Success) {
+                            row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
                         }
                     }
                 }
@@ -2939,14 +2950,12 @@ namespace Brickficiency {
 
         #region (Context -> BL Catalog)
         private void showBricklinkCatalogInfoToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    string url = "http://www.bricklink.com/catalogItem.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString();
-                    try {
-                        System.Diagnostics.Process.Start(url);
-                    } catch {
-                        AddStatus("Error displaying page in your default web browser.");
-                    }
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                string url = "http://www.bricklink.com/catalogItem.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString();
+                try {
+                    System.Diagnostics.Process.Start(url);
+                } catch {
+                    AddStatus("Error displaying page in your default web browser.");
                 }
             }
         }
@@ -2954,15 +2963,16 @@ namespace Brickficiency {
 
         #region (Context -> BL Price Guide)
         private void showBricklinkPriceGuideToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    string url = "http://www.bricklink.com/catalogPG.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString() +
-                        "&colorID=" + row.Cells["colour"].Value.ToString();
-                    try {
-                        System.Diagnostics.Process.Start(url);
-                    } catch {
-                        AddStatus("Error displaying page in your default web browser.");
-                    }
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                string url = "http://www.bricklink.com/catalogPG.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString() +
+                    "&colorID=" + row.Cells["colour"].Value.ToString();
+                try
+                {
+                    System.Diagnostics.Process.Start(url);
+                }
+                catch
+                {
+                    AddStatus("Error displaying page in your default web browser.");
                 }
             }
         }
@@ -2970,22 +2980,20 @@ namespace Brickficiency {
 
         #region (Context -> BL 4sale)
         private void showLotsForSaleOnBricklinkToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                if (row.Selected == true) {
-                    string url = "http://www.bricklink.com/search.asp?viewFrom=sa&itemType=" + row.Cells["type"].Value.ToString() + "&q=" +
-                        row.Cells["number"].Value.ToString() + "&colorID=" + row.Cells["colour"].Value.ToString();
-                    try {
-                        System.Diagnostics.Process.Start(url);
-                    } catch {
-                        AddStatus("Error displaying page in your default web browser.");
-                    }
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                string url = "http://www.bricklink.com/search.asp?viewFrom=sa&itemType=" + row.Cells["type"].Value.ToString() + "&q=" +
+                    row.Cells["number"].Value.ToString() + "&colorID=" + row.Cells["colour"].Value.ToString();
+                try
+                {
+                    System.Diagnostics.Process.Start(url);
+                }
+                catch
+                {
+                    AddStatus("Error displaying page in your default web browser.");
                 }
             }
         }
         #endregion
-
-
-
     }
         #endregion
 
