@@ -1218,7 +1218,11 @@ namespace Brickficiency {
                 }
 
                 string loginURL = "https://www.bricklink.com/login.asp";
-                string loginformParams = String.Format("a=a&logFrmFlag=Y&frmUsername={0}&frmPassword={1}", settings.username, password);
+                string loginformParams = string.Format(
+                    "a=a&logFrmFlag=Y&frmUsername={0}&frmPassword={1}",
+                    Uri.EscapeDataString(settings.username),
+                    Uri.EscapeDataString(password));
+
                 password = "";
 
                 HttpWebRequest loginreq = (HttpWebRequest)WebRequest.Create(loginURL);
