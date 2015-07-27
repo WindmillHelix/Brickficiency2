@@ -49,8 +49,13 @@ namespace Brickficiency.Classes {
         }
 
         public void AddItem(string id, int qty, decimal price) {
-            itemDictionary.Add(id, new StoreItem(qty, price));
-            totalStorePrice += price * qty;
+            try {
+                itemDictionary.Add(id, new StoreItem(qty, price));
+                totalStorePrice += price * qty;
+            }
+            catch (ArgumentException) {
+                System.Diagnostics.Debug.Assert(false, "An element with id \"" + id + "\" already exists.");
+            }
         }
 
         public StoreItem GetItem(string id) {
