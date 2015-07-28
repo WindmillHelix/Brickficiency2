@@ -2600,18 +2600,8 @@ namespace Brickficiency {
         }
         #endregion
 
-        /// <summary>
-        /// Creates a Unique ID by combining the colour and part number
-        /// </summary>
-        /// <param name="theRow">The row of the table for which the UID is required</param>
-        /// <returns></returns>
-        /// <comment>
-        /// I tried to use "id", "colour" tuples but had trouble getting them to match.
-        /// </comment>
-        private string GetUID(DataGridViewRow theRow)
-        {
-            return theRow.Cells["id"].Value.ToString() + ":" + theRow.Cells["colour"].Value.ToString();
-        }
+        // Delegate use for toggle
+        delegate object Del(object current);
 
         /// <summary>
         /// Set the selected cells with the given value
@@ -2622,23 +2612,23 @@ namespace Brickficiency {
         /// And given the selected are defined by index when the rows are reordered the wrong records end up being written to
         /// This method is an attempt to ensure the correct records are written to even if the effect of writing causes the rows to be reordered
         /// </comment>
-        private void SortSafeSet(List<Tuple<string, object>> fieldValues)
+        private void SortSafeSet(List<Tuple<string, Del>> fieldValues)
         {
             // First save the ids of the selected rows
             List<string> selectedUIDs = new List<string>();
             foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
-                selectedUIDs.Add(GetUID(row));
+                selectedUIDs.Add(row.Cells["extid"].Value.ToString());
 
             foreach (string uid in selectedUIDs)
             {
                 // Find the row with the given id in the table
                 foreach (DataGridViewRow row in dgv[currenttab].Rows)
                 {
-                    if (GetUID(row) == uid)
+                    if (row.Cells["extid"].Value.ToString() == uid)
                     {
-                        foreach (Tuple<string, object> pair in fieldValues)
+                        foreach (Tuple<string, Del> pair in fieldValues)
                         {
-                            row.Cells[pair.Item1].Value = pair.Item2;
+                            row.Cells[pair.Item1].Value = pair.Item2(row.Cells[pair.Item1].Value);
                         }
                         break;
                     }
@@ -2648,7 +2638,7 @@ namespace Brickficiency {
             // Finally ensure the correct rows are highlighted after operation is complete and redraw the images in the first column.
             foreach (DataGridViewRow row in dgv[currenttab].Rows)
             {
-                row.Selected = selectedUIDs.Contains(GetUID(row));
+                row.Selected = selectedUIDs.Contains(row.Cells["extid"].Value.ToString());
             }
             dgv[currenttab].Refresh();
         }
@@ -2656,17 +2646,18 @@ namespace Brickficiency {
         #region (Context -> Status -> Include)
         private void includeToolStripMenuItem_Click(object sender, EventArgs e) {
 
-            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
-            valuesList.Add( new Tuple<string, object>("status", "I") );
+            List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+            valuesList.Add( new Tuple<string, Del>("status", current => "I") );
+
             SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Status -> Exclude)
         private void excludeToolStripMenuItem_Click(object sender, EventArgs e) {
-            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
-            valuesList.Add(new Tuple<string, object>("status", "X"));
-            valuesList.Add(new Tuple<string, object>("displaystatus", Properties.Resources.x));
+            List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+            valuesList.Add(new Tuple<string, Del>("status", current => "X"));
+            valuesList.Add(new Tuple<string, Del>("displaystatus", current => Properties.Resources.x));
 
             SortSafeSet(valuesList);
         }
@@ -2674,9 +2665,9 @@ namespace Brickficiency {
 
         #region (Context -> Status -> Extra)
         private void extraToolStripMenuItem_Click(object sender, EventArgs e) {
-            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
-            valuesList.Add(new Tuple<string, object>("status", "E"));
-            valuesList.Add(new Tuple<string, object>("displaystatus", Properties.Resources.add));
+            List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+            valuesList.Add(new Tuple<string, Del>("status", current => "E"));
+            valuesList.Add(new Tuple<string, Del>("displaystatus", current => Properties.Resources.add));
 
             SortSafeSet(valuesList);
         }
@@ -2684,22 +2675,18 @@ namespace Brickficiency {
 
         #region (Context -> Status -> Toggle)
         private void toggleStatusToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                if (row.Cells["status"].Value.ToString() == "I") {
-                    row.Cells["status"].Value = "X";
-                    row.Cells["displaystatus"].Value = Properties.Resources.x;
-                } else if (row.Cells["status"].Value.ToString() == "X") {
-                    row.Cells["status"].Value = "I";
-                    row.Cells["displaystatus"].Value = Properties.Resources.check;
-                }
-            }
+            List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+            valuesList.Add(new Tuple<string, Del>("status", current => current == "I" ? "X" : "I"));
+            valuesList.Add(new Tuple<string, Del>("displaystatus", current => current == Properties.Resources.x ? Properties.Resources.check
+                                                                                                                : Properties.Resources.x));
+            SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Condition -> New)
         private void newToolStripMenuItem_Click(object sender, EventArgs e) {
-            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
-            valuesList.Add(new Tuple<string, object>("condition", "N"));
+            List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+            valuesList.Add(new Tuple<string, Del>("condition", current => "N"));
 
             SortSafeSet(valuesList);
         }
@@ -2707,8 +2694,8 @@ namespace Brickficiency {
 
         #region (Context -> Condition -> Used)
         private void usedToolStripMenuItem_Click(object sender, EventArgs e) {
-            List<Tuple<string, object>> valuesList = new List<Tuple<string, object>>();
-            valuesList.Add(new Tuple<string, object>("condition", "U"));
+            List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+            valuesList.Add(new Tuple<string, Del>("condition", current => "U"));
 
             SortSafeSet(valuesList);
         }
@@ -2716,13 +2703,10 @@ namespace Brickficiency {
 
         #region (Context -> Condition -> Toggle)
         private void toggleCondToolStripMenuItem1_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                if (row.Cells["Condition"].Value.ToString() == "U") {
-                    row.Cells["Condition"].Value = "N";
-                } else {
-                    row.Cells["Condition"].Value = "U";
-                }
-            }
+            List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+            valuesList.Add(new Tuple<string, Del>("condition", current => current == "U" ? "N" : "U"));
+
+            SortSafeSet(valuesList);
         }
         #endregion
 
@@ -2736,10 +2720,11 @@ namespace Brickficiency {
         private void multiplyToolStripMenuItem_Click(object sender, EventArgs e) {
             DialogResult dialogresult = multiplyItemsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    row.Cells["qty"].Value = (int)row.Cells["qty"].Value * multiplyItemsWindow.num;
-                    row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                }
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("qty", current => (int)current * multiplyItemsWindow.num));
+                valuesList.Add(new Tuple<string, Del>("total", current => (double)current * multiplyItemsWindow.num));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
@@ -2748,10 +2733,11 @@ namespace Brickficiency {
         private void divideToolStripMenuItem_Click(object sender, EventArgs e) {
             DialogResult dialogresult = divideItemsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    row.Cells["qty"].Value = (int)row.Cells["qty"].Value / divideItemsWindow.num;
-                    row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                }
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("qty", current => (int)current / multiplyItemsWindow.num));
+                valuesList.Add(new Tuple<string, Del>("total", current => (double)current / multiplyItemsWindow.num));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
@@ -2761,7 +2747,10 @@ namespace Brickficiency {
             DialogResult dialogresult = addItemsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
                 foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+
                     row.Cells["qty"].Value = (int)row.Cells["qty"].Value + addItemsWindow.num;
+                    if ((int)row.Cells["qty"].Value < 0)
+                        row.Cells["qty"].Value = 0;
                     row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                 }
             }
@@ -2836,9 +2825,10 @@ namespace Brickficiency {
 
             DialogResult dialogresult = setCommentsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    row.Cells["comments"].Value = setCommentsWindow.text;
-                }
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("comments", current => setCommentsWindow.text));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
@@ -2848,12 +2838,18 @@ namespace Brickficiency {
             addCommentsWindow.text = "";
             DialogResult dialogresult = addCommentsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    if (row.Cells["comments"].Value.ToString().Length == 0)
-                        row.Cells["comments"].Value = addCommentsWindow.text;
+
+                Del add = current => {
+                    if (current.ToString().Length == 0) 
+                        return addCommentsWindow.text;
                     else
-                        row.Cells["comments"].Value = row.Cells["comments"].Value.ToString().Trim(' ') + " " + addCommentsWindow.text.Trim(' ');
-                }
+                        return current.ToString().Trim(' ') + " " + addCommentsWindow.text.Trim(' ');
+                };
+
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("comments", add));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
@@ -2863,26 +2859,34 @@ namespace Brickficiency {
             removeCommentsWindow.text = "";
             DialogResult dialogresult = removeCommentsWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    string replace = removeCommentsWindow.text.Trim(' ');
-                    if (row.Cells["comments"].Value.ToString().ToUpper() == replace.ToUpper()) {
-                        row.Cells["comments"].Value = "";
-                        continue;
-                    } else {
-                        Match midmatch = Regex.Match(row.Cells["comments"].Value.ToString(), replace, RegexOptions.IgnoreCase);
+
+                string replace = removeCommentsWindow.text.Trim(' ');
+                Del rem = current => {
+                    if (current.ToString().ToUpper() == replace.ToUpper()) {
+                        current = "";
+                    }
+                    else {
+                        Match midmatch = Regex.Match(current.ToString(), replace, RegexOptions.IgnoreCase);
                         if (midmatch.Success) {
-                            row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
+                            current = Regex.Replace(current.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
                         }
-                        Match beginmatch = Regex.Match(row.Cells["comments"].Value.ToString(), "^" + replace, RegexOptions.IgnoreCase);
+                        Match beginmatch = Regex.Match(current.ToString(), "^" + replace, RegexOptions.IgnoreCase);
                         if (beginmatch.Success) {
-                            row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
+                            current = Regex.Replace(current.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
                         }
-                        Match endmatch = Regex.Match(row.Cells["comments"].Value.ToString(), replace + "$", RegexOptions.IgnoreCase);
+                        Match endmatch = Regex.Match(current.ToString(), replace + "$", RegexOptions.IgnoreCase);
                         if (endmatch.Success) {
-                            row.Cells["comments"].Value = Regex.Replace(row.Cells["comments"].Value.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
+                            current = Regex.Replace(current.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
                         }
                     }
-                }
+
+                    return current;
+                };
+
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("comments", rem));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
@@ -2893,9 +2897,10 @@ namespace Brickficiency {
             DialogResult dialogresult = setRemarksWindow.ShowDialog(this);
 
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    row.Cells["remarks"].Value = setRemarksWindow.text;
-                }
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("remarks", current => setRemarksWindow.text));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
@@ -2905,12 +2910,18 @@ namespace Brickficiency {
             addRemarksWindow.text = "";
             DialogResult dialogresult = addRemarksWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    if (row.Cells["remarks"].Value.ToString().Length == 0)
-                        row.Cells["remarks"].Value = addRemarksWindow.text;
+
+                Del add = current => {
+                    if (current.ToString().Length == 0) 
+                        return addRemarksWindow.text;
                     else
-                        row.Cells["remarks"].Value = row.Cells["remarks"].Value.ToString().Trim(' ') + " " + addRemarksWindow.text.Trim(' ');
-                }
+                        return current.ToString().Trim(' ') + " " + addRemarksWindow.text.Trim(' ');
+                };
+
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("remarks", add));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
@@ -2920,26 +2931,34 @@ namespace Brickficiency {
             removeRemarksWindow.text = "";
             DialogResult dialogresult = removeRemarksWindow.ShowDialog(this);
             if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    string replace = removeRemarksWindow.text.Trim(' ');
-                    if (row.Cells["remarks"].Value.ToString().ToUpper() == replace.ToUpper()) {
-                        row.Cells["remarks"].Value = "";
-                        continue;
-                    } else {
-                        Match midmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), replace, RegexOptions.IgnoreCase);
+
+                string replace = removeRemarksWindow.text.Trim(' ');
+                Del rem = current => {
+                    if (current.ToString().ToUpper() == replace.ToUpper()) {
+                        current = "";
+                    }
+                    else {
+                        Match midmatch = Regex.Match(current.ToString(), replace, RegexOptions.IgnoreCase);
                         if (midmatch.Success) {
-                            row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
+                            current = Regex.Replace(current.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
                         }
-                        Match beginmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), "^" + replace, RegexOptions.IgnoreCase);
+                        Match beginmatch = Regex.Match(current.ToString(), "^" + replace, RegexOptions.IgnoreCase);
                         if (beginmatch.Success) {
-                            row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
+                            current = Regex.Replace(current.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
                         }
-                        Match endmatch = Regex.Match(row.Cells["remarks"].Value.ToString(), replace + "$", RegexOptions.IgnoreCase);
+                        Match endmatch = Regex.Match(current.ToString(), replace + "$", RegexOptions.IgnoreCase);
                         if (endmatch.Success) {
-                            row.Cells["remarks"].Value = Regex.Replace(row.Cells["remarks"].Value.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
+                            current = Regex.Replace(current.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
                         }
                     }
-                }
+
+                    return current;
+                };
+
+                List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
+                valuesList.Add(new Tuple<string, Del>("remarks", rem));
+
+                SortSafeSet(valuesList);
             }
         }
         #endregion
