@@ -264,6 +264,11 @@ namespace Brickficiency
 
         private void addButton_Click(object sender, EventArgs e)
         {
+            if (itemList.SelectedItems.Count == 0)
+            {
+                return;
+            }
+
             foreach (string t in MainWindow.db_typenames.Keys)
             {
                 if ((string)typePick.SelectedItem == MainWindow.db_typenames[t])
