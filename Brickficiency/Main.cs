@@ -445,11 +445,8 @@ namespace Brickficiency {
         }
         #endregion
 
-        #region Load a file
-        private bool LoadFile(string filename) {
-            foreach (DataTable thisdt in dt) {
-                thisdt.Dispose();
-            }
+        private void BuildTable()
+        {
             dt.Clear();
             dt.Add(new DataTable());
             dt[currenttab].Columns.Add("status", typeof(string));
@@ -479,7 +476,15 @@ namespace Brickficiency {
             dt[currenttab].Columns.Add("pgpage", typeof(string));
 
             dt[currenttab].PrimaryKey = new[] { dt[currenttab].Columns["extid"] };
+        }
 
+        #region Load a file
+        private bool LoadFile(string filename) {
+            foreach (DataTable thisdt in dt) {
+                thisdt.Dispose();
+            }
+
+            BuildTable();
             List<Item> items = new List<Item>();
 
             string rawfile;
@@ -1013,36 +1018,8 @@ namespace Brickficiency {
                 foreach (DataTable thisdt in dt) {
                     thisdt.Dispose();
                 }
-                dt.Clear();
-                dt.Add(new DataTable());
-                dt[currenttab].Columns.Add("status", typeof(string));
-                dt[currenttab].Columns.Add("number", typeof(string));
-                dt[currenttab].Columns.Add("name", typeof(string));
-                dt[currenttab].Columns.Add("condition", typeof(string));
-                dt[currenttab].Columns.Add("colourname", typeof(string));
-                dt[currenttab].Columns.Add("qty", typeof(int));
-                dt[currenttab].Columns.Add("price", typeof(decimal));
-                dt[currenttab].Columns.Add("total", typeof(decimal));
-                dt[currenttab].Columns.Add("comments", typeof(string));
-                dt[currenttab].Columns.Add("remarks", typeof(string));
-                dt[currenttab].Columns.Add("categoryname", typeof(string));
-                dt[currenttab].Columns.Add("typename", typeof(string));
-                dt[currenttab].Columns.Add("origqty", typeof(int));
-                dt[currenttab].Columns.Add("origprice", typeof(decimal));
-                dt[currenttab].Columns.Add("id", typeof(string));
-                dt[currenttab].Columns.Add("extid", typeof(string));
-                dt[currenttab].Columns.Add("type", typeof(string));
-                dt[currenttab].Columns.Add("colour", typeof(string));
-                dt[currenttab].Columns.Add("categoryid", typeof(string));
-                dt[currenttab].Columns.Add("availstores", typeof(int));
-                dt[currenttab].Columns.Add("availqty", typeof(int));
-                dt[currenttab].Columns.Add("imageurl", typeof(string));
-                dt[currenttab].Columns.Add("largeimageurl", typeof(string));
-                dt[currenttab].Columns.Add("imageloaded", typeof(string));
-                dt[currenttab].Columns.Add("pgpage", typeof(string));
 
-                dt[currenttab].PrimaryKey = new[] { dt[currenttab].Columns["extid"] };
-
+                BuildTable();
                 List<Item> items = new List<Item>();
 
                 List<String> lines = lddfile.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -2300,36 +2277,8 @@ namespace Brickficiency {
             foreach (DataTable thisdt in dt) {
                 thisdt.Dispose();
             }
-            dt.Clear();
-            dt.Add(new DataTable());
-            dt[currenttab].Columns.Add("status", typeof(string));
-            dt[currenttab].Columns.Add("number", typeof(string));
-            dt[currenttab].Columns.Add("name", typeof(string));
-            dt[currenttab].Columns.Add("condition", typeof(string));
-            dt[currenttab].Columns.Add("colourname", typeof(string));
-            dt[currenttab].Columns.Add("qty", typeof(int));
-            dt[currenttab].Columns.Add("price", typeof(decimal));
-            dt[currenttab].Columns.Add("total", typeof(decimal));
-            dt[currenttab].Columns.Add("comments", typeof(string));
-            dt[currenttab].Columns.Add("remarks", typeof(string));
-            dt[currenttab].Columns.Add("categoryname", typeof(string));
-            dt[currenttab].Columns.Add("typename", typeof(string));
-            dt[currenttab].Columns.Add("origqty", typeof(int));
-            dt[currenttab].Columns.Add("origprice", typeof(decimal));
-            dt[currenttab].Columns.Add("id", typeof(string));
-            dt[currenttab].Columns.Add("extid", typeof(string));
-            dt[currenttab].Columns.Add("type", typeof(string));
-            dt[currenttab].Columns.Add("colour", typeof(string));
-            dt[currenttab].Columns.Add("categoryid", typeof(string));
-            dt[currenttab].Columns.Add("availstores", typeof(int));
-            dt[currenttab].Columns.Add("availqty", typeof(int));
-            dt[currenttab].Columns.Add("imageurl", typeof(string));
-            dt[currenttab].Columns.Add("largeimageurl", typeof(string));
-            dt[currenttab].Columns.Add("imageloaded", typeof(string));
-            dt[currenttab].Columns.Add("pgpage", typeof(string));
 
-            dt[currenttab].PrimaryKey = new[] { dt[currenttab].Columns["extid"] };
-
+            BuildTable();
             DisplayLoadedFile();
             EnableMenu();
         }
