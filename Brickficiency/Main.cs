@@ -478,6 +478,8 @@ namespace Brickficiency {
             dt[currenttab].Columns.Add("imageloaded", typeof(string));
             dt[currenttab].Columns.Add("pgpage", typeof(string));
 
+            dt[currenttab].PrimaryKey = new[] { dt[currenttab].Columns["extid"] };
+
             List<Item> items = new List<Item>();
 
             string rawfile;
@@ -624,13 +626,17 @@ namespace Brickficiency {
                 swr.Write("WARNING: Nothing found" + Environment.NewLine + Environment.NewLine);
             }
 
-            foreach (Item item in items) {
+            foreach (Item item in items)
+            {
                 item.type = item.type.ToUpper();
                 item.id = item.type + "-" + item.number;
                 item.extid = item.type + "-" + item.colour + "-" + item.number;
-                if (db_blitems.ContainsKey(item.id)) {
+                if (db_blitems.ContainsKey(item.id))
+                {
                     item.categoryid = db_blitems[item.id].catid;
-                } else {
+                }
+                else
+                {
                     swr.Write("ERROR: Item not found in database: " + Environment.NewLine +
                         "Type: " + item.type + Environment.NewLine +
                         "ID: " + item.number + Environment.NewLine +
@@ -648,7 +654,8 @@ namespace Brickficiency {
                 if ((item.status != "X") && (item.status != "E") && (item.status != "I"))
                     item.status = "I";
 
-                if ((item.type == null) || (item.number == null) || (item.colour == null)) {
+                if ((item.type == null) || (item.number == null) || (item.colour == null))
+                {
                     swr.Write("ERROR: Missing information about item: " + Environment.NewLine +
                         "Type: " + item.type + Environment.NewLine +
                         "ID: " + item.number + Environment.NewLine +
@@ -662,29 +669,34 @@ namespace Brickficiency {
                 }
 
 
-                DataRow dr = dt[currenttab].NewRow();
-                dr["status"] = item.status;
-                dr["number"] = item.number;
-                dr["name"] = db_blitems[item.id].name;
-                dr["condition"] = item.condition;
-                dr["colourname"] = db_colours[item.colour].name;
-                dr["qty"] = item.qty;
-                dr["price"] = item.price;
-                dr["comments"] = item.comments;
-                dr["remarks"] = item.remarks;
-                dr["categoryname"] = db_categories[item.categoryid].name;
-                dr["typename"] = db_typenames[item.type];
-                dr["origqty"] = item.origqty;
-                dr["origprice"] = item.origprice;
-                dr["id"] = item.id;
-                dr["extid"] = item.extid;
-                dr["type"] = item.type;
-                dr["colour"] = item.colour;
-                dr["categoryid"] = item.categoryid;
-                dr["imageurl"] = item.imageurl;
-                dr["largeimageurl"] = item.largeimageurl;
-                dr["imageloaded"] = "n";
-                dt[currenttab].Rows.Add(dr);
+                if (!dt[currenttab].Rows.Contains(item.extid)) {
+                    DataRow dr = dt[currenttab].NewRow();
+                    dr["status"] = item.status;
+                    dr["number"] = item.number;
+                    dr["name"] = db_blitems[item.id].name;
+                    dr["condition"] = item.condition;
+                    dr["colourname"] = db_colours[item.colour].name;
+                    dr["qty"] = item.qty;
+                    dr["price"] = item.price;
+                    dr["comments"] = item.comments;
+                    dr["remarks"] = item.remarks;
+                    dr["categoryname"] = db_categories[item.categoryid].name;
+                    dr["typename"] = db_typenames[item.type];
+                    dr["origqty"] = item.origqty;
+                    dr["origprice"] = item.origprice;
+                    dr["id"] = item.id;
+                    dr["extid"] = item.extid;
+                    dr["type"] = item.type;
+                    dr["colour"] = item.colour;
+                    dr["categoryid"] = item.categoryid;
+                    dr["imageurl"] = item.imageurl;
+                    dr["largeimageurl"] = item.largeimageurl;
+                    dr["imageloaded"] = "n";
+                    dt[currenttab].Rows.Add(dr);
+                }
+                else {
+                    dt[currenttab].Rows.Find(item.extid)["qty"] = (int)dt[currenttab].Rows.Find(item.extid)["qty"] + item.qty;
+                }
             }
 
             swr.Close();
@@ -1029,6 +1041,8 @@ namespace Brickficiency {
                 dt[currenttab].Columns.Add("imageloaded", typeof(string));
                 dt[currenttab].Columns.Add("pgpage", typeof(string));
 
+                dt[currenttab].PrimaryKey = new[] { dt[currenttab].Columns["extid"] };
+
                 List<Item> items = new List<Item>();
 
                 List<String> lines = lddfile.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -1175,30 +1189,36 @@ namespace Brickficiency {
                         swr.WriteLine("Found: " + item.blnum + Environment.NewLine);
                     }
 
-                    DataRow dr = dt[currenttab].NewRow();
-                    dr["id"] = "P-" + item.blnum;
-                    dr["colour"] = item.blcol;
-                    dr["number"] = item.blnum;
-                    dr["extid"] = "P-" + item.blcol + "-" + item.blnum;
-                    dr["categoryid"] = db_blitems["P-" + item.blnum].catid;
-                    dr["name"] = db_blitems["P-" + item.blnum].name;
-                    dr["colourname"] = db_colours[item.blcol].name;
-                    dr["qty"] = item.count;
-                    dr["categoryname"] = db_categories[db_blitems["P-" + item.blnum].catid].name;
-                    dr["imageurl"] = GenerateImageURL("P-" + item.blnum, item.blcol);
-                    dr["largeimageurl"] = GenerateImageURL("P-" + item.blnum);
-                    dr["type"] = "P";
-                    dr["typename"] = db_typenames["P"];
-                    dr["status"] = "I";
-                    dr["condition"] = "U";
-                    dr["price"] = "0";
-                    dr["comments"] = "";
-                    dr["remarks"] = "";
-                    dr["origqty"] = 0;
-                    dr["origprice"] = 0;
-                    dr["imageloaded"] = "n";
-                    dt[currenttab].Rows.Add(dr);
-
+                    string extid = "P-" + item.blcol + "-" + item.blnum;
+                    if (!dt[currenttab].Rows.Contains(extid)) {
+                        DataRow dr = dt[currenttab].NewRow();
+                        dr["id"] = "P-" + item.blnum;
+                        dr["colour"] = item.blcol;
+                        dr["number"] = item.blnum;
+                        dr["extid"] = extid;
+                        dr["categoryid"] = db_blitems["P-" + item.blnum].catid;
+                        dr["name"] = db_blitems["P-" + item.blnum].name;
+                        dr["colourname"] = db_colours[item.blcol].name;
+                        dr["qty"] = item.count;
+                        dr["categoryname"] = db_categories[db_blitems["P-" + item.blnum].catid].name;
+                        dr["imageurl"] = GenerateImageURL("P-" + item.blnum, item.blcol);
+                        dr["largeimageurl"] = GenerateImageURL("P-" + item.blnum);
+                        dr["type"] = "P";
+                        dr["typename"] = db_typenames["P"];
+                        dr["status"] = "I";
+                        dr["condition"] = "U";
+                        dr["price"] = "0";
+                        dr["comments"] = "";
+                        dr["remarks"] = "";
+                        dr["origqty"] = 0;
+                        dr["origprice"] = 0;
+                        dr["imageloaded"] = "n";
+                        dt[currenttab].Rows.Add(dr);
+                    }
+                    else {
+                        Debug.Assert(false, "Duplicate item in DLL file, how strange???");
+                        dt[currenttab].Rows.Find(extid)["qty"] = (int)dt[currenttab].Rows.Find(extid)["qty"] + item.count;
+                    }
                 }
             }
 
@@ -1834,31 +1854,39 @@ namespace Brickficiency {
 
         #region add item to dgv
         public static void dgv_AddItem(string id, string colour = "0") {
-            DataRow dr = dt[currenttab].NewRow();
-            dr["status"] = "I";
-            dr["number"] = db_blitems[id].number;
-            dr["type"] = db_blitems[id].type;
-            dr["typename"] = db_typenames[db_blitems[id].type];
-            dr["id"] = id;
-            dr["extid"] = db_blitems[id].type + "-" + colour + "-" + db_blitems[id].number;
-            dr["name"] = db_blitems[id].name;
-            dr["colour"] = colour;
-            dr["colourname"] = db_colours[colour].name;
-            dr["condition"] = "U";
-            dr["qty"] = "0";
-            dr["price"] = 0;
-            dr["total"] = 0;
-            dr["categoryid"] = db_blitems[id].catid;
-            dr["categoryname"] = db_categories[db_blitems[id].catid].name;
-            dr["imageurl"] = GenerateImageURL(id, colour);
-            dr["largeimageurl"] = GenerateImageURL(id);
-            dr["imageloaded"] = "n";
-            dt[currenttab].Rows.Add(dr);
+            string extid = db_blitems[id].type + "-" + colour + "-" + db_blitems[id].number;
+            if (!dt[currenttab].Rows.Contains(extid)) {
+                DataRow dr = dt[currenttab].NewRow();
+                dr["status"] = "I";
+                dr["number"] = db_blitems[id].number;
+                dr["type"] = db_blitems[id].type;
+                dr["typename"] = db_typenames[db_blitems[id].type];
+                dr["id"] = id;
+                dr["extid"] = db_blitems[id].type + "-" + colour + "-" + db_blitems[id].number;
+                dr["name"] = db_blitems[id].name;
+                dr["colour"] = colour;
+                dr["colourname"] = db_colours[colour].name;
+                dr["condition"] = "U";
+                dr["qty"] = "0";
+                dr["price"] = 0;
+                dr["total"] = 0;
+                dr["categoryid"] = db_blitems[id].catid;
+                dr["categoryname"] = db_categories[db_blitems[id].catid].name;
+                dr["imageurl"] = GenerateImageURL(id, colour);
+                dr["largeimageurl"] = GenerateImageURL(id);
+                dr["imageloaded"] = "n";
+                dt[currenttab].Rows.Add(dr);
 
-            dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["displaystatus"].Value = Properties.Resources.check;
-            dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["qty"].Style.BackColor = errorcell;
+                dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["displaystatus"].Value = Properties.Resources.check;
+                dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["qty"].Style.BackColor = errorcell;
 
-            dgv_ImageDisplay(id, colour);
+                dgv_ImageDisplay(id, colour);
+            }
+            else {
+                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
+                    row.Selected = row.Cells["extid"].Value.ToString() == extid;
+                }
+            }
         }
         #endregion
 
@@ -2299,6 +2327,8 @@ namespace Brickficiency {
             dt[currenttab].Columns.Add("largeimageurl", typeof(string));
             dt[currenttab].Columns.Add("imageloaded", typeof(string));
             dt[currenttab].Columns.Add("pgpage", typeof(string));
+
+            dt[currenttab].PrimaryKey = new[] { dt[currenttab].Columns["extid"] };
 
             DisplayLoadedFile();
             EnableMenu();
