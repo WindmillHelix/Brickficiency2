@@ -58,6 +58,7 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.statusBox = new System.Windows.Forms.TextBox();
             this.imageTimer = new System.Windows.Forms.Timer(this.components);
+            this.itemTimer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.containerList = new System.Windows.Forms.DataGridView();
             this.qty = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -363,6 +364,11 @@
             // 
             this.imageTimer.Interval = 50;
             this.imageTimer.Tick += new System.EventHandler(this.imageTimerNew_Tick);
+            // 
+            // itemTimer
+            // 
+            this.itemTimer.Interval = 50;
+            this.itemTimer.Tick += new System.EventHandler(this.itemTimerNew_Tick);
             // 
             // splitContainer
             // 
@@ -1022,6 +1028,7 @@
         private System.Windows.Forms.ToolStripMenuItem exitMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.Timer imageTimer;
+        private System.Windows.Forms.Timer itemTimer;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         public System.Windows.Forms.TextBox statusBox;
