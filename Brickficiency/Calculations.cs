@@ -210,133 +210,184 @@ namespace Brickficiency {
 
             foreach (Item item in calcitems) {
                 if (!calcWorker.CancellationPending) {
-                    string page;
-                    if (!db_blitems[item.id].pgpage.ContainsKey(item.colour)) {
-                        item.availqty = 0;
-                        item.availstores = 0;
-                        AddStatus("Getting Price Guide information for " + db_colours[item.colour].name + " " + db_blitems[item.id].name + Environment.NewLine);
-                        swr.Write(DateTime.Now + "downloading http://www.bricklink.com/catalogPG.asp?" + item.type + "=" + item.number + "&colorID=" + item.colour + Environment.NewLine);
+                    List<string> itemcolours = new List<string>();
 
-                        if (live) {
-                            page = GetPage("http://www.bricklink.com/catalogPG.asp?" + item.type + "=" + item.number + "&colorID=" + item.colour, settings.login);
-                            // Uncomment these three lines to save prices guide information so that it is used instead of live data.
-                            // Comment them when done.
-                            //if (!Directory.Exists("PGCache")) { Directory.CreateDirectory("PGCache"); }
-                            //System.IO.StreamWriter file = new StreamWriter("PGCache\\" + item.type + "_" + item.number + "_" + item.colour + ".txt");
-                            //file.Write(page);
-                        } else {
-                            try {
-                                StreamReader pageReader = new StreamReader("PGCache\\" + item.type + "_" + item.number + "_" + item.colour + ".txt");
-                                page = pageReader.ReadToEnd();
-                            } catch (Exception e) {
-                                page = "";
-                            }
+                    if (item.colour == "0" && live)
+                    {
+                        string page;
+                        if (db_blitems[item.id].pgcolourspage != null) {
+                            AddStatus("Using cached colors for Price Guide for item : " + db_blitems[item.id].name + Environment.NewLine);
+                            page = db_blitems[item.id].pgcolourspage;
                         }
-                        if (debugged == 0) {
-                            swr.Write(page);
-                            debugged = 1;
+                        else {
+                            AddStatus("Finding colors for Price Guide for item : " + db_blitems[item.id].name + Environment.NewLine);
+                            page = GetPage("http://alpha.bricklink.com/pages/clone/catalogitem.page?" + item.type + "=" + item.number);
+                            db_blitems[item.id].pgcolourspage = page;
                         }
-                        if (page == null || page == "##PageFail##") {
-                            AddStatus("Error downloading price guide" + Environment.NewLine);
+
+                        foreach (Match colourmatch in Regex.Matches(page, "http://www\\.bricklink\\.com/catalogPG\\.asp\\?" + item.type + "=" + item.number + "&colorID=([0-9]+)")) {
+                            string colour = colourmatch.Groups[1].Value;
+                            AddStatus(" " + db_colours[colour].name + Environment.NewLine);
+                            itemcolours.Add(colour);
+                        }
+                        if (itemcolours.Count > 1)
+                        {
+                            // sometimes NA get returned as a colour
+                            itemcolours.Remove("0");
+
+                        }
+                        if (itemcolours.Count == 0) {
+                            AddStatus("Could not find any colors for Price Guide" + Environment.NewLine);
                             calcfail = true;
                             swr.Close();
-                            break;
+                            goto done;
                         }
-
-                        db_blitems[item.id].pgpage.Add(item.colour, page);
-                    } else {
-                        AddStatus("Using cached Price Guide information for " + db_colours[item.colour].name + " " + db_blitems[item.id].name + Environment.NewLine);
-                        page = db_blitems[item.id].pgpage[item.colour];
+                    }
+                    else {
+                        itemcolours.Add(item.colour);
                     }
 
-                    List<string> chunks = page.Split(new string[] { "<B>Currently Available</B>" }, StringSplitOptions.None).ToList();
-                    List<string> rawpgitems;
-                    if (chunks.Count > 1) {
-                        rawpgitems = chunks[1].Split(new string[] { "</TD></TR>" }, StringSplitOptions.None).ToList();
-                    } else {
-                        AddStatus("Error downloading price guide (got page, but there was nothing on it)" + Environment.NewLine);
-                        calcfail = true;
-                        swr.Close();
-                        break;
-                    }
-                    rawpgitems.Add("#usedstart#");
-                    if (chunks.Count() > 2) {
-                        rawpgitems.AddRange(chunks[2].Split(new string[] { "</TD></TR>" }, StringSplitOptions.None).ToList());
-                    }
+                    int pgsuccess = 0;
+                    foreach (string colour in itemcolours)
+                    {
+                        string page;
 
-                    int usedmarker = 0;
+                        if (!db_blitems[item.id].pgpage.ContainsKey(colour)) {
+                            item.availqty = 0;
+                            item.availstores = 0;
+                            AddStatus("Getting Price Guide information for " + db_colours[colour].name + " " + db_blitems[item.id].name + Environment.NewLine);
+                            swr.Write(DateTime.Now + "downloading http://www.bricklink.com/catalogPG.asp?" + item.type + "=" + item.number + "&colorID=" + colour + Environment.NewLine);
 
-                    foreach (string raw in rawpgitems) {
-                        if (raw == "#usedstart#") {
-                            usedmarker = 1;
-                            continue;
-                        }
-
-                        if ((item.condition == "N") && (usedmarker == 1))
-                            break;
-
-                        if (raw.Contains("nbsp;(S)</")) {
-                            AddStatus("skip ");
-                            continue;
-                        }
-
-                        Match linematch = Regex.Match(raw, ".*<TR ALIGN=" + "\"" + @"RIGHT" + "\"" + @"><TD NOWRAP>.*?<A HREF=" + "\"" +
-                            @"/store.asp\?sID=(\d*?)&.*?<IMG SRC=" + "\"" + @"/images/box16(.).png" + "\"" + @".*?TITLE=" + "\"" + @"Store: (.*?)" +
-                            "\"" + @" ALIGN=" + "\"" + @"ABSMIDDLE" + "\"" + @">.*?</TD><TD>(\d*)</TD><TD.*?&nbsp;\D*([\d,]*)\.(\d+)$");
-                        if (linematch.Success) {
-                            string id = linematch.Groups[1].ToString();
-
-                            if (blacklistdic.ContainsKey(id))
-                                continue;
-
-                            string ship = linematch.Groups[2].ToString();
-                            string storename = linematch.Groups[3].ToString();
-                            int qty = System.Convert.ToInt32(linematch.Groups[4].ToString());
-                            string price1 = linematch.Groups[5].ToString().Replace(",", "");
-                            decimal price = ConvertToDecimal(price1 + "." + linematch.Groups[6].ToString());
-
-                            if (ship == "Y") {
-                                if (((StoreDictionary.ContainsKey(storename)) || (settings.countries.Contains("All"))) && (true)) // blacklist
-                                {
-                                    item.availqty = item.availqty + qty;
-                                    if (!storeid.ContainsKey(storename))
-                                        storeid.Add(storename, id);
-                                    if (!StoreDictionary.ContainsKey(storename))
-                                        StoreDictionary.Add(storename, new Dictionary<string, StoreItem>());
-                                    if (!StoreDictionary[storename].ContainsKey(item.extid)) {
-                                        StoreDictionary[storename].Add(item.extid, new StoreItem());
-                                    }
-                                    if (StoreDictionary[storename][item.extid].qty == 0) {
-                                        StoreDictionary[storename][item.extid].qty = qty;
-                                        StoreDictionary[storename][item.extid].price = price;
-                                        item.availstores++;
-                                    } else if (StoreDictionary[storename][item.extid].qty > 0) {
-                                        StoreDictionary[storename][item.extid].qty = StoreDictionary[storename][item.extid].qty + qty;
-                                        item.availqty = item.availqty + qty;
-                                        if (StoreDictionary[storename][item.extid].price < price)
-                                            StoreDictionary[storename][item.extid].price = price;
-                                    }
-                                    storesWithItemsList.Add(storename); // Added by CAC, 6/24/15
+                            if (live) {
+                                page = GetPage("http://www.bricklink.com/catalogPG.asp?" + item.type + "=" + item.number + "&colorID=" + colour, settings.login);
+                                // Uncomment these three lines to save prices guide information so that it is used instead of live data.
+                                // Comment them when done.
+                                //if (!Directory.Exists("PGCache")) { Directory.CreateDirectory("PGCache"); }
+                                //System.IO.StreamWriter file = new StreamWriter("PGCache\\" + item.type + "_" + item.number + "_" + colour + ".txt");
+                                //file.Write(page);
+                            } else {
+                                try {
+                                    StreamReader pageReader = new StreamReader("PGCache\\" + item.type + "_" + item.number + "_" + colour + ".txt");
+                                    page = pageReader.ReadToEnd();
+                                } catch (Exception e) {
+                                    page = "";
                                 }
                             }
+                            if (debugged == 0) {
+                                swr.Write(page);
+                                debugged = 1;
+                            }
+                            if (page == null || page == "##PageFail##") {
+                                AddStatus("Error downloading price guide" + Environment.NewLine);
+                                calcfail = true;
+                                swr.Close();
+                                goto done;
+                            }
+
+                            db_blitems[item.id].pgpage.Add(colour, page);
                         } else {
-                            if (Regex.Match(raw, "<TR ALIGN=" + "\"" + @"RIGHT" + "\"" + @"><TD NOWRAP>").Success)
-                                AddStatus("No Match: " + raw + Environment.NewLine + Environment.NewLine);
+                            AddStatus("Using cached Price Guide information for " + db_colours[colour].name + " " + db_blitems[item.id].name + Environment.NewLine);
+                            page = db_blitems[item.id].pgpage[colour];
+                        }
+
+                        List<string> chunks = page.Split(new string[] { "<B>Currently Available</B>" }, StringSplitOptions.None).ToList();
+                        List<string> rawpgitems;
+                        if (chunks.Count > 1) {
+                            rawpgitems = chunks[1].Split(new string[] { "</TD></TR>" }, StringSplitOptions.None).ToList();
+                        } else {
+                            AddStatus("Error downloading price guide (got page, but there was nothing on it)" + Environment.NewLine);
+                            continue;
+                        }
+                        rawpgitems.Add("#usedstart#");
+                        if (chunks.Count() > 2) {
+                            rawpgitems.AddRange(chunks[2].Split(new string[] { "</TD></TR>" }, StringSplitOptions.None).ToList());
+                        }
+
+                        int usedmarker = 0;
+
+                        foreach (string raw in rawpgitems) {
+                            if (raw == "#usedstart#") {
+                                usedmarker = 1;
+                                continue;
+                            }
+
+                            if ((item.condition == "N") && (usedmarker == 1))
+                                break;
+
+                            if (raw.Contains("nbsp;(S)</")) {
+                                AddStatus("skip ");
+                                continue;
+                            }
+
+                            Match linematch = Regex.Match(raw, ".*<TR ALIGN=" + "\"" + @"RIGHT" + "\"" + @"><TD NOWRAP>.*?<A HREF=" + "\"" +
+                                @"/store.asp\?sID=(\d*?)&.*?<IMG SRC=" + "\"" + @"/images/box16(.).png" + "\"" + @".*?TITLE=" + "\"" + @"Store: (.*?)" +
+                                "\"" + @" ALIGN=" + "\"" + @"ABSMIDDLE" + "\"" + @">.*?</TD><TD>(\d*)</TD><TD.*?&nbsp;\D*([\d,]*)\.(\d+)$");
+                            if (linematch.Success) {
+                                string id = linematch.Groups[1].ToString();
+
+                                if (blacklistdic.ContainsKey(id))
+                                    continue;
+
+                                string ship = linematch.Groups[2].ToString();
+                                string storename = linematch.Groups[3].ToString();
+                                int qty = System.Convert.ToInt32(linematch.Groups[4].ToString());
+                                string price1 = linematch.Groups[5].ToString().Replace(",", "");
+                                decimal price = ConvertToDecimal(price1 + "." + linematch.Groups[6].ToString());
+
+                                if (ship == "Y") {
+                                    if (((StoreDictionary.ContainsKey(storename)) || (settings.countries.Contains("All"))) && (true)) // blacklist
+                                    {
+                                        item.availqty = item.availqty + qty;
+                                        if (!storeid.ContainsKey(storename))
+                                            storeid.Add(storename, id);
+                                        if (!StoreDictionary.ContainsKey(storename))
+                                            StoreDictionary.Add(storename, new Dictionary<string, StoreItem>());
+                                        if (!StoreDictionary[storename].ContainsKey(item.extid)) {
+                                            StoreDictionary[storename].Add(item.extid, new StoreItem());
+                                        }
+                                        if (StoreDictionary[storename][item.extid].qty == 0) {
+                                            StoreDictionary[storename][item.extid].qty = qty;
+                                            StoreDictionary[storename][item.extid].price = price;
+                                            StoreDictionary[storename][item.extid].colour = colour;
+                                            item.availstores++;
+                                        } else if (StoreDictionary[storename][item.extid].qty > 0) {
+                                            StoreDictionary[storename][item.extid].qty = StoreDictionary[storename][item.extid].qty + qty;
+                                            item.availqty = item.availqty + qty;
+                                            if (StoreDictionary[storename][item.extid].price > price)
+                                            {
+                                                StoreDictionary[storename][item.extid].price = price;
+                                                StoreDictionary[storename][item.extid].colour = colour;
+                                            }
+                                        }
+                                        storesWithItemsList.Add(storename); // Added by CAC, 6/24/15
+                                    }
+                                }
+                            } else {
+                                if (Regex.Match(raw, "<TR ALIGN=" + "\"" + @"RIGHT" + "\"" + @"><TD NOWRAP>").Success)
+                                    AddStatus("No Match: " + raw + Environment.NewLine + Environment.NewLine);
+                            }
+                        }
+                        if (item.availqty < item.qty) {
+                            AddStatus("Error: " + db_colours[colour].name + " " + db_blitems[item.id].name +
+                                ":Either this is not available from any stores you've selected or you need to log in." + Environment.NewLine);
+                            continue;
+                        } else {
+                            pgsuccess++;
+                            AddStatus("Available from " + item.availstores + " stores" + Environment.NewLine);
+                            //Progress();
                         }
                     }
-                    if (item.availqty < item.qty) {
-                        AddStatus("Error: " + db_colours[item.colour].name + " " + db_blitems[item.id].name +
-                            ":Either this is not available from any stores you've selected or you need to log in." + Environment.NewLine);
+
+                    if(pgsuccess == 0)
+                    {
                         calcfail = true;
                         ResetProgressBar();
                         swr.Close();
-                        break;
-                    } else {
-                        AddStatus("Available from " + item.availstores + " stores" + Environment.NewLine);
-                        //Progress();
+                        goto done;
                     }
                 }
             }
+        done: ;
             swr.Close();
         }
         #endregion
@@ -476,20 +527,20 @@ namespace Brickficiency {
                             if (si != null) {
                                 decimal qtyprice = si.price * si.qty;
                                 md.list += "<TR><TD><a href=\"http://www.bricklink.com/store.asp?sID=" +
-                                           storeid[storename] + "&q=" + item.number + "&colorID=" + item.colour + "\"><IMG SRC=" +
-                                           item.imageurl +
+                                           storeid[storename] + "&q=" + item.number + "&colorID=" + si.colour + "\"><IMG SRC=" +
+                                           (item.colour == "0" ? GenerateImageURL(item.id, si.colour) : item.imageurl) +
                                            "></a></TD><TD><a href=\"http://www.bricklink.com/store.asp?sID=" +
-                                           storeid[storename] + "&q=" + item.number + "&colorID=" + item.colour + "\">" +
-                                           db_colours[item.colour].name + " " + db_blitems[item.id].name +
+                                           storeid[storename] + "&q=" + item.number + "&colorID=" + si.colour + "\">" +
+                                           db_colours[si.colour].name + " " + db_blitems[item.id].name +
                                            "</a></TD><TD>" + si.qty + " @ " + si.price + "</TD><TD>" + qtyprice +
                                            "</TD></TR>";
                                 md.xml += " <ITEM>" + Environment.NewLine + "  <ITEMID>" + item.number + "</ITEMID>" +
                                           Environment.NewLine +
                                           "  <ITEMTYPE>" + item.type + "</ITEMTYPE>" + Environment.NewLine +
-                                          "  <COLOR>" + item.colour + "</COLOR>" + Environment.NewLine +
+                                          "  <COLOR>" + si.colour + "</COLOR>" + Environment.NewLine +
                                           "  <MINQTY>" + si.qty + "</MINQTY>" + Environment.NewLine +
-                                          "  <WANTEDLISTID>xxxxxx</WANTEDLISTID>" + Environment.NewLine + " </ITEM>" +
-                                          Environment.NewLine;
+//                                          "  <WANTEDLISTID>xxxxxx</WANTEDLISTID>" + Environment.NewLine +
+                                          " </ITEM>" + Environment.NewLine;
                                 md.totalNumberItemsFromStore += si.qty;
                                 md.totalNumberLotsFromStore++;
                             }
@@ -668,7 +719,7 @@ namespace Brickficiency {
                     int storeQty = currentStore.getQty(item.extid);
                     int actualQtyFromStore = (storeQty >= totalwantedqty) ? totalwantedqty : storeQty;
                     totalwantedqty -= actualQtyFromStore;
-                    theMatch.GetDetails(currentStore.getName()).AddItem(item.extid, actualQtyFromStore, currentStore.getPrice(item.extid));
+                    theMatch.GetDetails(currentStore.getName()).AddItem(item.extid, actualQtyFromStore, currentStore.getPrice(item.extid), currentStore.getColour(item.extid));
                     storeindex++;
                 }
             }

@@ -48,10 +48,10 @@ namespace Brickficiency.Classes {
             this.xml = "";
         }
 
-        public void AddItem(string id, int qty, decimal price) {
+        public void AddItem(string id, int qty, decimal price, string colour) {
             try {
-                itemDictionary.Add(id, new StoreItem(qty, price));
-                totalStorePrice += price * qty;
+	            itemDictionary.Add(id, new StoreItem(qty, price, colour));
+	            totalStorePrice += price * qty;
             }
             catch (ArgumentException) {
                 System.Diagnostics.Debug.Assert(false, "An element with id \"" + id + "\" already exists.");
