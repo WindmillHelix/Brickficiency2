@@ -1875,7 +1875,7 @@ namespace Brickficiency {
         public static string GenerateImageURL(string id, string colour = "large") {
             string imageurl;
             if (colour != "large") {
-                imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + db_blitems[id].type + "&colorID=" + colour + "&itemNo=" + db_blitems[id].number;
+                imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + db_blitems[id].type + (colour == "0" ? "" : "&colorID=" + colour) + "&itemNo=" + db_blitems[id].number;
                 return imageurl;
             } else {
                 imageurl = "http://www.bricklink.com/" + db_blitems[id].type + "L/" + db_blitems[id].number + ".jpg";

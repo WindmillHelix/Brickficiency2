@@ -106,7 +106,7 @@ namespace Brickficiency
             foreach (Item item in tmpwanted)
             {
                 item.status = "I";
-                item.imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + item.type + "&colorID=" + item.colour + "&itemNo=" + item.number;
+                item.imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + item.type + (item.colour == "0" ? "" : "&colorID=" + item.colour) + "&itemNo=" + item.number;
                 item.categoryid = MainWindow.db_blitems[item.id].catid;
                 item.type = MainWindow.db_blitems[item.id].type;
                 try

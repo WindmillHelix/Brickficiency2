@@ -22,19 +22,16 @@ namespace Brickficiency.ContextMenuStuff
                 {
                     foreach (DBColour dbcolour in MainWindow.db_colours.Values)
                     {
-                        if (dbcolour.id != "0")
-                        {
-                            Color thiscol = (Color)System.Drawing.ColorTranslator.FromHtml("#" + dbcolour.rgb);
-                            DataGridViewRow dgvrow = new DataGridViewRow();
-                            DataGridViewTextBoxCell dgvcell1 = new DataGridViewTextBoxCell();
-                            dgvcell1.Style.ForeColor = thiscol;
-                            dgvcell1.Style.BackColor = thiscol;
-                            DataGridViewTextBoxCell dgvcell2 = new DataGridViewTextBoxCell();
-                            dgvcell2.Value = dbcolour.name;
-                            dgvrow.Cells.Add(dgvcell1);
-                            dgvrow.Cells.Add(dgvcell2);
-                            dataGridView1.Rows.Add(dgvrow);
-                        }
+                        Color thiscol = (Color)System.Drawing.ColorTranslator.FromHtml("#" + (dbcolour.id != "0" ? dbcolour.rgb : "ffffff"));
+                        DataGridViewRow dgvrow = new DataGridViewRow();
+                        DataGridViewTextBoxCell dgvcell1 = new DataGridViewTextBoxCell();
+                        dgvcell1.Style.ForeColor = thiscol;
+                        dgvcell1.Style.BackColor = thiscol;
+                        DataGridViewTextBoxCell dgvcell2 = new DataGridViewTextBoxCell();
+                        dgvcell2.Value = dbcolour.name;
+                        dgvrow.Cells.Add(dgvcell1);
+                        dgvrow.Cells.Add(dgvcell2);
+                        dataGridView1.Rows.Add(dgvrow);
                     }
                     dataGridView1.Rows[0].Cells[1].Selected = true;
                     dataGridView1.FirstDisplayedScrollingRowIndex = 0;
