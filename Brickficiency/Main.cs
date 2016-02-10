@@ -84,6 +84,7 @@ namespace Brickficiency {
         public static Dictionary<string, string> db_rebrickaltids = new Dictionary<string, string>();
         public static Dictionary<string, string> db_blaltids = new Dictionary<string, string>();
         int imagetimercount = 0;
+        int itemtimercount = 0;
         Bitmap blank = Brickficiency.Properties.Resources.blank;
         public static Queue<string> messages = new Queue<string>();
         public static string culturename = CultureInfo.CurrentCulture.Name;
@@ -98,7 +99,11 @@ namespace Brickficiency {
         public static string password; // figure this shit out
         public static bool loggedin = false;
         public static Object imgTimerLock = new Object();
+        public static Object itemTimerLock = new Object();
+        public static Object pageLock = new Object();
+        public static int inLock = 0;
         public static List<ImageDL> imageDLList = new List<ImageDL>();
+        public static List<ItemDL>  itemDLList =  new List<ItemDL>();
         public static string RBapiKey = "bITJSRewdX";
 
         //calc stuff
@@ -411,6 +416,7 @@ namespace Brickficiency {
             AddStatus("Done." + Environment.NewLine);
             this.BeginInvoke(new MethodInvoker(delegate() {
                 imageTimer.Start();
+                itemTimer.Start();
             }));
 
 
@@ -455,6 +461,8 @@ namespace Brickficiency {
             dt[currenttab].Columns.Add("condition", typeof(string));
             dt[currenttab].Columns.Add("colourname", typeof(string));
             dt[currenttab].Columns.Add("qty", typeof(int));
+//            dt[currenttab].Columns.Add("availability", typeof(int));
+dt[currenttab].Columns.Add("availstores", typeof(int));
             dt[currenttab].Columns.Add("price", typeof(decimal));
             dt[currenttab].Columns.Add("total", typeof(decimal));
             dt[currenttab].Columns.Add("comments", typeof(string));
@@ -468,7 +476,7 @@ namespace Brickficiency {
             dt[currenttab].Columns.Add("type", typeof(string));
             dt[currenttab].Columns.Add("colour", typeof(string));
             dt[currenttab].Columns.Add("categoryid", typeof(string));
-            dt[currenttab].Columns.Add("availstores", typeof(int));
+
             dt[currenttab].Columns.Add("availqty", typeof(int));
             dt[currenttab].Columns.Add("imageurl", typeof(string));
             dt[currenttab].Columns.Add("largeimageurl", typeof(string));
@@ -478,6 +486,32 @@ namespace Brickficiency {
             dt[currenttab].PrimaryKey = new[] { dt[currenttab].Columns["extid"] };
         }
 
+        private void FillRow(DataRow dr, Item item)
+        {
+            dr["status"] = item.status;
+            dr["number"] = item.number;
+            dr["name"] = db_blitems[item.id].name;
+            dr["condition"] = item.condition;
+            dr["colourname"] = db_colours[item.colour].name;
+            dr["qty"] = item.qty;
+            dr["availstores"] = item.availstores;
+            dr["price"] = item.price;
+            dr["comments"] = item.comments;
+            dr["remarks"] = item.remarks;
+            dr["categoryname"] = db_categories[item.categoryid].name;
+            dr["typename"] = db_typenames[item.type];
+            dr["origqty"] = item.origqty;
+            dr["origprice"] = item.origprice;
+            dr["id"] = item.id;
+            dr["extid"] = item.extid;
+            dr["type"] = item.type;
+            dr["colour"] = item.colour;
+            dr["categoryid"] = item.categoryid;
+            dr["imageurl"] = item.imageurl;
+            dr["largeimageurl"] = item.largeimageurl;
+            dr["imageloaded"] = "n";
+        }
+ 
         #region Load a file
         private bool LoadFile(string filename) {
             foreach (DataTable thisdt in dt) {
@@ -676,29 +710,9 @@ namespace Brickficiency {
 
                 if (!dt[currenttab].Rows.Contains(item.extid)) {
                     DataRow dr = dt[currenttab].NewRow();
-                    dr["status"] = item.status;
-                    dr["number"] = item.number;
-                    dr["name"] = db_blitems[item.id].name;
-                    dr["condition"] = item.condition;
-                    dr["colourname"] = db_colours[item.colour].name;
-                    dr["qty"] = item.qty;
-                    dr["price"] = item.price;
-                    dr["comments"] = item.comments;
-                    dr["remarks"] = item.remarks;
-                    dr["categoryname"] = db_categories[item.categoryid].name;
-                    dr["typename"] = db_typenames[item.type];
-                    dr["origqty"] = item.origqty;
-                    dr["origprice"] = item.origprice;
-                    dr["id"] = item.id;
-                    dr["extid"] = item.extid;
-                    dr["type"] = item.type;
-                    dr["colour"] = item.colour;
-                    dr["categoryid"] = item.categoryid;
-                    dr["imageurl"] = item.imageurl;
-                    dr["largeimageurl"] = item.largeimageurl;
-                    dr["imageloaded"] = "n";
+                    FillRow(dr, item);
                     dt[currenttab].Rows.Add(dr);
-                }
+               }
                 else {
                     dt[currenttab].Rows.Find(item.extid)["qty"] = (int)dt[currenttab].Rows.Find(item.extid)["qty"] + item.qty;
                 }
@@ -788,6 +802,10 @@ namespace Brickficiency {
             dgv[currenttab].Columns["qty"].Width = 60;
             //dgv[currenttab].Columns["qty"].ReadOnly = true;
 
+dgv[currenttab].Columns["availstores"].HeaderText = "Availstores";
+dgv[currenttab].Columns["availstores"].Width = 80;
+dgv[currenttab].Columns["availstores"].DefaultCellStyle.Format = "#;Unknown;#";
+dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
             dgv[currenttab].Columns["price"].HeaderText = "Price";
             dgv[currenttab].Columns["price"].Width = 75;
@@ -823,7 +841,7 @@ namespace Brickficiency {
             dgv[currenttab].Columns["type"].Visible = false;
             dgv[currenttab].Columns["colour"].Visible = false;
             dgv[currenttab].Columns["categoryid"].Visible = false;
-            dgv[currenttab].Columns["availstores"].Visible = false;
+//            dgv[currenttab].Columns["availstores"].Visible = false;
             dgv[currenttab].Columns["availqty"].Visible = false;
             dgv[currenttab].Columns["imageurl"].Visible = false;
             dgv[currenttab].Columns["largeimageurl"].Visible = false;
@@ -848,6 +866,7 @@ namespace Brickficiency {
                     item.Cells["displaystatus"].Value = Properties.Resources.check;
                 }
 
+                dgv_GetLiveStats((string)item.Cells["id"].Value, (string)item.Cells["colour"].Value);
                 dgv_ImageDisplay((string)item.Cells["id"].Value, (string)item.Cells["colour"].Value);
             }
 
@@ -936,6 +955,67 @@ namespace Brickficiency {
         }
         #endregion
 
+        #region item loading timer tick
+        private void itemTimerNew_Tick(object sender, EventArgs e) {
+            if (itemtimercount > 0) { return; }
+
+            itemtimercount++;
+
+            ItemDL thisItem;
+
+            lock (itemTimerLock) {
+                if (itemDLList.Count == 0) {
+                    itemtimercount--;
+                    return;
+                }
+
+                thisItem = itemDLList.First();
+                itemDLList.RemoveAt(0);
+            }
+
+
+            Item item = thisItem.item;
+            DataTable table = dt[currenttab];
+
+            // for some reason 'table.Rows.Find(item.extid)' does not work.
+            if (!table.Rows.Contains(item.extid))
+            {
+                int smeg = 0;
+            }
+
+            string key = table.PrimaryKey[0].ColumnName;
+            foreach (DataRow row in table.Rows)
+            {
+                if (row[key].Equals(item.extid))
+                {
+                    object smeg = row["availstores"];
+                    if (row["availstores"].Equals(-1))
+                    {
+                        ParsePage(GetPGPage(item, true), item);
+                        row["availstores"] = item.availstores;
+                    }
+                }
+            }
+
+            itemtimercount--;
+        }
+        #endregion
+
+        public static void dgv_GetLiveStats(string id, string colour = "0")
+        {
+            lock (itemTimerLock)
+            {
+                itemDLList.Add(new ItemDL() {
+                    item = new Item() {
+                        id = id,
+                        extid = db_blitems[id].type + "-" + colour + "-" + db_blitems[id].number,
+                        type = db_blitems[id].type,
+                        number = db_blitems[id].number,
+                        colour = colour
+                    }
+                });
+            }
+        }
 
         public static void dgv_ImageDisplay(DataGridViewRow theRow)
         {
@@ -1020,7 +1100,7 @@ namespace Brickficiency {
                 }
 
                 BuildTable();
-                List<Item> items = new List<Item>();
+//                List<Item> items = new List<Item>();
 
                 List<String> lines = lddfile.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
@@ -1184,6 +1264,7 @@ namespace Brickficiency {
                         dr["typename"] = db_typenames["P"];
                         dr["status"] = "I";
                         dr["condition"] = "U";
+                        dr["availstores"] = -1;
                         dr["price"] = "0";
                         dr["comments"] = "";
                         dr["remarks"] = "";
@@ -1208,17 +1289,21 @@ namespace Brickficiency {
         private static int MAX_FAILS = 4;
         #region retrieve page as string
         public string GetPage(string url, bool login = false) {
-            string cookieHeader;
-            string pageSource;
-            StreamWriter swr = new StreamWriter(debugwebreqfilename);
+            lock (pageLock)
+            {
+                string cookieHeader;
+                string pageSource;
+                //            StreamWriter swr = new StreamWriter(debugwebreqfilename);
 
-            if ((login == true) && ((loggedin == false) || (cookietime == null) || (DateTime.Now > cookietime.AddMinutes(10)))) {
-                DialogResult result = getPasswordWindow.ShowDialog();
-                if (result != DialogResult.OK) {
-                    password = "";
-                    swr.Close();
-                    return null;
-                }
+                if ((login == true) && ((loggedin == false) || (cookietime == null) || (DateTime.Now > cookietime.AddMinutes(10))))
+                {
+                    DialogResult result = getPasswordWindow.ShowDialog();
+                    if (result != DialogResult.OK)
+                    {
+                        password = "";
+                        //                    swr.Close();
+                        return null;
+                    }
 
                 string loginURL = "https://www.bricklink.com/login.asp";
                 string loginformParams = string.Format(
@@ -1227,110 +1312,132 @@ namespace Brickficiency {
                     Uri.EscapeDataString(password));
 
                 password = "";
+                    HttpWebRequest loginreq = (HttpWebRequest)WebRequest.Create(loginURL);
+                    loginreq.Timeout = 15000;
+                    loginreq.CookieContainer = cookies;
+                    loginreq.ContentType = "application/x-www-form-urlencoded";
+                    loginreq.Method = "POST";
+                    loginreq.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
+                    byte[] bytes = Encoding.ASCII.GetBytes(loginformParams);
+                    loginreq.ContentLength = bytes.Length;
 
-                HttpWebRequest loginreq = (HttpWebRequest)WebRequest.Create(loginURL);
-                loginreq.Timeout = 15000;
-                loginreq.CookieContainer = cookies;
-                loginreq.ContentType = "application/x-www-form-urlencoded";
-                loginreq.Method = "POST";
-                loginreq.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
-                byte[] bytes = Encoding.ASCII.GetBytes(loginformParams);
-                loginreq.ContentLength = bytes.Length;
+                    int pagefail = 0;
+                    bool pagesuccess = false;
 
-                int pagefail = 0;
-                bool pagesuccess = false;
-
-                while ((pagesuccess == false) && (pagefail < MAX_FAILS)) {
-                    try {
-                        using (Stream os = loginreq.GetRequestStream()) {
-                            os.Write(bytes, 0, bytes.Length);
-                            pagesuccess = true;
+                    while ((pagesuccess == false) && (pagefail < MAX_FAILS))
+                    {
+                        try
+                        {
+                            using (Stream os = loginreq.GetRequestStream())
+                            {
+                                os.Write(bytes, 0, bytes.Length);
+                                pagesuccess = true;
+                            }
                         }
-                    } catch (Exception ex) {
-                        AddStatus("Retrying..." + Environment.NewLine);
-                        pagefail++;
-                        swr.Write(DateTime.Now.ToString() + ": " + ex + Environment.NewLine);
+                        catch (Exception)
+                        {
+                            AddStatus("Retrying..." + Environment.NewLine);
+                            pagefail++;
+                            //                        swr.Write(DateTime.Now.ToString() + ": " + ex + Environment.NewLine);
+                        }
                     }
-                }
 
-                if (pagesuccess == false) {
-                    swr.Close();
-                    return "##PageFail##";
-                }
-
-                HttpWebResponse loginresp = (HttpWebResponse)loginreq.GetResponse();
-                cookieHeader = loginresp.Headers["Set-cookie"];
-                cookies.Add(loginresp.Cookies);
-                using (StreamReader sr = new StreamReader(loginresp.GetResponseStream())) {
-                    pageSource = sr.ReadToEnd();
-                }
-
-                Match loginError = Regex.Match(pageSource, @"Invalid Password.", RegexOptions.IgnoreCase);
-                if (loginError.Success) {
-                    AddStatus("Invalid Password" + Environment.NewLine);
-                    swr.Close();
-                    return null;
-                } else {
-                    cookietime = DateTime.Now;
-                    loggedin = true;
-                }
-            } else if ((cookietime == null) || (DateTime.Now > cookietime.AddMinutes(10))) {
-                int pagefail = 0;
-                bool pagesuccess = false;
-
-                while ((pagesuccess == false) && (pagefail < MAX_FAILS)) {
-                    try {
-                        string tmpcookieurl = "http://www.bricklink.com/catalogPG.asp?P=3001&colorID=48";
-                        HttpWebRequest tmpreq = (HttpWebRequest)WebRequest.Create(tmpcookieurl);
-                        tmpreq.Timeout = 15000;
-                        tmpreq.CookieContainer = cookies;
-                        tmpreq.ContentType = "application/x-www-form-urlencoded";
-                        tmpreq.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
-                        HttpWebResponse tmpresp = (HttpWebResponse)tmpreq.GetResponse();
-                        cookieHeader = tmpresp.Headers["Set-cookie"];
-                        cookies.Add(tmpresp.Cookies);
-                        cookietime = DateTime.Now;
-                        pagesuccess = true;
-                    } catch (Exception ex) {
-                        AddStatus("Retrying..." + Environment.NewLine);
-                        pagefail++;
-                        swr.Write(DateTime.Now.ToString() + ": " + ex + Environment.NewLine);
+                    if (pagesuccess == false)
+                    {
+                        //                    swr.Close();
+                        return "##PageFail##";
                     }
-                }
 
-                if (pagesuccess == false) {
-                    swr.Close();
-                    return "##PageFail##";
-                }
-            }
-
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-            req.Timeout = 15000;
-            req.CookieContainer = cookies;
-            req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
-
-            int pagefail2 = 0;
-            bool pagesuccess2 = false;
-            while ((pagesuccess2 == false) && (pagefail2 < MAX_FAILS)) {
-                try {
-                    HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-
-                    using (StreamReader sr = new StreamReader(resp.GetResponseStream())) {
+                    HttpWebResponse loginresp = (HttpWebResponse)loginreq.GetResponse();
+                    cookieHeader = loginresp.Headers["Set-cookie"];
+                    cookies.Add(loginresp.Cookies);
+                    using (StreamReader sr = new StreamReader(loginresp.GetResponseStream()))
+                    {
                         pageSource = sr.ReadToEnd();
                     }
 
-                    cookietime = DateTime.Now;
-                    swr.Close();
-                    return pageSource;
-                } catch (Exception ex) {
-                    AddStatus("Retrying..." + Environment.NewLine);
-                    pagefail2++;
-                    swr.Write(DateTime.Now.ToString() + ": " + ex + Environment.NewLine);
+                    Match loginError = Regex.Match(pageSource, @"Invalid Password.", RegexOptions.IgnoreCase);
+                    if (loginError.Success)
+                    {
+                        AddStatus("Invalid Password" + Environment.NewLine);
+                        //                    swr.Close();
+                        return null;
+                    }
+                    else
+                    {
+                        cookietime = DateTime.Now;
+                        loggedin = true;
+                    }
                 }
-            }
+                else if ((cookietime == null) || (DateTime.Now > cookietime.AddMinutes(10)))
+                {
+                    int pagefail = 0;
+                    bool pagesuccess = false;
 
-            swr.Close();
-            return "##PageFail##";
+                    while ((pagesuccess == false) && (pagefail < MAX_FAILS))
+                    {
+                        try
+                        {
+                            string tmpcookieurl = "http://www.bricklink.com/catalogPG.asp?P=3001&colorID=48";
+                            HttpWebRequest tmpreq = (HttpWebRequest)WebRequest.Create(tmpcookieurl);
+                            tmpreq.Timeout = 15000;
+                            tmpreq.CookieContainer = cookies;
+                            tmpreq.ContentType = "application/x-www-form-urlencoded";
+                            tmpreq.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
+                            HttpWebResponse tmpresp = (HttpWebResponse)tmpreq.GetResponse();
+                            cookieHeader = tmpresp.Headers["Set-cookie"];
+                            cookies.Add(tmpresp.Cookies);
+                            cookietime = DateTime.Now;
+                            pagesuccess = true;
+                        }
+                        catch (Exception)
+                        {
+                            AddStatus("Retrying..." + Environment.NewLine);
+                            pagefail++;
+                            //                        swr.Write(DateTime.Now.ToString() + ": " + ex + Environment.NewLine);
+                        }
+                    }
+
+                    if (pagesuccess == false)
+                    {
+                        //                    swr.Close();
+                        return "##PageFail##";
+                    }
+                }
+
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+                req.Timeout = 15000;
+                req.CookieContainer = cookies;
+                req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
+
+                int pagefail2 = 0;
+                bool pagesuccess2 = false;
+                while ((pagesuccess2 == false) && (pagefail2 < MAX_FAILS))
+                {
+                    try
+                    {
+                        HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+
+                        using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
+                        {
+                            pageSource = sr.ReadToEnd();
+                        }
+
+                        cookietime = DateTime.Now;
+                        //                    swr.Close();
+                        return pageSource;
+                    }
+                    catch (Exception)
+                    {
+                        AddStatus("Retrying..." + Environment.NewLine);
+                        pagefail2++;
+                        //                    swr.Write(DateTime.Now.ToString() + ": " + ex + Environment.NewLine);
+                    }
+                }
+
+                //           swr.Close();
+                return "##PageFail##";
+            }   // Release Lock
         }
         #endregion
 
@@ -1849,6 +1956,7 @@ namespace Brickficiency {
                 dr["colourname"] = db_colours[colour].name;
                 dr["condition"] = "U";
                 dr["qty"] = "0";
+dr["availstores"] = -1;
                 dr["price"] = 0;
                 dr["total"] = 0;
                 dr["categoryid"] = db_blitems[id].catid;
@@ -1861,6 +1969,7 @@ namespace Brickficiency {
                 dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["displaystatus"].Value = Properties.Resources.check;
                 dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["qty"].Style.BackColor = errorcell;
 
+                dgv_GetLiveStats(id, colour);
                 dgv_ImageDisplay(id, colour);
             }
             else {
@@ -1942,10 +2051,10 @@ namespace Brickficiency {
                         hoverZoomWindow.HideLabel();
                     }
                 } else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "name") {
-                    changeItemWindow.Show();
+                    changeItemWindow.DisplayItem(dgv[currenttab].Rows[e.RowIndex]);
                     changeItemWindow.BringToFront();
                     changeItemWindow.WindowState = FormWindowState.Normal;
-                    changeItemWindow.DisplayItem(dgv[currenttab].Rows[e.RowIndex]);
+                    changeItemWindow.Show();
                 } else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "condition") {
                     if ((String)dgv[currenttab].Rows[e.RowIndex].Cells["condition"].Value == "U") {
                         dgv[currenttab].Rows[e.RowIndex].Cells["condition"].Value = "N";
@@ -2086,6 +2195,7 @@ namespace Brickficiency {
                     dgv[currenttab].Rows[e.RowIndex].Cells["displayimage"].Value = Properties.Resources.blank;
                     dgv[currenttab].Rows[e.RowIndex].Cells["pgpage"].Value = null;
 
+                    dgv_GetLiveStats(id, (string)dgv[currenttab].Rows[e.RowIndex].Cells["colour"].Value);
                     dgv_ImageDisplay(id, (string)dgv[currenttab].Rows[e.RowIndex].Cells["colour"].Value);
                 } else {
                     e.Cancel = true;
@@ -2267,7 +2377,10 @@ namespace Brickficiency {
                         row.Cells["imageloaded"].Value = "n";
                         row.Cells["imageurl"].Value = GenerateImageURL((string)row.Cells["id"].Value, (string)row.Cells["colour"].Value);
                         row.Cells["extid"].Value = row.Cells["type"].Value + "-" + colourPickerWindow.num + "-" + row.Cells["number"].Value;
+                        row.Cells["availstores"].Value = -1;
                         row.Cells["displayimage"].Value = Properties.Resources.blank;
+
+                        dgv_GetLiveStats((string)row.Cells["id"].Value, (string)row.Cells["colour"].Value);
                         dgv_ImageDisplay((string)row.Cells["id"].Value, (string)row.Cells["colour"].Value);
                     }
                 }

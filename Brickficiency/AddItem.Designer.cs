@@ -188,7 +188,6 @@
             this.MaximizeBox = false;
             this.Name = "AddItem";
             this.Text = "AddItem";
-            this.TopMost = true;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddItem_FormClosing);
             this.Load += new System.EventHandler(this.AddItem_Load);
             ((System.ComponentModel.ISupportInitialize)(this.colourGrid)).EndInit();

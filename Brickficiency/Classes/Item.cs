@@ -22,7 +22,7 @@ namespace Brickficiency.Classes
         public decimal origprice;
         public int origqty;
         public string image;
-        public int availstores;
+        public int availstores = -1;
         public int availqty;
         public string imageurl;
         public string largeimageurl;
