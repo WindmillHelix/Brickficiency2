@@ -238,6 +238,8 @@ namespace Brickficiency {
 
         public void ParsePage(string page, Item item)
         {
+            if (page == null) return;
+
             List<string> chunks = page.Split(new string[] { "<B>Currently Available</B>" }, StringSplitOptions.None).ToList();
             List<string> rawpgitems;
             if (chunks.Count > 1)

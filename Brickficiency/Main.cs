@@ -494,7 +494,7 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
             dr["condition"] = item.condition;
             dr["colourname"] = db_colours[item.colour].name;
             dr["qty"] = item.qty;
-//dt[currenttab].Columns.Add("availstores", typeof(int));
+            dr["availstores"] = item.availstores;
             dr["price"] = item.price;
             dr["comments"] = item.comments;
             dr["remarks"] = item.remarks;
