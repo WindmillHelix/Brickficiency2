@@ -15,5 +15,6 @@ namespace Brickficiency.Classes
         public string dimensions;
         public string catid;
         public Dictionary<string, string> pgpage = new Dictionary<string, string>();
+        public string pgcolourspage;
     }
 }
