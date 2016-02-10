@@ -977,7 +977,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             DataTable table = dt[currenttab];
 
             // for some reason 'table.Rows.Find(item.extid)' does not work.
-            if (!dt[currenttab].Rows.Contains(item.extid))
+            if (!table.Rows.Contains(item.extid))
             {
                 int smeg = 0;
             }
@@ -987,6 +987,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             {
                 if (row[key].Equals(item.extid))
                 {
+                    object smeg = row["availstores"];
                     if (row["availstores"].Equals(-1))
                     {
                         ParsePage(GetPGPage(item, true), item);
@@ -1303,10 +1304,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         return null;
                     }
 
-                    string loginURL = "https://www.bricklink.com/login.asp";
-                    string loginformParams = String.Format("a=a&logFrmFlag=Y&frmUsername={0}&frmPassword={1}", settings.username, password);
-                    password = "";
+                string loginURL = "https://www.bricklink.com/login.asp";
+                string loginformParams = string.Format(
+                    "a=a&logFrmFlag=Y&frmUsername={0}&frmPassword={1}",
+                    Uri.EscapeDataString(settings.username),
+                    Uri.EscapeDataString(password));
 
+                password = "";
                     HttpWebRequest loginreq = (HttpWebRequest)WebRequest.Create(loginURL);
                     loginreq.Timeout = 15000;
                     loginreq.CookieContainer = cookies;
@@ -1329,7 +1333,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                                 pagesuccess = true;
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             AddStatus("Retrying..." + Environment.NewLine);
                             pagefail++;
@@ -1385,7 +1389,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                             cookietime = DateTime.Now;
                             pagesuccess = true;
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             AddStatus("Retrying..." + Environment.NewLine);
                             pagefail++;
@@ -1422,7 +1426,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         //                    swr.Close();
                         return pageSource;
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         AddStatus("Retrying..." + Environment.NewLine);
                         pagefail2++;
@@ -1979,7 +1983,7 @@ dr["availstores"] = -1;
         public static string GenerateImageURL(string id, string colour = "large") {
             string imageurl;
             if (colour != "large") {
-                imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + db_blitems[id].type + "&colorID=" + colour + "&itemNo=" + db_blitems[id].number;
+                imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + db_blitems[id].type + (colour == "0" ? "" : "&colorID=" + colour) + "&itemNo=" + db_blitems[id].number;
                 return imageurl;
             } else {
                 imageurl = "http://www.bricklink.com/" + db_blitems[id].type + "L/" + db_blitems[id].number + ".jpg";
