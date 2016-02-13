@@ -62,6 +62,7 @@ namespace Brickficiency {
         public static string databasezipfilename = programdata + "bfdb.zip";
         public static string databaseurl = "http://www.buildingoutloud.com/bf/bfdb.zip";
         string debugpgfilename = programdata + "\\debug\\Debug-priceguide.txt";
+        string debugparsesource = programdata + "\\debug\\Debug-parsesource.html";
         string debugopenfilename = programdata + "\\debug\\Debug-open.txt";
         string debugdbfilename = programdata + "\\debug\\Debug-db.txt";
         string debugwebreqfilename = programdata + "\\debug\\Debug-webreq.txt";
@@ -118,7 +119,7 @@ namespace Brickficiency {
         public Dictionary<string, bool> blacklistdic = new Dictionary<string, bool>();
 
         //-------------------------------------------------------------------
-        // Fields added or significantly modified by CAC, 6/24/15
+        // Fields added or significantly modified by CAC, 2015-06-24
 
         // Set to true when this is being used for a class and false when it is being released to the public. 
         public Boolean classroomUseMode = false;
@@ -1576,7 +1577,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         private void SetProgressBar(int value) {
             this.BeginInvoke(new MethodInvoker(delegate() {
                 progressBar1.Value = 0;
-                progressBar1.Step = 1; // Added by CAC, 6/26/15
+                progressBar1.Step = 1; // Added by CAC, 2015-06-26
                 progressBar1.Maximum = value;
             }));
         }
@@ -1599,7 +1600,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         }
         private void Progress() {
             // This is sporadically locking up the GUI.  No idea why.
-            // CAC, 6/24/15.
+            // CAC, 2015-06-24.
             this.BeginInvoke(new MethodInvoker(delegate() {
                 progressBar1.PerformStep();
             }));

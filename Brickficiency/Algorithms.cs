@@ -144,7 +144,7 @@ namespace Brickficiency {
                 // So here we compute the last index of the first (up to) 5 items on the list. The last index of the 5th should be the final index.  
                 // The last index of the rest might be smaller. I haven't figured out exactly how to use this information for items 2-5 yet since
                 // it gets a little more complicated.
-                // CAC, 6/25/15
+                // CAC, 2015-06-25
                 int numToTrack = itemList.Count > 5 ? 5 : itemList.Count;
                 int[] lastnonzeroindex = new int[numToTrack];
                 for (int item = 0; item < numToTrack; item++) {
@@ -160,7 +160,7 @@ namespace Brickficiency {
                 Parallel.For(0, lastnonzeroindex[0] + 1, store1 => {
                     if (calcWorker.CancellationPending || stopAlgorithmEarly) { return; }
                     // Do the next k stores have enough of the first element?  
-                    // If not, none of the rest will so quit. CAC, 6/25/15
+                    // If not, none of the rest will so quit. CAC, 2015-06-25
                     int totalQtyFirst = 0;
                     int lastToCheck = Math.Min(storeList.Count - 1, store1 + k);
                     for (int i = store1; i < lastToCheck; i++) {
@@ -177,7 +177,7 @@ namespace Brickficiency {
                         // possibilities based on lastnonzeroindex[i] for i>0.  Still need to think about this.
                         // I'm leaving it here commented out to remind me that I tried it and realized
                         // that it isn't correct.
-                        // CAC, 7/2/15.
+                        // CAC, 2015-07-02.
                         //end[i] = (i < numToTrack) ? lastnonzeroindex[i] : storeList.Count - k + i;
                     }
                     end[0] = store1;
