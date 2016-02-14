@@ -992,7 +992,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                     object smeg = row["availstores"];
                     if (row["availstores"].Equals(-1))
                     {
-                        ParsePage(GetPGPage(item, true), item);
+                        GetPriceGuideForItem(item, true);
                         row["availstores"] = item.availstores;
                     }
                 }
