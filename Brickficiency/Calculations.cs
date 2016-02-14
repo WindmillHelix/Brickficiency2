@@ -40,7 +40,7 @@ namespace Brickficiency {
 
             calcitems = dt2item(dt[currenttab]);
 
-            // Slicker way to remove the unwanted elements.  CAC, 7/1/15
+            // Slicker way to remove the unwanted elements.  CAC, 2015-07-01
             for (int i = calcitems.Count - 1; i >= 0; i--) {
                 Item item = calcitems[i];
                 if ((item.status == "X") || (item.qty == 0)) {
@@ -59,7 +59,7 @@ namespace Brickficiency {
             // This removes from consideration any stores that don't have any of the wanted items
             // since they cannot contribute to a solution.  This can reduce the number of stores
             // that need to be considered significantly.
-            RemoveStoresWitoutAnyWantedItems(); // Added by CAC, 7/1/15
+            RemoveStoresWitoutAnyWantedItems(); // Added by CAC, 2015-07-01
 
             if (calcWorker.CancellationPending) { return; }
 
@@ -240,6 +240,15 @@ namespace Brickficiency {
         {
             if (page == null) return;
 
+#if DEBUG
+            lock(debugparsesource)
+            {
+                StreamWriter swr = new StreamWriter(debugparsesource);
+                swr.Write(page);
+                swr.Close();
+            }
+#endif
+
             List<string> chunks = page.Split(new string[] { "<B>Currently Available</B>" }, StringSplitOptions.None).ToList();
             List<string> rawpgitems;
             if (chunks.Count > 1)
@@ -320,7 +329,7 @@ namespace Brickficiency {
                                 if (StoreDictionary[storename][item.extid].price < price)
                                     StoreDictionary[storename][item.extid].price = price;
                             }
-                            storesWithItemsList.Add(storename); // Added by CAC, 6/24/15
+                            storesWithItemsList.Add(storename); // Added by CAC, 2015-06-24
                         }
                     }
                 }
@@ -349,7 +358,7 @@ namespace Brickficiency {
                 }
             }
             SetProgressBar(calcitems.Count);
-            storesWithItemsList.Clear(); // Added by CAC, 6/24/15
+            storesWithItemsList.Clear(); // Added by CAC, 2015-06-24
 
             foreach (Item item in calcitems) {
                 if (!calcWorker.CancellationPending) {
@@ -375,7 +384,7 @@ namespace Brickficiency {
                             db_blitems[item.id].pgcolourspage = page;
                         }
 
-                        foreach (Match colourmatch in Regex.Matches(page, "http://www\\.bricklink\\.com/catalogPG\\.asp\\?" + item.type + "=" + item.number + "&colorID=([0-9]+)")) {
+                        foreach (Match colourmatch in Regex.Matches(page, "http://www\\.bricklink\\.com/catalogPG\\.asp\\?" + item.type + "=" + item.number + "&ColorID=([0-9]+)")) {
                             string colour = colourmatch.Groups[1].Value;
                             AddStatus(" " + db_colours[colour].name + Environment.NewLine);
                             itemcolours.Add(colour);
@@ -503,7 +512,7 @@ namespace Brickficiency {
                                                 StoreDictionary[storename][item.extid].colour = colour;
                                             }
                                         }
-                                        storesWithItemsList.Add(storename); // Added by CAC, 6/24/15
+                                        storesWithItemsList.Add(storename); // Added by CAC, 2015-06-24
                                     }
                                 }
                             } else {
@@ -754,7 +763,7 @@ namespace Brickficiency {
         }
         #endregion
 
-        // This method was here but isn't used.  I commented it out.  CAC, 7/8/15
+        // This method was here but isn't used.  I commented it out.  CAC, 2015-07-08
         //#region find cheapest from a list
         //private List<int> FindCheapest(params decimal[] pricesin) {
         //    Dictionary<int, decimal> prices = new Dictionary<int, decimal>();
@@ -832,7 +841,7 @@ namespace Brickficiency {
             //shortcount = 0;
             longcount = 0;
 
-            // Added to this method by CAC, 7/6/15 to fix a bug related to the report.
+            // Added to this method by CAC, 2015-07-06 to fix a bug related to the report.
             matches = new List<FinalMatch>();
 
             matchesfoundcount = 0;
