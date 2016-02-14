@@ -2819,7 +2819,7 @@ dr["availstores"] = -1;
             if (dialogresult == DialogResult.OK) {
                 List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
                 valuesList.Add(new Tuple<string, Del>("qty", current => (int)current * multiplyItemsWindow.num));
-                valuesList.Add(new Tuple<string, Del>("total", current => (double)current * multiplyItemsWindow.num));
+                valuesList.Add(new Tuple<string, Del>("total", current => (decimal)current * multiplyItemsWindow.num));
 
                 SortSafeSet(valuesList);
             }
@@ -2832,7 +2832,7 @@ dr["availstores"] = -1;
             if (dialogresult == DialogResult.OK) {
                 List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
                 valuesList.Add(new Tuple<string, Del>("qty", current => (int)current / multiplyItemsWindow.num));
-                valuesList.Add(new Tuple<string, Del>("total", current => (double)current / multiplyItemsWindow.num));
+                valuesList.Add(new Tuple<string, Del>("total", current => (decimal)current / multiplyItemsWindow.num));
 
                 SortSafeSet(valuesList);
             }

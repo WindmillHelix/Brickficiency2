@@ -236,12 +236,13 @@ namespace Brickficiency {
             for (int store1 = 0; store1 < storeList.Count; store1++) {
                 foreach (Item item in itemList) {
                     if (storeList[store1].getQty(item.extid) < item.qty) {
-                        return;
+                        goto nextStore;
                     }
                 }
                 List<string> storeNames = new List<string>();
                 storeNames.Add(storeList[store1].getName());
                 addFinalMatch(storeNames);
+            nextStore:
                 Progress();
             }
         }
