@@ -91,6 +91,7 @@
             this.Name = "GetPassword";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "BrickLink Login";
+            this.TopMost = true;
             this.Shown += new System.EventHandler(this.GetPassword_Shown);
             this.ResumeLayout(false);
             this.PerformLayout();
