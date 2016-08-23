@@ -20,7 +20,9 @@ using System.Data.SqlServerCe;
 using Ionic.Zip;
 using Brickficiency.Classes;
 using System.Diagnostics;
-
+using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.DependencyInjection;
+using WindmillHelix.Brickficiency2.Services;
 
 namespace Brickficiency {
     public partial class MainWindow : Form {
@@ -49,11 +51,11 @@ namespace Brickficiency {
         //fixed bug in importing wanted lists. learned I am still really bad at creating regexes.
         //updated db url
 
-
+        private readonly IColorService _colorService;
 
         #region prepare some vars
         //global stuff
-        public static string version = "v0.96.0"; // CHANGE APPLICATION PROPERTIES > Assembly Information
+        public static string version =  "v2.0.0"; // CHANGE APPLICATION PROPERTIES > Assembly Information
         public static string programname = "Brickficiency";
         static string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         static string programdata = appdata + "\\" + programname + "\\";
@@ -441,8 +443,13 @@ namespace Brickficiency {
             //EnableMenu();
         }
 
-        public MainWindow() {
+        public MainWindow(
+            IColorService colorService)
+        {
+            _colorService = colorService;
+
             InitializeComponent();
+
             importBLWantedWindow.AdviseParent += new ImportBLWanted.AdviseParentEventHandler(AddStatus);
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
         }
@@ -1801,17 +1808,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         }
                     }
 
-                    using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM colours", con)) {
-                        SqlCeDataReader reader = com.ExecuteReader();
-                        while (reader.Read()) {
-                            db_colours.Add(reader.GetString(0), new DBColour() {
-                                id = reader.GetString(0),
-                                name = reader.GetString(1),
-                                rgb = reader.GetString(2),
-                                type = reader.GetString(3)
-                            });
-                        }
-                    }
+                    var colors = _colorService.GetColors().ToDictionary(x => x.id, x => x);
+                    db_colours = colors;
 
                     using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM items", con)) {
                         SqlCeDataReader reader = com.ExecuteReader();
