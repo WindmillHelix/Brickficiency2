@@ -23,6 +23,7 @@ using System.Diagnostics;
 using WindmillHelix.Brickficiency2.Common;
 using WindmillHelix.Brickficiency2.DependencyInjection;
 using WindmillHelix.Brickficiency2.Services;
+using WindmillHelix.Brickficiency2.Services.Data;
 
 namespace Brickficiency {
     public partial class MainWindow : Form {
@@ -52,6 +53,9 @@ namespace Brickficiency {
         //updated db url
 
         private readonly IColorService _colorService;
+        private readonly IItemTypeService _itemTypeService;
+        private readonly ICategoryService _categoryService;
+        private readonly IItemService _itemService;
 
         #region prepare some vars
         //global stuff
@@ -444,9 +448,15 @@ namespace Brickficiency {
         }
 
         public MainWindow(
-            IColorService colorService)
+            IColorService colorService,
+            IItemTypeService itemTypeService,
+            ICategoryService categoryService,
+            IItemService itemService)
         {
             _colorService = colorService;
+            _itemTypeService = itemTypeService;
+            _categoryService = categoryService;
+            _itemService = itemService;
 
             InitializeComponent();
 
@@ -1783,64 +1793,58 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 string conString = "Data Source=" + databasefilename;
                 using (SqlCeConnection con = new SqlCeConnection(conString)) {
                     con.Open();
-                    using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM types", con)) {
-                        SqlCeDataReader reader = com.ExecuteReader();
-                        while (reader.Read()) {
-                            db_typenames.Add(reader.GetString(0), reader.GetString(1));
-                        }
-                    }
 
-                    using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM categories", con)) {
-                        SqlCeDataReader reader = com.ExecuteReader();
-                        while (reader.Read()) {
-                            db_categories.Add(reader.GetString(0), new DBCat() {
-                                id = reader.GetString(0),
-                                name = reader.GetString(1),
-                                sets = Convert.ToInt32(reader.GetString(2)),
-                                parts = Convert.ToInt32(reader.GetString(3)),
-                                minifigures = Convert.ToInt32(reader.GetString(4)),
-                                books = Convert.ToInt32(reader.GetString(5)),
-                                gear = Convert.ToInt32(reader.GetString(6)),
-                                catalogs = Convert.ToInt32(reader.GetString(7)),
-                                instructions = Convert.ToInt32(reader.GetString(8)),
-                                originalboxes = Convert.ToInt32(reader.GetString(9))
-                            });
-                        }
-                    }
+                    var itemTypes = _itemTypeService.GetItemTypes();
+                    db_typenames = itemTypes.ToDictionary(x => x.ItemTypeCode, x => x.Name);
+
+                    var categories = _categoryService.GetCategories()
+                        .Select(x => new DBCat { id = x.CategoryId.ToString(), name = x.Name.ToString() })
+                        .ToDictionary(x => x.id, x => x);
+                    db_categories = categories;
 
                     var colors = _colorService.GetColors().ToDictionary(x => x.id, x => x);
                     db_colours = colors;
 
-                    using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM items", con)) {
-                        SqlCeDataReader reader = com.ExecuteReader();
-                        while (reader.Read()) {
-                            db_blitems.Add(reader.GetString(0), new DBBLItem() {
-                                id = reader.GetString(0),
-                                number = reader.GetString(1),
-                                type = reader.GetString(2),
-                                name = reader.GetString(3),
-                                weight = reader.GetString(4),
-                                dimensions = reader.GetString(5),
-                                catid = reader.GetString(6),
-                            });
-                            string containraw = reader.GetString(8);
-                            foreach (string line in containraw.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
-                                string[] part = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                                if (!db_containers.ContainsKey(part[0])) {
-                                    db_containers.Add(part[0], new List<DBItemContain>() {
-                                    new DBItemContain(){ 
-                                        item = part[1], qty = Convert.ToInt32(part[2]) 
-                                    }
-                                });
-                                } else {
-                                    db_containers[part[0]].Add(new DBItemContain() {
-                                        item = part[1],
-                                        qty = Convert.ToInt32(part[2])
-                                    });
-                                }
-                            }
-                        }
-                    }
+                    // todo: not accounting for items that contain other items
+                    var items = _itemService.GetItems().Select(x => new DBBLItem()
+                    {
+                        id = string.Format("{0}-{1}", x.ItemTypeCode.ToUpperInvariant(), x.ItemId),
+                        number = x.ItemId, // todo: what is this??
+                        type = x.ItemTypeCode,
+                        name = x.Name,
+                        catid = x.CategoryId.ToString(),
+                    });
+
+                    db_blitems = items.ToDictionary(x => x.id, x => x);
+
+                    ////using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM items", con)) {
+                    ////    SqlCeDataReader reader = com.ExecuteReader();
+                    ////    while (reader.Read()) {
+                    ////        db_blitems.Add(reader.GetString(0), new DBBLItem() {
+                    ////            id = reader.GetString(0),
+                    ////            number = reader.GetString(1),
+                    ////            type = reader.GetString(2),
+                    ////            name = reader.GetString(3),
+                    ////            catid = reader.GetString(6),
+                    ////        });
+                    ////        string containraw = reader.GetString(8);
+                    ////        foreach (string line in containraw.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
+                    ////            string[] part = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    ////            if (!db_containers.ContainsKey(part[0])) {
+                    ////                db_containers.Add(part[0], new List<DBItemContain>() {
+                    ////                new DBItemContain(){ 
+                    ////                    item = part[1], qty = Convert.ToInt32(part[2]) 
+                    ////                }
+                    ////            });
+                    ////            } else {
+                    ////                db_containers[part[0]].Add(new DBItemContain() {
+                    ////                    item = part[1],
+                    ////                    qty = Convert.ToInt32(part[2])
+                    ////                });
+                    ////            }
+                    ////        }
+                    ////    }
+                    ////}
 
                     using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM altid", con)) {
                         SqlCeDataReader reader = com.ExecuteReader();

@@ -32,26 +32,27 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Tests
         }
 
         [TestMethod]
-        public void TestSerialize()
+        public void TestGetItemTypes()
         {
-            var catalog = new CatalogContainer<BricklinkColor>();
-            var white = new BricklinkColor
-            {
-                Name = "White",
-                ColorId = 1
-            };
+            var itemTypes = _service.DownloadItemTypes();
+            Assert.IsNotNull(itemTypes);
+            Assert.AreNotEqual(0, itemTypes.Count);
 
-            var unknownColor = new BricklinkColor
-            {
-                Name = "Unknown",
-                ColorId = 0
-            };
+            var catalog = itemTypes.SingleOrDefault(x => x.ItemTypeCode == "C");
+            Assert.IsNotNull(catalog);
+            Assert.AreEqual("Catalog", catalog.Name);
+        }
 
-            catalog.Items = new[] { white, unknownColor };
-            var serializer = new XmlSerializer(typeof(CatalogContainer<BricklinkColor>));
+        [TestMethod]
+        public void TestGetSets()
+        {
+            var sets = _service.DownloadItems("S");
+            Assert.IsNotNull(sets);
+            Assert.AreNotEqual(0, sets.Count);
 
-            var writer = new StringWriter();
-            serializer.Serialize(writer, catalog);
+            var avengersTower = sets.SingleOrDefault(x => x.ItemId == "76038-1");
+            Assert.IsNotNull(avengersTower);
+            Assert.AreEqual("Attack on Avengers Tower", avengersTower.Name);
         }
     }
 }

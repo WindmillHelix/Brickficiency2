@@ -5,12 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using WindmillHelix.Brickficiency2.Common;
 
-namespace WindmillHelix.Brickficiency2.Services
+namespace WindmillHelix.Brickficiency2.Services.Data
 {
-    public interface IColorService
+    public interface ICategoryService : IRefreshable
     {
-        IReadOnlyCollection<DBColour> GetColors();
-
-        void Refresh();
+        IReadOnlyCollection<Category> GetCategories();
     }
 }

@@ -16,10 +16,13 @@ namespace WindmillHelix.Brickficiency2.DependencyInjection
         {
             var builder = new ContainerBuilder();
 
-            builder.RegisterAssemblyModules(
-                typeof(ExternalApiAssemblyLocator).Assembly,
-                typeof(ServicesAssemblyLocator).Assembly,
-                Assembly.GetEntryAssembly());
+            var assemblies = new List<Assembly>();
+
+            assemblies.Add(typeof(ExternalApiAssemblyLocator).Assembly);
+            assemblies.Add(typeof(ServicesAssemblyLocator).Assembly);
+            assemblies.Add(Assembly.GetEntryAssembly());
+
+            builder.RegisterAssemblyModules(assemblies.Where(x => x != null).ToArray());
 
             return builder.Build();
         }

@@ -36,6 +36,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,7 +47,11 @@
   <ItemGroup>
     <Compile Include="Bricklink\BricklinkCatalogService.cs" />
     <Compile Include="Bricklink\IBricklinkCatalogService.cs" />
+    <Compile Include="Bricklink\Models\BricklinkCategory.cs" />
     <Compile Include="Bricklink\Models\BricklinkColor.cs" />
+    <Compile Include="Bricklink\Models\BricklinkItem.cs" />
+    <Compile Include="Bricklink\Models\BricklinkItemType.cs" />
+    <Compile Include="Bricklink\Models\BricklinkSet.cs" />
     <Compile Include="Bricklink\Models\CatalogContainer.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DependencyInjection\ExternalApiModule.cs" />

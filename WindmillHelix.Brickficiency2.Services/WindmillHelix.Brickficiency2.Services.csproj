@@ -45,10 +45,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDataService.cs" />
-    <Compile Include="ColorService.cs" />
+    <Compile Include="Data\CachedDataService.cs" />
+    <Compile Include="Data\CategoryService.cs" />
+    <Compile Include="Data\ColorService.cs" />
+    <Compile Include="Data\ICategoryService.cs" />
+    <Compile Include="Data\IItemService.cs" />
+    <Compile Include="Data\ItemService.cs" />
     <Compile Include="DependencyInjection\ServicesModule.cs" />
     <Compile Include="IAppDataService.cs" />
-    <Compile Include="IColorService.cs" />
+    <Compile Include="Data\IColorService.cs" />
+    <Compile Include="Data\IItemTypeService.cs" />
+    <Compile Include="IRefreshable.cs" />
+    <Compile Include="Data\ItemTypeService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServicesAssemblyLocator.cs" />
   </ItemGroup>

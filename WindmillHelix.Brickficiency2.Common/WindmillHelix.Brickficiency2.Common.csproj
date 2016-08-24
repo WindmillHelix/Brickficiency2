@@ -41,7 +41,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyNames.cs" />
+    <Compile Include="Category.cs" />
     <Compile Include="DBColour.cs" />
+    <Compile Include="ItemDetails.cs" />
+    <Compile Include="ItemType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Xml\TypedXmlSerializer.cs" />
   </ItemGroup>

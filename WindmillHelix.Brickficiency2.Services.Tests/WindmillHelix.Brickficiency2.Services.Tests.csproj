@@ -49,18 +49,25 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
     <Compile Include="ColorServiceTests.cs" />
+    <Compile Include="ItemServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WindmillHelix.Brickficiency2.Common\WindmillHelix.Brickficiency2.Common.csproj">
       <Project>{bc14fca3-1f52-4843-848d-68990a0b04a6}</Project>
       <Name>WindmillHelix.Brickficiency2.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindmillHelix.Brickficiency2.DependencyInjection\WindmillHelix.Brickficiency2.DependencyInjection.csproj">
+      <Project>{4876e4a0-4c20-4e35-8c61-9794a74d1bd3}</Project>
+      <Name>WindmillHelix.Brickficiency2.DependencyInjection</Name>
     </ProjectReference>
     <ProjectReference Include="..\WindmillHelix.Brickficiency2.ExternalApi\WindmillHelix.Brickficiency2.ExternalApi.csproj">
       <Project>{d292740f-d062-4f81-9e1b-80edfa08c864}</Project>
