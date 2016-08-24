@@ -15,7 +15,7 @@ namespace WindmillHelix.Brickficiency2.Services.Tests
         public ColorServiceTests()
         {
             _service = new ColorService(
-                new BricklinkCatalogService(),
+                new BricklinkCatalogApi(),
                 new AppDataService());
         }
 

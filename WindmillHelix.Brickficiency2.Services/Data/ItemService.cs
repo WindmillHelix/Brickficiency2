@@ -12,12 +12,12 @@ namespace WindmillHelix.Brickficiency2.Services.Data
 {
     internal class ItemService : CachedDataService<ItemDetails>, IItemService
     {
-        private readonly IBricklinkCatalogService _bricklinkCatalogService;
+        private readonly IBricklinkCatalogApi _bricklinkCatalogService;
         private readonly IItemTypeService _itemTypeService;
 
         public ItemService(
             IAppDataService appDataService,
-            IBricklinkCatalogService bricklinkCatalogService,
+            IBricklinkCatalogApi bricklinkCatalogService,
             IItemTypeService itemTypeService) 
             : base(appDataService)
         {

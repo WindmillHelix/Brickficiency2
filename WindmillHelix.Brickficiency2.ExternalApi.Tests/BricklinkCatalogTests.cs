@@ -11,11 +11,11 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Tests
     [TestClass]
     public class BricklinkCatalogTests
     {
-        private readonly IBricklinkCatalogService _service;
+        private readonly IBricklinkCatalogApi _service;
 
         public BricklinkCatalogTests()
         {
-            _service = new BricklinkCatalogService();
+            _service = new BricklinkCatalogApi();
         }
 
         [TestMethod]

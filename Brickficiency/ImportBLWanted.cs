@@ -14,11 +14,15 @@ using System.Text.RegularExpressions;
 using System.Net;
 using Brickficiency.Classes;
 using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
 
 namespace Brickficiency
 {
     public partial class ImportBLWanted : Form
     {
+        // don't really want this referenced here directly, but it will take a bit to decouple this code
+        private readonly IBricklinkLoginApi _bricklinkLoginApi;
+
         #region Define vars
         CookieContainer cookies = new CookieContainer();
         List<string> wantedpage = new List<string>();
@@ -30,8 +34,11 @@ namespace Brickficiency
         public event AdviseParentEventHandler AdviseParent;
         int wantedImportStep = 0;
 
-        public ImportBLWanted()
+        public ImportBLWanted(IBricklinkLoginApi bricklinkLoginApi)
         {
+            // don't really want this referenced here directly, but it will take a bit to decouple this code
+            _bricklinkLoginApi = bricklinkLoginApi;
+
             InitializeComponent();
         }
         #endregion
@@ -107,7 +114,7 @@ namespace Brickficiency
             foreach (Item item in tmpwanted)
             {
                 item.status = "I";
-                item.imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + item.type + (item.colour == "0" ? "" : "&colorID=" + item.colour) + "&itemNo=" + item.number;
+                item.imageurl = "https://www.bricklink.com/getPic.asp?itemType=" + item.type + (item.colour == "0" ? "" : "&colorID=" + item.colour) + "&itemNo=" + item.number;
                 item.categoryid = MainWindow.db_blitems[item.id].catid;
                 item.type = MainWindow.db_blitems[item.id].type;
                 try
@@ -364,59 +371,19 @@ namespace Brickficiency
         private string GetWantedPage()
         {
             string loginURL = "https://www.bricklink.com/login.asp";
-            string wantedURL = "http://www.bricklink.com/wantedDetail.asp?viewFrom=wantedSearch&wantedSize=1000";
+            string wantedURL = "https://www.bricklink.com/wantedDetail.asp?viewFrom=wantedSearch&wantedSize=1000";
             string formParams = String.Format("a=a&logFrmFlag=Y&frmUsername={0}&frmPassword={1}", unBox.Text, pwBox.Text);
             string cookieHeader;
-            string pageSource;
+            string pageSource = null;
 
             try
             {
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(loginURL);
-                req.Timeout = 15000;
-                req.CookieContainer = cookies;
-                req.ContentType = "application/x-www-form-urlencoded";
-                req.Method = "POST";
-                req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
-                byte[] bytes = Encoding.ASCII.GetBytes(formParams);
-                req.ContentLength = bytes.Length;
+                // don't really want this referenced here directly, but it will take a bit to decouple this code
+                var didLogIn = _bricklinkLoginApi.Login(cookies, unBox.Text, pwBox.Text);
 
-                int pagefail = 0;
-                bool pagesuccess = false;
-
-                while ((pagesuccess == false) && (pagefail < 4))
-                {
-                    try
-                    {
-                        using (Stream os = req.GetRequestStream())
-                        {
-                            os.Write(bytes, 0, bytes.Length);
-                            pagesuccess = true;
-                        }
-                    }
-                    catch
-                    {
-                        ImportStatus("Retrying...", Color.Red);
-                        pagefail++;
-                    }
-                }
-
-                if (pagesuccess == false)
+                if (!didLogIn)
                 {
                     return "##PageFail##";
-                }
-
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                cookieHeader = resp.Headers["Set-cookie"];
-                cookies.Add(resp.Cookies);
-                using (StreamReader sr = new StreamReader(resp.GetResponseStream()))
-                {
-                    pageSource = sr.ReadToEnd();
-                }
-
-                Match loginError = Regex.Match(pageSource, @"Invalid Password.", RegexOptions.IgnoreCase);
-                if (loginError.Success)
-                {
-                    return null;
                 }
 
                 HttpWebRequest wantedReq = (HttpWebRequest)WebRequest.Create(wantedURL);
@@ -424,8 +391,8 @@ namespace Brickficiency
                 wantedReq.CookieContainer = cookies;
                 wantedReq.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
 
-                pagefail = 0;
-                pagesuccess = false;
+                int pagefail = 0;
+                bool pagesuccess = false;
 
                 while ((pagesuccess == false) && (pagefail < 4))
                 {

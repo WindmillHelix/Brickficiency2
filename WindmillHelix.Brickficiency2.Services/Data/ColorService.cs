@@ -12,10 +12,10 @@ namespace WindmillHelix.Brickficiency2.Services.Data
 {
     internal class ColorService : CachedDataService<DBColour>, IColorService
     {
-        private readonly IBricklinkCatalogService _bricklinkCatalogService;
+        private readonly IBricklinkCatalogApi _bricklinkCatalogService;
 
         public ColorService(
-            IBricklinkCatalogService bricklinkCatalogService,
+            IBricklinkCatalogApi bricklinkCatalogService,
             IAppDataService appDataService)
             : base(appDataService)
         {

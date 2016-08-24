@@ -12,9 +12,12 @@ namespace WindmillHelix.Brickficiency2.DependencyInjection
 {
     public static class DependencyInjectionConfig
     {
-        public static IContainer Setup()
+        public static IContainer Setup(ContainerBuilder builder = null)
         {
-            var builder = new ContainerBuilder();
+            if (builder == null)
+            {
+                builder = new ContainerBuilder();
+            }
 
             var assemblies = new List<Assembly>();
 

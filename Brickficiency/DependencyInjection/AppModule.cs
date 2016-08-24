@@ -12,6 +12,7 @@ namespace Brickficiency.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<MainWindow>();
+            builder.RegisterType<ImportBLWanted>();
         }
     }
 }

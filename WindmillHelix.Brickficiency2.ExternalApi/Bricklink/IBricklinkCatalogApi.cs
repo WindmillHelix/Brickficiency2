@@ -7,7 +7,7 @@ using WindmillHelix.Brickficiency2.ExternalApi.Bricklink.Models;
 
 namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
 {
-    public interface IBricklinkCatalogService
+    public interface IBricklinkCatalogApi
     {
         IReadOnlyCollection<BricklinkColor> DownloadColorList();
 

@@ -12,7 +12,7 @@ using WindmillHelix.Brickficiency2.ExternalApi.Bricklink.Models;
 
 namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
 {
-    internal class BricklinkCatalogService : IBricklinkCatalogService
+    internal class BricklinkCatalogApi : IBricklinkCatalogApi
     {
         public IReadOnlyCollection<BricklinkColor> DownloadColorList()
         {

@@ -142,8 +142,8 @@ namespace Brickficiency {
                         continue;
 
                     if (!db_countrystores.ContainsKey(country)) {
-                        swr.Write(DateTime.Now + "downloading http://www.bricklink.com/browseStores.asp?countryID=" + db_countries[country] + Environment.NewLine);
-                        page = GetPage("http://www.bricklink.com/browseStores.asp?countryID=" + db_countries[country]);
+                        swr.Write(DateTime.Now + "downloading https://www.bricklink.com/browseStores.asp?countryID=" + db_countries[country] + Environment.NewLine);
+                        page = GetPage("https://www.bricklink.com/browseStores.asp?countryID=" + db_countries[country]);
                         db_countrystores.Add(country, page);
                         if (page == "##PageFail##") {
                             pagefail = true;
@@ -151,7 +151,7 @@ namespace Brickficiency {
                             break;
                         }
                     } else {
-                        swr.Write(DateTime.Now + "Using cached copy of http://www.bricklink.com/browseStores.asp?countryID=" + db_countries[country] + Environment.NewLine);
+                        swr.Write(DateTime.Now + "Using cached copy of https://www.bricklink.com/browseStores.asp?countryID=" + db_countries[country] + Environment.NewLine);
                         page = db_countrystores[country];
                     }
 
@@ -250,7 +250,7 @@ namespace Brickficiency {
 
                 if (live)
                 {
-                    page = GetPage("http://www.bricklink.com/catalogPG.asp?" + item.type + "=" + item.number + "&colorID=" + colour, settings.login);
+                    page = GetPage("https://www.bricklink.com/catalogPG.asp?" + item.type + "=" + item.number + "&colorID=" + colour, settings.login);
                     // Uncomment these three lines to save prices guide information so that it is used instead of live data.
                     // Comment them when done.
                     //if (!Directory.Exists("PGCache")) { Directory.CreateDirectory("PGCache"); }
@@ -328,9 +328,11 @@ namespace Brickficiency {
                     continue;
                 }
 
-                Match linematch = Regex.Match(raw, ".*<TR ALIGN=" + "\"" + @"RIGHT" + "\"" + @"><TD NOWRAP>.*?<A HREF=" + "\"" +
+                // what is this madness?
+                var pattern = ".*<TR ALIGN=" + "\"" + @"RIGHT" + "\"" + @"><TD NOWRAP>.*?<A HREF=" + "\"" +
                     @"/store.asp\?sID=(\d*?)&.*?<IMG SRC=" + "\"" + @"/images/box16(.).png" + "\"" + @".*?TITLE=" + "\"" + @"Store: (.*?)" +
-                    "\"" + @" ALIGN=" + "\"" + @"ABSMIDDLE" + "\"" + @">.*?</TD><TD>(\d*)</TD><TD.*?&nbsp;\D*([\d,]*)\.(\d+)$");
+                    "\"" + @" ALIGN=" + "\"" + @"ABSMIDDLE" + "\"" + @">.*?</TD><TD>(\d*)</TD><TD.*?&nbsp;\D*([\d,]*)\.(\d+)$";
+                Match linematch = Regex.Match(raw, pattern);
 
                 if (linematch.Success)
                 {
@@ -560,10 +562,10 @@ namespace Brickficiency {
                             StoreItem si = md.GetItem(item.extid);
                             if (si != null) {
                                 decimal qtyprice = si.price * si.qty;
-                                md.list += "<TR><TD><a href=\"http://www.bricklink.com/store.asp?sID=" +
+                                md.list += "<TR><TD><a href=\"https://www.bricklink.com/store.asp?sID=" +
                                            storeid[storename] + "&q=" + item.number + "&colorID=" + si.colour + "\"><IMG SRC=" +
                                            (item.colour == "0" ? GenerateImageURL(item.id, si.colour) : item.imageurl) +
-                                           "></a></TD><TD><a href=\"http://www.bricklink.com/store.asp?sID=" +
+                                           "></a></TD><TD><a href=\"https://www.bricklink.com/store.asp?sID=" +
                                            storeid[storename] + "&q=" + item.number + "&colorID=" + si.colour + "\">" +
                                            db_colours[si.colour].name + " " + db_blitems[item.id].name +
                                            "</a></TD><TD>" + si.qty + " @ " + si.price + "</TD><TD>" + qtyprice +
@@ -601,7 +603,7 @@ namespace Brickficiency {
                     foreach (string storeName in match.GetStoreNames()) {
                         if (storeName != "") {
                             MatchDetails md = match.GetDetails(storeName);
-                            swr.WriteLine("		<a href=\"http://www.bricklink.com/store.asp?sID=" + storeid[storeName] + "\" target=\"_blank\">" +
+                            swr.WriteLine("		<a href=\"https://www.bricklink.com/store.asp?sID=" + storeid[storeName] + "\" target=\"_blank\">" +
                                 storeName + "</a> (" + storeid[storeName] + ") - " + md.totalStorePrice + " - " + md.totalNumberItemsFromStore + " items in " + md.totalNumberLotsFromStore + " lots<BR>");
                             swr.WriteLine("		<table border>" + md.list);
                             swr.WriteLine("		</table>");
@@ -612,10 +614,10 @@ namespace Brickficiency {
                             swr.WriteLine("			Bricklink Wanted List XML");
                             swr.WriteLine("		</div>");
                             swr.WriteLine("		<div id=\"text_" + match.num + "_" + matchfinalindex + "_XML" + tmpind + "\" class=\"general\">");
-                            swr.WriteLine("			<a href=\"http://www.bricklink.com/wantedView.asp\" target=\"_blank\">Wanted List Number</a>: " +
+                            swr.WriteLine("			<a href=\"https://www.bricklink.com/wantedView.asp\" target=\"_blank\">Wanted List Number</a>: " +
                                 "<input type=\"text\" id=\"text_" + match.num + "_" + matchfinalindex + "_text" + tmpind + "\">");
                             swr.WriteLine("			<input type=\"button\" value=\"Go\" onclick=\"replace('text_" + match.num + "_" + matchfinalindex + "_text" + tmpind +
-                                "','text_" + match.num + "_" + matchfinalindex + "_textarea" + tmpind + "')\"> <a href=\"http://www.bricklink.com/wantedXML.asp\" " +
+                                "','text_" + match.num + "_" + matchfinalindex + "_textarea" + tmpind + "')\"> <a href=\"https://www.bricklink.com/wantedXML.asp\" " +
                                 "target=\"_blank\">Upload</a><br>");
                             swr.WriteLine("			<textarea id=\"text_" + match.num + "_" + matchfinalindex + "_textarea" + tmpind + "\" rows=\"12\" cols=\"75\" " +
                                 "onclick=\"this.focus();this.select()\" readonly=\"readonly\">" + Environment.NewLine + "<INVENTORY>" + Environment.NewLine + md.xml + "</INVENTORY></textarea>");

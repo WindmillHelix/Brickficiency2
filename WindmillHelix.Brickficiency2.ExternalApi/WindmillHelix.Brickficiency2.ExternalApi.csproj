@@ -34,6 +34,10 @@
       <HintPath>..\packages\Autofac.4.0.0\lib\net451\Autofac.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
@@ -45,8 +49,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bricklink\BricklinkCatalogService.cs" />
-    <Compile Include="Bricklink\IBricklinkCatalogService.cs" />
+    <Compile Include="Bricklink\BricklinkCatalogApi.cs" />
+    <Compile Include="Bricklink\BricklinkLoginApi.cs" />
+    <Compile Include="Bricklink\BricklinkPriceGuideApi.cs" />
+    <Compile Include="Bricklink\BricklinkSessionService.cs" />
+    <Compile Include="Bricklink\IBricklinkCatalogApi.cs" />
+    <Compile Include="Bricklink\IBricklinkLoginApi.cs" />
+    <Compile Include="Bricklink\IBricklinkSessionService.cs" />
     <Compile Include="Bricklink\Models\BricklinkCategory.cs" />
     <Compile Include="Bricklink\Models\BricklinkColor.cs" />
     <Compile Include="Bricklink\Models\BricklinkItem.cs" />

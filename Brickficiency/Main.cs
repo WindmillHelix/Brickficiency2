@@ -24,6 +24,7 @@ using WindmillHelix.Brickficiency2.Common;
 using WindmillHelix.Brickficiency2.DependencyInjection;
 using WindmillHelix.Brickficiency2.Services;
 using WindmillHelix.Brickficiency2.Services.Data;
+using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
 
 namespace Brickficiency {
     public partial class MainWindow : Form {
@@ -56,6 +57,9 @@ namespace Brickficiency {
         private readonly IItemTypeService _itemTypeService;
         private readonly ICategoryService _categoryService;
         private readonly IItemService _itemService;
+
+        // don't really want this referenced here directly, but it will take a bit to decouple this code
+        private readonly IBricklinkLoginApi _bricklinkLoginApi; 
 
         #region prepare some vars
         //global stuff
@@ -159,7 +163,7 @@ namespace Brickficiency {
         public decimal matchtobeat = 0;
 
         About aboutWindow = new About();
-        ImportBLWanted importBLWantedWindow = new ImportBLWanted();
+        ImportBLWanted importBLWantedWindow;
         CalcOptions calcOptionsWindow = new CalcOptions();
         GetPassword getPasswordWindow = new GetPassword();
         HoverZoom hoverZoomWindow = new HoverZoom();
@@ -451,12 +455,18 @@ namespace Brickficiency {
             IColorService colorService,
             IItemTypeService itemTypeService,
             ICategoryService categoryService,
-            IItemService itemService)
+            IItemService itemService,
+            IBricklinkLoginApi bricklinkLoginApi,
+            ImportBLWanted importWantedListForm)
         {
             _colorService = colorService;
             _itemTypeService = itemTypeService;
             _categoryService = categoryService;
             _itemService = itemService;
+            importBLWantedWindow = importWantedListForm;
+
+            // don't really want this referenced here directly, but it will take a bit to decouple this code
+            _bricklinkLoginApi = bricklinkLoginApi;
 
             InitializeComponent();
 
@@ -1319,66 +1329,15 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                     if (result != DialogResult.OK)
                     {
                         password = "";
-                        //                    swr.Close();
                         return null;
                     }
 
-                string loginURL = "https://www.bricklink.com/login.asp";
-                string loginformParams = string.Format(
-                    "a=a&logFrmFlag=Y&frmUsername={0}&frmPassword={1}",
-                    Uri.EscapeDataString(settings.username),
-                    Uri.EscapeDataString(password));
+                    // don't really want this referenced here directly, but it will take a bit to decouple this code
+                    var didLogIn = _bricklinkLoginApi.Login(cookies, settings.username, password);
 
-                password = "";
-                    HttpWebRequest loginreq = (HttpWebRequest)WebRequest.Create(loginURL);
-                    loginreq.Timeout = 15000;
-                    loginreq.CookieContainer = cookies;
-                    loginreq.ContentType = "application/x-www-form-urlencoded";
-                    loginreq.Method = "POST";
-                    loginreq.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
-                    byte[] bytes = Encoding.ASCII.GetBytes(loginformParams);
-                    loginreq.ContentLength = bytes.Length;
-
-                    int pagefail = 0;
-                    bool pagesuccess = false;
-
-                    while ((pagesuccess == false) && (pagefail < MAX_FAILS))
+                    if (!didLogIn)
                     {
-                        try
-                        {
-                            using (Stream os = loginreq.GetRequestStream())
-                            {
-                                os.Write(bytes, 0, bytes.Length);
-                                pagesuccess = true;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            AddStatus("Retrying..." + Environment.NewLine);
-                            pagefail++;
-                            //                        swr.Write(DateTime.Now.ToString() + ": " + ex + Environment.NewLine);
-                        }
-                    }
-
-                    if (pagesuccess == false)
-                    {
-                        //                    swr.Close();
-                        return "##PageFail##";
-                    }
-
-                    HttpWebResponse loginresp = (HttpWebResponse)loginreq.GetResponse();
-                    cookieHeader = loginresp.Headers["Set-cookie"];
-                    cookies.Add(loginresp.Cookies);
-                    using (StreamReader sr = new StreamReader(loginresp.GetResponseStream()))
-                    {
-                        pageSource = sr.ReadToEnd();
-                    }
-
-                    Match loginError = Regex.Match(pageSource, @"Invalid Password.", RegexOptions.IgnoreCase);
-                    if (loginError.Success)
-                    {
-                        AddStatus("Invalid Password" + Environment.NewLine);
-                        //                    swr.Close();
+                        AddStatus("Unable to authenticate to Bricklink.  Check your username and password." + Environment.NewLine);
                         return null;
                     }
                     else
@@ -1396,7 +1355,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                     {
                         try
                         {
-                            string tmpcookieurl = "http://www.bricklink.com/catalogPG.asp?P=3001&colorID=48";
+                            string tmpcookieurl = "https://www.bricklink.com/catalogPG.asp?P=3001&colorID=48";
                             HttpWebRequest tmpreq = (HttpWebRequest)WebRequest.Create(tmpcookieurl);
                             tmpreq.Timeout = 15000;
                             tmpreq.CookieContainer = cookies;
@@ -1426,7 +1385,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
                 req.Timeout = 15000;
                 req.CookieContainer = cookies;
-                req.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
+                req.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
+                req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36";
 
                 int pagefail2 = 0;
                 bool pagesuccess2 = false;
@@ -1987,10 +1947,10 @@ dr["availstores"] = -1;
         public static string GenerateImageURL(string id, string colour = "large") {
             string imageurl;
             if (colour != "large") {
-                imageurl = "http://www.bricklink.com/getPic.asp?itemType=" + db_blitems[id].type + (colour == "0" ? "" : "&colorID=" + colour) + "&itemNo=" + db_blitems[id].number;
+                imageurl = "https://www.bricklink.com/getPic.asp?itemType=" + db_blitems[id].type + (colour == "0" ? "" : "&colorID=" + colour) + "&itemNo=" + db_blitems[id].number;
                 return imageurl;
             } else {
-                imageurl = "http://www.bricklink.com/" + db_blitems[id].type + "L/" + db_blitems[id].number + ".jpg";
+                imageurl = "https://www.bricklink.com/" + db_blitems[id].type + "L/" + db_blitems[id].number + ".jpg";
                 return imageurl;
             }
         }
@@ -2193,7 +2153,7 @@ dr["availstores"] = -1;
                     dgv[currenttab].Rows[e.RowIndex].Cells["categoryname"].Value = db_categories[dgv[currenttab].Rows[e.RowIndex].Cells["categoryid"].Value.ToString()].name;
                     dgv[currenttab].Rows[e.RowIndex].Cells["imageloaded"].Value = "n";
                     dgv[currenttab].Rows[e.RowIndex].Cells["imageurl"].Value = GenerateImageURL(id, (string)dgv[currenttab].Rows[e.RowIndex].Cells["colour"].Value);
-                    dgv[currenttab].Rows[e.RowIndex].Cells["largeimageurl"].Value = "http://www.bricklink.com/" + dgv[currenttab].Rows[e.RowIndex].Cells["type"].Value +
+                    dgv[currenttab].Rows[e.RowIndex].Cells["largeimageurl"].Value = "https://www.bricklink.com/" + dgv[currenttab].Rows[e.RowIndex].Cells["type"].Value +
                         "L/" + dgv[currenttab].Rows[e.RowIndex].Cells["number"].Value + ".jpg";
                     dgv[currenttab].Rows[e.RowIndex].Cells["displayimage"].Value = Properties.Resources.blank;
                     dgv[currenttab].Rows[e.RowIndex].Cells["pgpage"].Value = null;
@@ -2548,7 +2508,7 @@ dr["availstores"] = -1;
 
                 System.Windows.Forms.Clipboard.SetText(wanted);
 
-                string url = "http://www.bricklink.com/wantedXML.asp";
+                string url = "https://www.bricklink.com/wantedXML.asp";
                 try {
                     System.Diagnostics.Process.Start(url);
                 } catch {
@@ -3065,7 +3025,7 @@ dr["availstores"] = -1;
         #region (Context -> BL Catalog)
         private void showBricklinkCatalogInfoToolStripMenuItem_Click(object sender, EventArgs e) {
             foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                string url = "http://www.bricklink.com/catalogItem.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString();
+                string url = "https://www.bricklink.com/catalogItem.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString();
                 try {
                     System.Diagnostics.Process.Start(url);
                 } catch {
@@ -3078,7 +3038,7 @@ dr["availstores"] = -1;
         #region (Context -> BL Price Guide)
         private void showBricklinkPriceGuideToolStripMenuItem_Click(object sender, EventArgs e) {
             foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                string url = "http://www.bricklink.com/catalogPG.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString() +
+                string url = "https://www.bricklink.com/catalogPG.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString() +
                     "&colorID=" + row.Cells["colour"].Value.ToString();
                 try
                 {
@@ -3095,7 +3055,7 @@ dr["availstores"] = -1;
         #region (Context -> BL 4sale)
         private void showLotsForSaleOnBricklinkToolStripMenuItem_Click(object sender, EventArgs e) {
             foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                string url = "http://www.bricklink.com/search.asp?viewFrom=sa&itemType=" + row.Cells["type"].Value.ToString() + "&q=" +
+                string url = "https://www.bricklink.com/search.asp?viewFrom=sa&itemType=" + row.Cells["type"].Value.ToString() + "&q=" +
                     row.Cells["number"].Value.ToString() + "&colorID=" + row.Cells["colour"].Value.ToString();
                 try
                 {
