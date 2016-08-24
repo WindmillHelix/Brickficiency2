@@ -29,7 +29,12 @@ namespace WindmillHelix.Brickficiency2.Services.Data
 
         protected IReadOnlyCollection<T> GetItems()
         {
-            Debug.Assert(_isInitialized.Value);
+            var isInitialized = _isInitialized.Value;
+            if(!isInitialized)
+            {
+                throw new Exception("Service failed to initialize.");
+            }
+
             return _items;
         }
 

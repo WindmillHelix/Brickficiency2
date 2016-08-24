@@ -225,6 +225,8 @@ namespace Brickficiency {
             }
             #endregion
 
+            PopulateLookupsFromServices();
+
             #region countries
             db_countries.Add("Argentina", "AR");
             db_countries.Add("Australia", "AU");
@@ -1718,6 +1720,32 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             EnableMenu();
         }
 
+        private void PopulateLookupsFromServices()
+        {
+            var itemTypes = _itemTypeService.GetItemTypes();
+            db_typenames = itemTypes.ToDictionary(x => x.ItemTypeCode, x => x.Name);
+
+            var categories = _categoryService.GetCategories()
+                .Select(x => new DBCat { id = x.CategoryId.ToString(), name = x.Name.ToString() })
+                .ToDictionary(x => x.id, x => x);
+            db_categories = categories;
+
+            var colors = _colorService.GetColors().ToDictionary(x => x.id, x => x);
+            db_colours = colors;
+
+            // todo: not accounting for items that contain other items
+            var items = _itemService.GetItems().Select(x => new DBBLItem()
+            {
+                id = string.Format("{0}-{1}", x.ItemTypeCode.ToUpperInvariant(), x.ItemId),
+                number = x.ItemId, // todo: what is this??
+                type = x.ItemTypeCode,
+                name = x.Name,
+                catid = x.CategoryId.ToString(),
+            });
+
+            db_blitems = items.ToDictionary(x => x.id, x => x);
+        }
+
         private void DownloadBrickLinkDB() {
             StreamWriter swr = new StreamWriter(debugdbfilename);
             #region download bricklink files
@@ -1754,28 +1782,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 using (SqlCeConnection con = new SqlCeConnection(conString)) {
                     con.Open();
 
-                    var itemTypes = _itemTypeService.GetItemTypes();
-                    db_typenames = itemTypes.ToDictionary(x => x.ItemTypeCode, x => x.Name);
-
-                    var categories = _categoryService.GetCategories()
-                        .Select(x => new DBCat { id = x.CategoryId.ToString(), name = x.Name.ToString() })
-                        .ToDictionary(x => x.id, x => x);
-                    db_categories = categories;
-
-                    var colors = _colorService.GetColors().ToDictionary(x => x.id, x => x);
-                    db_colours = colors;
-
-                    // todo: not accounting for items that contain other items
-                    var items = _itemService.GetItems().Select(x => new DBBLItem()
-                    {
-                        id = string.Format("{0}-{1}", x.ItemTypeCode.ToUpperInvariant(), x.ItemId),
-                        number = x.ItemId, // todo: what is this??
-                        type = x.ItemTypeCode,
-                        name = x.Name,
-                        catid = x.CategoryId.ToString(),
-                    });
-
-                    db_blitems = items.ToDictionary(x => x.id, x => x);
+                    PopulateLookupsFromServices();
 
                     ////using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM items", con)) {
                     ////    SqlCeDataReader reader = com.ExecuteReader();

@@ -57,11 +57,21 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AppConfig.cs" />
+    <Compile Include="AppConfigBricklinkCredentialProvider.cs" />
     <Compile Include="BricklinkCatalogTests.cs" />
     <Compile Include="BricklinkLoginTests.cs" />
+    <Compile Include="BricklinkWantedListTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\WindmillHelix.Brickficiency2.Common\WindmillHelix.Brickficiency2.Common.csproj">
+      <Project>{bc14fca3-1f52-4843-848d-68990a0b04a6}</Project>
+      <Name>WindmillHelix.Brickficiency2.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindmillHelix.Brickficiency2.DependencyInjection\WindmillHelix.Brickficiency2.DependencyInjection.csproj">
+      <Project>{4876e4a0-4c20-4e35-8c61-9794a74d1bd3}</Project>
+      <Name>WindmillHelix.Brickficiency2.DependencyInjection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WindmillHelix.Brickficiency2.ExternalApi\WindmillHelix.Brickficiency2.ExternalApi.csproj">
       <Project>{D292740F-D062-4F81-9E1B-80EDFA08C864}</Project>
       <Name>WindmillHelix.Brickficiency2.ExternalApi</Name>
