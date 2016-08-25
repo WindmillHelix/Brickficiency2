@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WindmillHelix.Brickficiency2.Common.Domain;
-using WindmillHelix.Brickficiency2.ExternalApi.Bricklink.Models;
 
-namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
+namespace WindmillHelix.Brickficiency2.Services
 {
-    public interface IBricklinkWantedListApi
+    public interface IWantedListService
     {
         IReadOnlyCollection<WantedList> GetWantedLists();
 

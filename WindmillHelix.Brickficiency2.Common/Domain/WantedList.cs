@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink.Models
+namespace WindmillHelix.Brickficiency2.Common.Domain
 {
-    public class BricklinkWantedList
+    public class WantedList
     {
         public int WantedListId { get; set; }
 

@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WindmillHelix.Brickficiency2.Common;
 
-namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink.Models
+namespace WindmillHelix.Brickficiency2.Common.Domain
 {
-    public class BricklinkWantedListItem
+    public class WantedListItem
     {
         public string ItemId { get; set; }
 

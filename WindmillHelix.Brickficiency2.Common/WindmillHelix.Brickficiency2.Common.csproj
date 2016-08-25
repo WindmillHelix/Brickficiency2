@@ -43,6 +43,8 @@
     <Compile Include="AssemblyNames.cs" />
     <Compile Include="Category.cs" />
     <Compile Include="DBColour.cs" />
+    <Compile Include="Domain\WantedList.cs" />
+    <Compile Include="Domain\WantedListItem.cs" />
     <Compile Include="ItemCondition.cs" />
     <Compile Include="ItemDetails.cs" />
     <Compile Include="ItemType.cs" />

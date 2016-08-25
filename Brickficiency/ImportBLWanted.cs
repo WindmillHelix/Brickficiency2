@@ -15,6 +15,7 @@ using System.Net;
 using Brickficiency.Classes;
 using WindmillHelix.Brickficiency2.Common;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
+using WindmillHelix.Brickficiency2.Services;
 
 namespace Brickficiency
 {
@@ -22,6 +23,7 @@ namespace Brickficiency
     {
         // don't really want this referenced here directly, but it will take a bit to decouple this code
         private readonly IBricklinkLoginApi _bricklinkLoginApi;
+        private readonly IWantedListService _wantedListService;
 
         #region Define vars
         CookieContainer cookies = new CookieContainer();
@@ -34,14 +36,21 @@ namespace Brickficiency
         public event AdviseParentEventHandler AdviseParent;
         int wantedImportStep = 0;
 
-        public ImportBLWanted(IBricklinkLoginApi bricklinkLoginApi)
+        public ImportBLWanted(IBricklinkLoginApi bricklinkLoginApi, IWantedListService wantedListService)
         {
+            _wantedListService = wantedListService;
+
             // don't really want this referenced here directly, but it will take a bit to decouple this code
             _bricklinkLoginApi = bricklinkLoginApi;
 
             InitializeComponent();
         }
         #endregion
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+        }
 
         #region cancel button is clicked, close window
         private void cancelButton_Click(object sender, EventArgs e)

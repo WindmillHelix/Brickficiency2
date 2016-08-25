@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Brickficiency.Providers;
+using Brickficiency.UI;
 
 namespace Brickficiency.DependencyInjection
 {
@@ -13,6 +15,9 @@ namespace Brickficiency.DependencyInjection
         {
             builder.RegisterType<MainWindow>();
             builder.RegisterType<ImportBLWanted>();
+            builder.RegisterType<ImportWantedListForm>();
+            builder.RegisterType<GetPassword>();
+            builder.RegisterType<BricklinkCredentialProvider>().AsImplementedInterfaces().SingleInstance();
         }
     }
 }

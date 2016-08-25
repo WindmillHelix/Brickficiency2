@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.Common.Domain;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink.Models;
 
 namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
@@ -21,7 +22,7 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
             _bricklinkSessionService = bricklinkSessionService;
         }
 
-        public IReadOnlyCollection<BricklinkWantedList> GetWantedLists()
+        public IReadOnlyCollection<WantedList> GetWantedLists()
         {
             var html = GetPageHtml("https://www.bricklink.com/v2/wanted/list.page?pageSize=10000");
             var json = ExtractJson(html);
@@ -30,7 +31,7 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
             return lists;
         }
 
-        public IReadOnlyCollection<BricklinkWantedListItem> GetWantedListItems(int wantedListId)
+        public IReadOnlyCollection<WantedListItem> GetWantedListItems(int wantedListId)
         {
             var url = string.Format(
                 "https://www.bricklink.com/v2/wanted/search.page?wantedMoreID={0}&pageSize=10000",
@@ -43,20 +44,20 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
             return lists;
         }
 
-        private List<BricklinkWantedListItem> ParseWantedListItemsJson(string json)
+        private List<WantedListItem> ParseWantedListItemsJson(string json)
         {
             var reader = new JsonTextReader(new StringReader(json));
             var serializer = new JsonSerializer();
 
             dynamic content = serializer.Deserialize(reader);
 
-            var results = new List<BricklinkWantedListItem>();
+            var results = new List<WantedListItem>();
 
             var itemCount = content.wantedItems.Count;
             for (int i = 0; i < content.wantedItems.Count; i++)
             {
                 var wantedItem = content.wantedItems[i];
-                var item = new BricklinkWantedListItem();
+                var item = new WantedListItem();
                 item.ColorId = (int)wantedItem.colorID;
                 item.ItemId = (string)wantedItem.itemNo;
                 item.ItemTypeCode = (string)wantedItem.itemType;
@@ -74,20 +75,20 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
             return results;
         }
 
-        private List<BricklinkWantedList> ParseWantedListsJson(string json)
+        private List<WantedList> ParseWantedListsJson(string json)
         {
             var reader = new JsonTextReader(new StringReader(json));
             var serializer = new JsonSerializer();
 
             dynamic content = serializer.Deserialize(reader);
 
-            var results = new List<BricklinkWantedList>();
+            var results = new List<WantedList>();
 
             var listCount = content.wantedLists.Count;
             for(int i = 0; i < content.wantedLists.Count; i++)
             {
                 var wantedList = content.wantedLists[i];
-                var list = new BricklinkWantedList();
+                var list = new WantedList();
                 list.WantedListId = (int)wantedList.id;
                 list.Name = (string)wantedList.name;
 

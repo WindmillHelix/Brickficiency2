@@ -67,8 +67,6 @@
     <Compile Include="Bricklink\Models\BricklinkItem.cs" />
     <Compile Include="Bricklink\Models\BricklinkItemType.cs" />
     <Compile Include="Bricklink\Models\BricklinkSet.cs" />
-    <Compile Include="Bricklink\Models\BricklinkWantedList.cs" />
-    <Compile Include="Bricklink\Models\BricklinkWantedListItem.cs" />
     <Compile Include="Bricklink\Models\CatalogContainer.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="DependencyInjection\ExternalApiModule.cs" />

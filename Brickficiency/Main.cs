@@ -25,6 +25,7 @@ using WindmillHelix.Brickficiency2.DependencyInjection;
 using WindmillHelix.Brickficiency2.Services;
 using WindmillHelix.Brickficiency2.Services.Data;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
+using Brickficiency.UI;
 
 namespace Brickficiency {
     public partial class MainWindow : Form {
@@ -57,6 +58,8 @@ namespace Brickficiency {
         private readonly IItemTypeService _itemTypeService;
         private readonly ICategoryService _categoryService;
         private readonly IItemService _itemService;
+
+        private readonly ImportWantedListForm _importWantedListForm;
 
         // don't really want this referenced here directly, but it will take a bit to decouple this code
         private readonly IBricklinkLoginApi _bricklinkLoginApi; 
@@ -459,13 +462,15 @@ namespace Brickficiency {
             ICategoryService categoryService,
             IItemService itemService,
             IBricklinkLoginApi bricklinkLoginApi,
-            ImportBLWanted importWantedListForm)
+            ImportBLWanted oldWantedListForm,
+            ImportWantedListForm importWantedListForm)
         {
             _colorService = colorService;
             _itemTypeService = itemTypeService;
             _categoryService = categoryService;
             _itemService = itemService;
-            importBLWantedWindow = importWantedListForm;
+            importBLWantedWindow = oldWantedListForm;
+            _importWantedListForm = importWantedListForm;
 
             // don't really want this referenced here directly, but it will take a bit to decouple this code
             _bricklinkLoginApi = bricklinkLoginApi;
@@ -1911,9 +1916,16 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region add item to dgv
-        public static void dgv_AddItem(string id, string colour = "0") {
+        public static void dgv_AddItem(
+            string id,
+            string colour = "0",
+            int quantity = 0,
+            ItemCondition condition = ItemCondition.Used)
+        {
+
             string extid = db_blitems[id].type + "-" + colour + "-" + db_blitems[id].number;
-            if (!dt[currenttab].Rows.Contains(extid)) {
+            if (!dt[currenttab].Rows.Contains(extid))
+            {
                 DataRow dr = dt[currenttab].NewRow();
                 dr["status"] = "I";
                 dr["number"] = db_blitems[id].number;
@@ -1924,9 +1936,9 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 dr["name"] = db_blitems[id].name;
                 dr["colour"] = colour;
                 dr["colourname"] = db_colours[colour].name;
-                dr["condition"] = "U";
-                dr["qty"] = "0";
-dr["availstores"] = -1;
+                dr["condition"] = condition == ItemCondition.New ? "N" : "U";
+                dr["qty"] = quantity.ToString();
+                dr["availstores"] = -1;
                 dr["price"] = 0;
                 dr["total"] = 0;
                 dr["categoryid"] = db_blitems[id].catid;
@@ -1937,13 +1949,23 @@ dr["availstores"] = -1;
                 dt[currenttab].Rows.Add(dr);
 
                 dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["displaystatus"].Value = Properties.Resources.check;
-                dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["qty"].Style.BackColor = errorcell;
+                if (int.Parse(dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["qty"].Value.ToString()) <= 0)
+                {
+                    dgv[currenttab].Rows[dgv[currenttab].Rows.Count - 1].Cells["qty"].Style.BackColor = errorcell;
+                }
 
                 dgv_GetLiveStats(id, colour);
                 dgv_ImageDisplay(id, colour);
             }
-            else {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
+            else
+            {
+                foreach (DataGridViewRow row in dgv[currenttab].Rows)
+                {
+                    if (row.Cells["extid"].Value.ToString() == extid)
+                    {
+                        row.Cells["qty"].Value = (int.Parse(row.Cells["qty"].Value.ToString()) + quantity).ToString();
+                    }
+
                     row.Selected = row.Cells["extid"].Value.ToString() == extid;
                 }
             }
@@ -2452,9 +2474,20 @@ dr["availstores"] = -1;
         #endregion
 
         #region (File -> Import -> BL Wanted) Import BrickLink Wanted List
-        private void importBLWantedMenuItem_Click(object sender, EventArgs e) {
-            DialogResult result = importBLWantedWindow.ShowDialog();
-            if (result == DialogResult.OK) {
+        private void importBLWantedMenuItem_Click(object sender, EventArgs e)
+        {
+            if(dt.Count == 0)
+            {
+                BuildTable();
+                DisplayLoadedFile();
+                EnableMenu();
+            }
+
+            _importWantedListForm.Enabled = true;
+            DialogResult result = _importWantedListForm.ShowDialog();
+
+            if (result == DialogResult.OK)
+            {
                 WriteSettings();
                 DisplayLoadedFile();
                 EnableMenu();
