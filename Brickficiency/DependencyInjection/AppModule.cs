@@ -14,7 +14,6 @@ namespace Brickficiency.DependencyInjection
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<MainWindow>();
-            builder.RegisterType<ImportBLWanted>();
             builder.RegisterType<ImportWantedListForm>();
             builder.RegisterType<GetPassword>();
             builder.RegisterType<BricklinkCredentialProvider>().AsImplementedInterfaces().SingleInstance();

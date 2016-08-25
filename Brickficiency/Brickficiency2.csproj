@@ -243,12 +243,6 @@
     <Compile Include="HoverZoom.Designer.cs">
       <DependentUpon>HoverZoom.cs</DependentUpon>
     </Compile>
-    <Compile Include="ImportBLWanted.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ImportBLWanted.Designer.cs">
-      <DependentUpon>ImportBLWanted.cs</DependentUpon>
-    </Compile>
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -335,9 +329,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="HoverZoom.resx">
       <DependentUpon>HoverZoom.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ImportBLWanted.resx">
-      <DependentUpon>ImportBLWanted.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>

@@ -166,7 +166,6 @@ namespace Brickficiency {
         public decimal matchtobeat = 0;
 
         About aboutWindow = new About();
-        ImportBLWanted importBLWantedWindow;
         CalcOptions calcOptionsWindow = new CalcOptions();
         GetPassword getPasswordWindow = new GetPassword();
         HoverZoom hoverZoomWindow = new HoverZoom();
@@ -462,14 +461,12 @@ namespace Brickficiency {
             ICategoryService categoryService,
             IItemService itemService,
             IBricklinkLoginApi bricklinkLoginApi,
-            ImportBLWanted oldWantedListForm,
             ImportWantedListForm importWantedListForm)
         {
             _colorService = colorService;
             _itemTypeService = itemTypeService;
             _categoryService = categoryService;
             _itemService = itemService;
-            importBLWantedWindow = oldWantedListForm;
             _importWantedListForm = importWantedListForm;
 
             // don't really want this referenced here directly, but it will take a bit to decouple this code
@@ -477,7 +474,6 @@ namespace Brickficiency {
 
             InitializeComponent();
 
-            importBLWantedWindow.AdviseParent += new ImportBLWanted.AdviseParentEventHandler(AddStatus);
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
         }
 
