@@ -45,7 +45,7 @@ namespace Brickficiency
 
                 var credit = credits[i];
 
-                var label = new Label() { Text = credit.Role };
+                var label = new Label() { Text = credit.Role + ":" };
                 var link = new LinkLabel() { Text = credit.Name, Tag = credit.Url };
                 link.Click += Link_Click;
 
@@ -78,16 +78,6 @@ namespace Brickficiency
         private void About_Shown(object sender, EventArgs e)
         {
             versionLabel.Text = MainWindow.version;
-        }
-
-        private void linkLabel2_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            OpenLink("http://www.famfamfam.com/lab/icons/silk/");
-        }
-
-        private void rebricklinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            OpenLink("http://www.rebrickable.com");
         }
 
         private List<Credit> GetCredits()
