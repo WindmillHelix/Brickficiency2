@@ -37,6 +37,7 @@ namespace Brickficiency.UI
             base.OnShown(e);
 
             var thread = new Thread(new ThreadStart(InitializeApplication));
+            thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
         }
 

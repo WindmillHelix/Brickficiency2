@@ -2274,14 +2274,19 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (File -> Open)
-        private void openMenuItem_Click(object sender, EventArgs e) {
-            if (openFileDialog.ShowDialog() == DialogResult.OK) {
+        private void openMenuItem_Click(object sender, EventArgs e)
+        {
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
                 DisableMenu();
                 bool success = LoadFile(openFileDialog.FileName);
-                if (success) {
+                if (success)
+                {
                     DisplayLoadedFile();
                 }
             }
+
             EnableMenu();
         }
         #endregion
