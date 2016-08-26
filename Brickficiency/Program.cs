@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using WindmillHelix.Brickficiency2.DependencyInjection;
 using Autofac;
+using Brickficiency.UI;
 
 namespace Brickficiency
 {
@@ -20,9 +21,10 @@ namespace Brickficiency
             Application.SetCompatibleTextRenderingDefault(false);
 
             var container = DependencyInjectionConfig.Setup();
-            var window = container.Resolve<MainWindow>();
 
-            Application.Run(window);
+            var initializationForm = container.Resolve<InitializationForm>();
+
+            Application.Run(initializationForm);
         }
     }
 }

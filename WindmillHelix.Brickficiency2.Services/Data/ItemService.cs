@@ -83,7 +83,7 @@ namespace WindmillHelix.Brickficiency2.Services.Data
 
         void IRefreshable.Refresh()
         {
-            throw new NotImplementedException();
+            base.Refresh();
         }
     }
 }

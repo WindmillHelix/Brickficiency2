@@ -58,8 +58,10 @@ namespace Brickficiency {
         private readonly IItemTypeService _itemTypeService;
         private readonly ICategoryService _categoryService;
         private readonly IItemService _itemService;
+        private readonly IDataUpdateService _dataUpdateService;
 
         private readonly ImportWantedListForm _importWantedListForm;
+        private readonly UpdateCheck _updateConfirmationForm;
 
         // don't really want this referenced here directly, but it will take a bit to decouple this code
         private readonly IBricklinkLoginApi _bricklinkLoginApi; 
@@ -461,13 +463,18 @@ namespace Brickficiency {
             ICategoryService categoryService,
             IItemService itemService,
             IBricklinkLoginApi bricklinkLoginApi,
-            ImportWantedListForm importWantedListForm)
+            ImportWantedListForm importWantedListForm,
+            UpdateCheck updateConfirmationForm,
+            IDataUpdateService dataUpdateService)
         {
             _colorService = colorService;
             _itemTypeService = itemTypeService;
             _categoryService = categoryService;
             _itemService = itemService;
+            _dataUpdateService = dataUpdateService;
+
             _importWantedListForm = importWantedListForm;
+            _updateConfirmationForm = updateConfirmationForm;
 
             // don't really want this referenced here directly, but it will take a bit to decouple this code
             _bricklinkLoginApi = bricklinkLoginApi;
@@ -1709,14 +1716,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         private void dlWorker_DoWork(object sender, DoWorkEventArgs e) {
             DisableMenu();
             AddStatus("##Clear##");
-            List<string> dlfiles = new List<string>() { "Parts", "Sets", "Minifigs", "Books", "Catalogs", "Gear", "Instructions", "Original", "colors", "categories" };
 
-            foreach (string type in dlfiles) {
-                if (File.Exists(programdata + type + ".txt")) {
-                    File.Delete(programdata + type + ".txt");
-                }
-            }
-            DownloadBrickLinkDB();
+            AddStatus("Refreshing catalog..." + Environment.NewLine);
+
+            _dataUpdateService.UpdateData();
+            _dataUpdateService.PrefetchData();
+            PopulateLookupsFromServices();
+
             AddStatus("Done." + Environment.NewLine);
             EnableMenu();
         }
@@ -1747,30 +1753,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             db_blitems = items.ToDictionary(x => x.id, x => x);
         }
 
-        private void DownloadBrickLinkDB() {
-            StreamWriter swr = new StreamWriter(debugdbfilename);
-            #region download bricklink files
-            if ((!File.Exists(databasefilename)) || (!File.Exists(databasezipfilename))) {
-                swr.Write("Downloading new Bricklink database" + Environment.NewLine);
-                swr.Close();
-                DownloadDB();
-            } else if (File.GetLastWriteTime(databasezipfilename) < DateTime.Now.AddDays(-10)) {
-                DialogResult result = new UpdateCheck().ShowDialog();
-                if (result == DialogResult.OK) {
-                    swr.Write("User chose to update out of date Bricklink database" + Environment.NewLine);
-                    swr.Close();
-                    DownloadDB();
-                } else {
-                    swr.Write("User chose NOT to update out of date Bricklink database" + Environment.NewLine);
-                    swr.Close();
-                }
-            } else {
-                swr.Write("Database up to date" + Environment.NewLine);
-                swr.Close();
-            }
-            #endregion
-
-            #region read bricklink files
+        private void DownloadBrickLinkDB()
+        {
             AddStatus("Loading...");
 
             db_colours.Clear();
@@ -1778,109 +1762,9 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             db_blitems.Clear();
             db_typenames.Clear();
             db_blaltids.Clear();
-            try {
-                string conString = "Data Source=" + databasefilename;
-                using (SqlCeConnection con = new SqlCeConnection(conString)) {
-                    con.Open();
 
-                    PopulateLookupsFromServices();
-
-                    ////using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM items", con)) {
-                    ////    SqlCeDataReader reader = com.ExecuteReader();
-                    ////    while (reader.Read()) {
-                    ////        db_blitems.Add(reader.GetString(0), new DBBLItem() {
-                    ////            id = reader.GetString(0),
-                    ////            number = reader.GetString(1),
-                    ////            type = reader.GetString(2),
-                    ////            name = reader.GetString(3),
-                    ////            catid = reader.GetString(6),
-                    ////        });
-                    ////        string containraw = reader.GetString(8);
-                    ////        foreach (string line in containraw.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)) {
-                    ////            string[] part = line.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                    ////            if (!db_containers.ContainsKey(part[0])) {
-                    ////                db_containers.Add(part[0], new List<DBItemContain>() {
-                    ////                new DBItemContain(){ 
-                    ////                    item = part[1], qty = Convert.ToInt32(part[2]) 
-                    ////                }
-                    ////            });
-                    ////            } else {
-                    ////                db_containers[part[0]].Add(new DBItemContain() {
-                    ////                    item = part[1],
-                    ////                    qty = Convert.ToInt32(part[2])
-                    ////                });
-                    ////            }
-                    ////        }
-                    ////    }
-                    ////}
-
-                    using (SqlCeCommand com = new SqlCeCommand("SELECT * FROM altid", con)) {
-                        SqlCeDataReader reader = com.ExecuteReader();
-                        while (reader.Read()) {
-                            if (reader.GetString(0) == "3749") {
-                                MessageBox.Show(reader.GetString(0) + " / " + reader.GetString(1));
-                            }
-                            db_blaltids.Add(reader.GetString(0), reader.GetString(1));
-                        }
-                    }
-
-                }
-
-            } catch (Exception exc) {
-                swr.Write("ERROR Reading database" + Environment.NewLine + exc.Message);
-                swr.Close();
-                if (File.Exists(databasefilename)) {
-                    File.Delete(databasefilename);
-                }
-                MessageBox.Show("The database could not be read:" + Environment.NewLine + exc.Message);
-                Close();
-            }
-            swr.Close();
-            #endregion
-
-        }
-
-        private void DownloadDB() {
-            int downloaded = 0;
-            StreamWriter swr = new StreamWriter(debugdbfilename, true);
-
-            try {
-                if (File.Exists(databasezipfilename)) {
-                    File.Delete(databasezipfilename);
-                    swr.WriteLine("Deleted old Database");
-                }
-                swr.WriteLine("Initiating new database download");
-                AddStatus("Downloading Bricklink database...");
-                WebClient webClient = new WebClient();
-                webClient.DownloadProgressChanged += (s, e) => {
-                    SetProgressPercent(e.ProgressPercentage);
-                };
-                webClient.DownloadFileCompleted += (s, e) => {
-                    while (!File.Exists(databasezipfilename)) {
-                    }
-
-                    swr.WriteLine("Download complete");
-                    ResetProgressBar();
-                    using (ZipFile zip = ZipFile.Read(databasezipfilename)) {
-                        foreach (ZipEntry file in zip) {
-                            swr.WriteLine("Extracting " + file + " from " + zip + " to " + programdata);
-                            file.Extract(programdata, ExtractExistingFileAction.OverwriteSilently);
-                        }
-                    }
-                    downloaded = 1;
-                    swr.WriteLine("Done");
-                    AddStatus("Done." + Environment.NewLine);
-                };
-                webClient.DownloadFileAsync(new Uri(databaseurl), databasezipfilename);
-
-                while (downloaded != 1) {
-
-                }
-            } catch (Exception e) {
-                swr.WriteLine("Error during download: " + e.Message);
-            }
-            swr.Close();
-        }
+            PopulateLookupsFromServices();
+        }        
         #endregion
 
         #region splitter moved
@@ -2640,7 +2524,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
         #region (Tools -> Download BrickLink Database)
         private void dlMenuItem_Click(object sender, EventArgs e) {
-            DialogResult result = new UpdateCheck().ShowDialog();
+            DialogResult result = _updateConfirmationForm.ShowDialog();
             if (result == DialogResult.OK) {
                 foreach (DataTable thisdt in dt) {
                     thisdt.Dispose();

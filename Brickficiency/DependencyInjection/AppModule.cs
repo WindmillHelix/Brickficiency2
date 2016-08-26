@@ -16,6 +16,9 @@ namespace Brickficiency.DependencyInjection
             builder.RegisterType<MainWindow>();
             builder.RegisterType<ImportWantedListForm>();
             builder.RegisterType<GetPassword>();
+            builder.RegisterType<UpdateCheck>();
+            builder.RegisterType<InitializationForm>();
+
             builder.RegisterType<BricklinkCredentialProvider>().AsImplementedInterfaces().SingleInstance();
         }
     }

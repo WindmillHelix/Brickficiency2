@@ -258,6 +258,12 @@
     <Compile Include="UI\ImportWantedListForm.Designer.cs">
       <DependentUpon>ImportWantedListForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\InitializationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\InitializationForm.Designer.cs">
+      <DependentUpon>InitializationForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UpdateCheck.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -345,6 +351,9 @@
     </Compile>
     <EmbeddedResource Include="UI\ImportWantedListForm.resx">
       <DependentUpon>ImportWantedListForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\InitializationForm.resx">
+      <DependentUpon>InitializationForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UpdateCheck.resx">
       <DependentUpon>UpdateCheck.cs</DependentUpon>

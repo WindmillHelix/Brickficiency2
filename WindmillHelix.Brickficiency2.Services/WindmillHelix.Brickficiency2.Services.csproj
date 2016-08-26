@@ -48,7 +48,9 @@
     <Compile Include="Data\CachedDataService.cs" />
     <Compile Include="Data\CategoryService.cs" />
     <Compile Include="Data\ColorService.cs" />
+    <Compile Include="Data\DataUpdateService.cs" />
     <Compile Include="Data\ICategoryService.cs" />
+    <Compile Include="Data\IDataUpdateService.cs" />
     <Compile Include="Data\IItemService.cs" />
     <Compile Include="Data\ItemService.cs" />
     <Compile Include="DependencyInjection\ServicesModule.cs" />
