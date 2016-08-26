@@ -5,32 +5,57 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindmillHelix.Brickficiency2.Common.Domain;
 using WindmillHelix.Brickficiency2.Common.Providers;
+using WindmillHelix.Brickficiency2.Services;
 
 namespace Brickficiency.Providers
 {
     public class BricklinkCredentialProvider : IBricklinkCredentialProvider
     {
-        private readonly GetPassword _getPasswordForm;
+        private readonly Func<GetPassword> _getPasswordFormFactory;
+        private readonly ICredentialService _credentialService;
 
-        public BricklinkCredentialProvider(GetPassword getPasswordForm)
+        private string _userName;
+        private string _password;
+
+        public BricklinkCredentialProvider(
+            ICredentialService credentialService, 
+            Func<GetPassword> getPasswordFormFactory)
         {
-            _getPasswordForm = getPasswordForm;
+            _getPasswordFormFactory = getPasswordFormFactory;
+            _credentialService = credentialService;
         }
 
         public NetworkCredential GetCredentials()
         {
-            // reaching into MainWindow like this is horrible, just trying to isolate the behavior right now
-            if(string.IsNullOrWhiteSpace(MainWindow.password))
+            if (string.IsNullOrWhiteSpace(_password) && string.IsNullOrWhiteSpace(_userName))
             {
-                var result = _getPasswordForm.ShowDialog();
-                if(result != DialogResult.OK || string.IsNullOrWhiteSpace(MainWindow.password))
+                var credential = _credentialService.GetCredential(ExternalSystem.Bricklink);
+                if (credential != null)
                 {
-                    throw new Exception("Password not provided");
+                    _userName = credential.UserName;
+                    _password = credential.Password;
                 }
             }
 
-            return new NetworkCredential(MainWindow.settings.username, MainWindow.password);
+            if (!string.IsNullOrWhiteSpace(_password) && !string.IsNullOrWhiteSpace(_userName))
+            {
+                return new NetworkCredential(_userName, _password);
+            }
+
+            var form = _getPasswordFormFactory();
+            var dialogResult = form.ShowDialog();
+
+            if (dialogResult == DialogResult.OK)
+            {
+                _userName = form.UserName;
+                _password = form.Password;
+
+                return new NetworkCredential(_userName, _password);
+            }
+
+            return null;
         }
     }
 }

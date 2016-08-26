@@ -26,6 +26,7 @@ using WindmillHelix.Brickficiency2.Services;
 using WindmillHelix.Brickficiency2.Services.Data;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
 using Brickficiency.UI;
+using WindmillHelix.Brickficiency2.Common.Providers;
 
 namespace Brickficiency
 {
@@ -64,6 +65,7 @@ namespace Brickficiency
 
         private readonly ImportWantedListForm _importWantedListForm;
         private readonly UpdateCheck _updateConfirmationForm;
+        private readonly IBricklinkCredentialProvider _bricklinkCredentialProvider;
 
         // don't really want this referenced here directly, but it will take a bit to decouple this code
         private readonly IBricklinkLoginApi _bricklinkLoginApi;
@@ -114,7 +116,6 @@ namespace Brickficiency
         //web stuff
         CookieContainer cookies = new CookieContainer();
         DateTime cookietime;
-        public static string password; // figure this shit out
         public static bool loggedin = false;
         public static Object imgTimerLock = new Object();
         public static Object itemTimerLock = new Object();
@@ -171,7 +172,6 @@ namespace Brickficiency
 
         About aboutWindow = new About();
         CalcOptions calcOptionsWindow = new CalcOptions();
-        GetPassword getPasswordWindow = new GetPassword();
         HoverZoom hoverZoomWindow = new HoverZoom();
         AddItem addItemWindow = new AddItem();
         ChangeItem changeItemWindow = new ChangeItem();
@@ -494,13 +494,16 @@ namespace Brickficiency
             IBricklinkLoginApi bricklinkLoginApi,
             ImportWantedListForm importWantedListForm,
             UpdateCheck updateConfirmationForm,
-            IDataUpdateService dataUpdateService)
+            IDataUpdateService dataUpdateService,
+            IBricklinkCredentialProvider bricklinkCredentialProvider)
         {
             _colorService = colorService;
             _itemTypeService = itemTypeService;
             _categoryService = categoryService;
             _itemService = itemService;
             _dataUpdateService = dataUpdateService;
+
+            _bricklinkCredentialProvider = bricklinkCredentialProvider;
 
             _importWantedListForm = importWantedListForm;
             _updateConfirmationForm = updateConfirmationForm;
@@ -1488,15 +1491,14 @@ namespace Brickficiency
 
                 if ((login == true) && ((loggedin == false) || (cookietime == null) || (DateTime.Now > cookietime.AddMinutes(10))))
                 {
-                    DialogResult result = getPasswordWindow.ShowDialog();
-                    if (result != DialogResult.OK)
+                    var credential = _bricklinkCredentialProvider.GetCredentials();
+                    if(credential == null)
                     {
-                        password = "";
                         return null;
                     }
-
+                    
                     // don't really want this referenced here directly, but it will take a bit to decouple this code
-                    var didLogIn = _bricklinkLoginApi.Login(cookies, settings.username, password);
+                    var didLogIn = _bricklinkLoginApi.Login(cookies, credential.UserName, credential.Password);
 
                     if (!didLogIn)
                     {

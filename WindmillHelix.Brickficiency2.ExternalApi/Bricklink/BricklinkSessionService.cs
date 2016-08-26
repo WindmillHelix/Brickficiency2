@@ -16,7 +16,7 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
         private readonly CookieContainer _cookies = new CookieContainer();
         private readonly object _lockObject = new object();
 
-        private bool _isLoggedIn = false;
+        private DateTime? _lastLogin = null;
 
         public BricklinkSessionService(
             IBricklinkCredentialProvider bricklinkCredentialProvider,
@@ -33,14 +33,14 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
 
         public void EnsureAuthenticated()
         {
-            if (_isLoggedIn)
+            if (_lastLogin.HasValue && _lastLogin.Value > DateTime.Now.AddMinutes(-10))
             {
                 return;
             }
 
             lock (_lockObject)
             {
-                if (_isLoggedIn)
+                if (_lastLogin.HasValue && _lastLogin.Value > DateTime.Now.AddMinutes(-10))
                 {
                     return;
                 }
@@ -50,7 +50,7 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
 
                 if(wasLoggedIn)
                 {
-                    _isLoggedIn = true;
+                    _lastLogin = DateTime.Now;
                     return;
                 }
 
