@@ -66,15 +66,9 @@ namespace Brickficiency
             continueCheck.Checked = MainWindow.settings.cont;
             sortCheck.Checked = MainWindow.settings.sortcolour;
 
-            unBox.Text = MainWindow.settings.username;
             if (MainWindow.settings.login == true)
             {
                 loginCheck.Checked = true;
-                unBox.Enabled = true;
-            }
-            else
-            {
-                unBox.Enabled = false;
             }
         }
         #endregion
@@ -88,14 +82,6 @@ namespace Brickficiency
         #region Checkbox stuff
         private void loginCheck_CheckedChanged(object sender, EventArgs e)
         {
-            if (loginCheck.Checked == true)
-            {
-                unBox.Enabled = true;
-            }
-            else
-            {
-                unBox.Enabled = false;
-            }
         }
 
         private void allCheck_CheckedChanged(object sender, EventArgs e)
@@ -311,12 +297,6 @@ namespace Brickficiency
 
             if (loginCheck.Checked == true)
             {
-                if (unBox.Text == "")
-                {
-                    unBox.Select();
-                    return;
-                }
-                MainWindow.settings.username = unBox.Text;
                 MainWindow.settings.login = true;
             }
             else
@@ -346,28 +326,6 @@ namespace Brickficiency
             if (e.KeyChar == (char)Keys.Escape)
             {
                 DialogResult = DialogResult.Cancel;
-            }
-        }
-
-        private void Box_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Enter)
-            {
-                if (unBox.Enabled == true)
-                {
-                    if (unBox.Text == "")
-                    {
-                        unBox.Select();
-                    }
-                    else
-                    {
-                        calculateButton_Click(sender, new EventArgs());
-                    }
-                }
-                else
-                {
-                    calculateButton.Select();
-                }
             }
         }
         #endregion

@@ -374,7 +374,6 @@ namespace Brickficiency
                 settings.maxstores = 4;
                 settings.cont = false;
                 settings.sortcolour = false;
-                settings.username = "";
                 settings.login = false;
                 settings.splitterdistance = System.Convert.ToInt32(this.Size.Height * 0.72);
 
@@ -440,7 +439,6 @@ namespace Brickficiency
                     settings.maxstores = 4;
                     settings.cont = false;
                     settings.sortcolour = false;
-                    settings.username = "";
                     settings.login = false;
                     settings.blacklist = "";
                     settings.splitterdistance = System.Convert.ToInt32(this.Size.Height * 0.72);
