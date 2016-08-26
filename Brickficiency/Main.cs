@@ -27,8 +27,10 @@ using WindmillHelix.Brickficiency2.Services.Data;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
 using Brickficiency.UI;
 
-namespace Brickficiency {
-    public partial class MainWindow : Form {
+namespace Brickficiency
+{
+    public partial class MainWindow : Form
+    {
         //todo:
         //editing/creating files
         // -copy/paste
@@ -64,11 +66,11 @@ namespace Brickficiency {
         private readonly UpdateCheck _updateConfirmationForm;
 
         // don't really want this referenced here directly, but it will take a bit to decouple this code
-        private readonly IBricklinkLoginApi _bricklinkLoginApi; 
+        private readonly IBricklinkLoginApi _bricklinkLoginApi;
 
         #region prepare some vars
         //global stuff
-        public static string version =  "v2.0.0"; // CHANGE APPLICATION PROPERTIES > Assembly Information
+        public static string version = "v2.0.0"; // CHANGE APPLICATION PROPERTIES > Assembly Information
         public static string programname = "Brickficiency";
         static string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         static string programdata = appdata + "\\" + programname + "\\";
@@ -119,7 +121,7 @@ namespace Brickficiency {
         public static Object pageLock = new Object();
         public static int inLock = 0;
         public static List<ImageDL> imageDLList = new List<ImageDL>();
-        public static List<ItemDL>  itemDLList =  new List<ItemDL>();
+        public static List<ItemDL> itemDLList = new List<ItemDL>();
         public static string RBapiKey = "bITJSRewdX";
 
         //calc stuff
@@ -191,7 +193,8 @@ namespace Brickficiency {
 
 
         #region Startup - read bricklink database files and create appdata folder structure
-        private void InitStuff(object sender, EventArgs e) {
+        private void InitStuff(object sender, EventArgs e)
+        {
             DisableMenu();
             DisableCalcStop();
 
@@ -205,25 +208,31 @@ namespace Brickficiency {
             loadWorker.RunWorkerAsync();
         }
 
-        private void loadWorker_DoWork(object sender, DoWorkEventArgs e) {
+        private void loadWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
 
             #region Create dir structure
-            if (!Directory.Exists(programdata)) {
+            if (!Directory.Exists(programdata))
+            {
                 Directory.CreateDirectory(appdata + "\\" + programname);
                 AddStatus("Preparing Brickficiency for first use..." + Environment.NewLine);
             }
-            if (!Directory.Exists(programdata + "\\debug")) {
+            if (!Directory.Exists(programdata + "\\debug"))
+            {
                 Directory.CreateDirectory(programdata + "\\debug");
             }
 
-            if (File.Exists(debugwebreqfilename)) {
+            if (File.Exists(debugwebreqfilename))
+            {
                 File.Delete(debugwebreqfilename);
             }
 
             List<string> crdirs = new List<string>() { "images", "images\\S", "images\\P", "images\\M", "images\\B", "images\\G", "images\\C", "images\\I", "images\\O", "images\\U" };
 
-            foreach (string dir in crdirs) {
-                if (!Directory.Exists(programdata + dir)) {
+            foreach (string dir in crdirs)
+            {
+                if (!Directory.Exists(programdata + dir))
+                {
                     Directory.CreateDirectory(programdata + dir);
                 }
             }
@@ -357,7 +366,8 @@ namespace Brickficiency {
             #endregion
 
             #region Settings
-            if (!File.Exists(settingsfilename)) {
+            if (!File.Exists(settingsfilename))
+            {
                 settings.countries.Add("All");
                 settings.nummatches = 10;
                 settings.minstores = 1;
@@ -369,45 +379,59 @@ namespace Brickficiency {
                 settings.splitterdistance = System.Convert.ToInt32(this.Size.Height * 0.72);
 
                 WriteSettings();
-            } else {
-                try {
+            }
+            else
+            {
+                try
+                {
                     XmlSerializer serializer = new XmlSerializer(typeof(Settings));
                     FileStream file = new FileStream(settingsfilename, FileMode.Open);
                     settings = (Settings)serializer.Deserialize(file);
                     file.Close();
 
                     List<string> tmpdelete = new List<string>();
-                    foreach (string country in settings.countries) {
-                        if ((!db_countries.ContainsKey(country)) && (country != "North America") && (country != "Europe") && (country != "Asia") && (country != "All")) {
+                    foreach (string country in settings.countries)
+                    {
+                        if ((!db_countries.ContainsKey(country)) && (country != "North America") && (country != "Europe") && (country != "Asia") && (country != "All"))
+                        {
                             tmpdelete.Add(country);
                         }
                     }
-                    if (tmpdelete.Count > 0) {
-                        foreach (string country in tmpdelete) {
+                    if (tmpdelete.Count > 0)
+                    {
+                        foreach (string country in tmpdelete)
+                        {
                             settings.countries.Remove(country);
                         }
                     }
 
-                    if ((settings.minstores != 1) && (settings.minstores != 2) && (settings.minstores != 3) && (settings.minstores != 4) && (settings.minstores != 5)) {
+                    if ((settings.minstores != 1) && (settings.minstores != 2) && (settings.minstores != 3) && (settings.minstores != 4) && (settings.minstores != 5))
+                    {
                         settings.minstores = 1;
                     }
 
-                    if ((settings.maxstores != 1) && (settings.maxstores != 2) && (settings.maxstores != 3) && (settings.maxstores != 4) && (settings.maxstores != 5)) {
+                    if ((settings.maxstores != 1) && (settings.maxstores != 2) && (settings.maxstores != 3) && (settings.maxstores != 4) && (settings.maxstores != 5))
+                    {
                         settings.maxstores = 4;
                     }
 
-                    if ((settings.cont != true) && (settings.cont != false)) {
+                    if ((settings.cont != true) && (settings.cont != false))
+                    {
                         settings.cont = false;
                     }
 
-                    if ((settings.sortcolour != true) && (settings.sortcolour != false)) {
+                    if ((settings.sortcolour != true) && (settings.sortcolour != false))
+                    {
                         settings.sortcolour = false;
                     }
 
-                    if ((settings.login != true) && (settings.login != false)) {
+                    if ((settings.login != true) && (settings.login != false))
+                    {
                         settings.login = false;
                     }
-                } catch (Exception exc) {
+                }
+                catch (Exception exc)
+                {
                     AddStatus("Error loading settings... using defaults (" + exc + ")");
 
                     settings.countries.Add("All");
@@ -423,7 +447,7 @@ namespace Brickficiency {
                 }
             }
 
-            this.BeginInvoke(new MethodInvoker(delegate() { this.splitContainer.SplitterDistance = settings.splitterdistance; }));
+            this.BeginInvoke(new MethodInvoker(delegate () { this.splitContainer.SplitterDistance = settings.splitterdistance; }));
             #endregion
 
             DownloadBrickLinkDB();
@@ -431,7 +455,8 @@ namespace Brickficiency {
             WriteSettings();
             EnableMenu();
             AddStatus("Done." + Environment.NewLine);
-            this.BeginInvoke(new MethodInvoker(delegate() {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 imageTimer.Start();
                 itemTimer.Start();
             }));
@@ -440,11 +465,14 @@ namespace Brickficiency {
             #region open file from command line
             List<string> args = Environment.GetCommandLineArgs().ToList();
 
-            if ((args.Count > 1) && (File.Exists(args[1]))) {
+            if ((args.Count > 1) && (File.Exists(args[1])))
+            {
                 AddStatus("Opening " + args[1] + Environment.NewLine);
                 bool success = LoadFile(args[1]);
-                if (success) {
-                    this.BeginInvoke(new MethodInvoker(delegate() {
+                if (success)
+                {
+                    this.BeginInvoke(new MethodInvoker(delegate ()
+                    {
                         DisplayLoadedFile();
                     }));
                 }
@@ -452,7 +480,8 @@ namespace Brickficiency {
             #endregion
         }
 
-        private void loadWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+        private void loadWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
             //MessageBox.Show("here2");
             //EnableMenu();
         }
@@ -484,7 +513,8 @@ namespace Brickficiency {
             AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
         }
 
-        private void OnProcessExit(object sender, EventArgs e) {
+        private void OnProcessExit(object sender, EventArgs e)
+        {
             WriteSettings();
         }
         #endregion
@@ -499,8 +529,8 @@ namespace Brickficiency {
             dt[currenttab].Columns.Add("condition", typeof(string));
             dt[currenttab].Columns.Add("colourname", typeof(string));
             dt[currenttab].Columns.Add("qty", typeof(int));
-//            dt[currenttab].Columns.Add("availability", typeof(int));
-dt[currenttab].Columns.Add("availstores", typeof(int));
+            //            dt[currenttab].Columns.Add("availability", typeof(int));
+            dt[currenttab].Columns.Add("availstores", typeof(int));
             dt[currenttab].Columns.Add("price", typeof(decimal));
             dt[currenttab].Columns.Add("total", typeof(decimal));
             dt[currenttab].Columns.Add("comments", typeof(string));
@@ -549,10 +579,12 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
             dr["largeimageurl"] = item.largeimageurl;
             dr["imageloaded"] = "n";
         }
- 
+
         #region Load a file
-        private bool LoadFile(string filename) {
-            foreach (DataTable thisdt in dt) {
+        private bool LoadFile(string filename)
+        {
+            foreach (DataTable thisdt in dt)
+            {
                 thisdt.Dispose();
             }
 
@@ -563,12 +595,16 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
 
             StreamWriter swr = new StreamWriter(debugopenfilename);
 
-            try {
-                using (StreamReader sr = new StreamReader(filename)) {
+            try
+            {
+                using (StreamReader sr = new StreamReader(filename))
+                {
                     rawfile = sr.ReadToEnd();
                     swr.Write(rawfile + Environment.NewLine);
                 }
-            } catch (Exception exc) {
+            }
+            catch (Exception exc)
+            {
                 swr.Write("ERROR: Could not read the file " + filename);
                 swr.Close();
                 MessageBox.Show("The file could not be read:" + Environment.NewLine + exc.Message);
@@ -576,9 +612,12 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
             }
 
             Match validcheck = Regex.Match(rawfile, @"\<inventory\>", RegexOptions.IgnoreCase);
-            if (validcheck.Success) {
+            if (validcheck.Success)
+            {
                 swr.Write("recognized valid file" + Environment.NewLine);
-            } else {
+            }
+            else
+            {
                 swr.Write("ERROR: unrecognized file" + Environment.NewLine + Environment.NewLine);
                 swr.Close();
                 MessageBox.Show("File format not recognized");
@@ -588,11 +627,13 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
             List<String> lines = rawfile.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
             int tmpcount = -1;
-            foreach (string line in lines) {
+            foreach (string line in lines)
+            {
                 swr.Write(line + Environment.NewLine);
 
                 Match newitem = Regex.Match(line, @"\<item\>", RegexOptions.IgnoreCase);
-                if (newitem.Success) {
+                if (newitem.Success)
+                {
                     swr.Write("Beginning of new item found" + Environment.NewLine + Environment.NewLine);
                     tmpcount = tmpcount + 1;
                     items.Add(new Item());
@@ -600,28 +641,32 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
                 }
 
                 Match number = Regex.Match(line, @"\<itemid\>(.*)\</itemid\>", RegexOptions.IgnoreCase);
-                if (number.Success) {
+                if (number.Success)
+                {
                     swr.Write("Item ID found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].number = number.Groups[1].Value;
                     continue;
                 }
 
                 Match typeid = Regex.Match(line, @"\<itemtypeid\>(.)\</itemtypeid\>", RegexOptions.IgnoreCase);
-                if (typeid.Success) {
+                if (typeid.Success)
+                {
                     swr.Write("Item type found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].type = typeid.Groups[1].Value;
                     continue;
                 }
 
                 Match type = Regex.Match(line, @"\<itemtype\>(.)\</itemtype\>", RegexOptions.IgnoreCase);
-                if (type.Success) {
+                if (type.Success)
+                {
                     swr.Write("Item type found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].type = type.Groups[1].Value;
                     continue;
                 }
 
                 Match colourid = Regex.Match(line, @"\<colorid\>(.*)\</colorid\>", RegexOptions.IgnoreCase);
-                if (colourid.Success) {
+                if (colourid.Success)
+                {
                     swr.Write("Item colour found" + Environment.NewLine);
                     items[tmpcount].colour = colourid.Groups[1].Value;
                     swr.Write("Item colour is " + db_colours[items[tmpcount].colour] + Environment.NewLine + Environment.NewLine);
@@ -629,7 +674,8 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
                 }
 
                 Match colour = Regex.Match(line, @"\<color\>(.*)\</color\>", RegexOptions.IgnoreCase);
-                if (colour.Success) {
+                if (colour.Success)
+                {
                     swr.Write("Item colour found" + Environment.NewLine);
                     items[tmpcount].colour = colour.Groups[1].Value;
                     swr.Write("Item colour is " + db_colours[items[tmpcount].colour] + Environment.NewLine + Environment.NewLine);
@@ -637,42 +683,48 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
                 }
 
                 Match status = Regex.Match(line, @"\<status\>(.*)\</status\>", RegexOptions.IgnoreCase);
-                if (status.Success) {
+                if (status.Success)
+                {
                     swr.Write("Item status found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].status = status.Groups[1].Value;
                     continue;
                 }
 
                 Match qty = Regex.Match(line, @"\<qty\>(.*)\</qty\>", RegexOptions.IgnoreCase);
-                if (qty.Success) {
+                if (qty.Success)
+                {
                     swr.Write("Item quantity found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].qty = Convert.ToInt32(qty.Groups[1].Value);
                     continue;
                 }
 
                 Match minqty = Regex.Match(line, @"\<minqty\>(.*)\</minqty\>", RegexOptions.IgnoreCase);
-                if (minqty.Success) {
+                if (minqty.Success)
+                {
                     swr.Write("Item minimum quantity found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].qty = Convert.ToInt32(minqty.Groups[1].Value);
                     continue;
                 }
 
                 Match price = Regex.Match(line, @"\<price\>(.*)\</price\>", RegexOptions.IgnoreCase);
-                if (price.Success) {
+                if (price.Success)
+                {
                     swr.Write("Item price found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].price = ConvertToDecimal(price.Groups[1].Value);
                     continue;
                 }
 
                 Match condition = Regex.Match(line, @"\<condition\>(.*)\</condition\>", RegexOptions.IgnoreCase);
-                if (condition.Success) {
+                if (condition.Success)
+                {
                     swr.Write("Item condition found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].condition = condition.Groups[1].Value;
                     continue;
                 }
 
                 Match comments = Regex.Match(line, @"\<comments\>(.*)\</comments\>", RegexOptions.IgnoreCase);
-                if (comments.Success) {
+                if (comments.Success)
+                {
                     swr.Write("Item comments found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].comments = comments.Groups[1].Value;
                     items[tmpcount].comments = StringLoadMod(items[tmpcount].comments);
@@ -680,7 +732,8 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
                 }
 
                 Match remarks = Regex.Match(line, @"\<remarks\>(.*)\</remarks\>", RegexOptions.IgnoreCase);
-                if (remarks.Success) {
+                if (remarks.Success)
+                {
                     swr.Write("Item remarks found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].remarks = remarks.Groups[1].Value;
                     items[tmpcount].remarks = StringLoadMod(items[tmpcount].remarks);
@@ -688,14 +741,16 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
                 }
 
                 Match origprice = Regex.Match(line, @"\<origprice\>(.*)\</origprice\>", RegexOptions.IgnoreCase);
-                if (origprice.Success) {
+                if (origprice.Success)
+                {
                     swr.Write("Item original price found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].origprice = ConvertToDecimal(origprice.Groups[1].Value);
                     continue;
                 }
 
                 Match origqty = Regex.Match(line, @"\<origqty\>(.*)\</origqty\>", RegexOptions.IgnoreCase);
-                if (origqty.Success) {
+                if (origqty.Success)
+                {
                     swr.Write("Item original quantity found" + Environment.NewLine + Environment.NewLine);
                     items[tmpcount].origqty = Convert.ToInt32(origqty.Groups[1].Value);
                     continue;
@@ -746,12 +801,14 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
                 }
 
 
-                if (!dt[currenttab].Rows.Contains(item.extid)) {
+                if (!dt[currenttab].Rows.Contains(item.extid))
+                {
                     DataRow dr = dt[currenttab].NewRow();
                     FillRow(dr, item);
                     dt[currenttab].Rows.Add(dr);
-               }
-                else {
+                }
+                else
+                {
                     dt[currenttab].Rows.Find(item.extid)["qty"] = (int)dt[currenttab].Rows.Find(item.extid)["qty"] + item.qty;
                 }
             }
@@ -762,8 +819,10 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
         #endregion
 
         #region Display File once loaded
-        public void DisplayLoadedFile() {
-            foreach (DataGridView thisdgv in dgv) {
+        public void DisplayLoadedFile()
+        {
+            foreach (DataGridView thisdgv in dgv)
+            {
                 thisdgv.Dispose();
             }
             dgv.Clear();
@@ -840,10 +899,10 @@ dt[currenttab].Columns.Add("availstores", typeof(int));
             dgv[currenttab].Columns["qty"].Width = 60;
             //dgv[currenttab].Columns["qty"].ReadOnly = true;
 
-dgv[currenttab].Columns["availstores"].HeaderText = "Availstores";
-dgv[currenttab].Columns["availstores"].Width = 80;
-dgv[currenttab].Columns["availstores"].DefaultCellStyle.Format = "#;Unknown;#";
-dgv[currenttab].Columns["availstores"].ReadOnly = true;
+            dgv[currenttab].Columns["availstores"].HeaderText = "Availstores";
+            dgv[currenttab].Columns["availstores"].Width = 80;
+            dgv[currenttab].Columns["availstores"].DefaultCellStyle.Format = "#;Unknown;#";
+            dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
             dgv[currenttab].Columns["price"].HeaderText = "Price";
             dgv[currenttab].Columns["price"].Width = 75;
@@ -879,7 +938,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             dgv[currenttab].Columns["type"].Visible = false;
             dgv[currenttab].Columns["colour"].Visible = false;
             dgv[currenttab].Columns["categoryid"].Visible = false;
-//            dgv[currenttab].Columns["availstores"].Visible = false;
+            //            dgv[currenttab].Columns["availstores"].Visible = false;
             dgv[currenttab].Columns["availqty"].Visible = false;
             dgv[currenttab].Columns["imageurl"].Visible = false;
             dgv[currenttab].Columns["largeimageurl"].Visible = false;
@@ -888,19 +947,28 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
             dgvSorted(new object(), new EventArgs());
 
-            foreach (DataGridViewRow item in dgv[currenttab].Rows) {
+            foreach (DataGridViewRow item in dgv[currenttab].Rows)
+            {
                 item.Cells["total"].Value = (Decimal)item.Cells["price"].Value * (int)item.Cells["qty"].Value;
-                if ((int)item.Cells["qty"].Value == 0) {
+                if ((int)item.Cells["qty"].Value == 0)
+                {
                     item.Cells["qty"].Style.BackColor = errorcell;
-                } else {
+                }
+                else
+                {
                     item.Cells["qty"].Style.BackColor = item.Cells["status"].Style.BackColor;
                 }
 
-                if ((String)item.Cells["status"].Value == "X") {
+                if ((String)item.Cells["status"].Value == "X")
+                {
                     item.Cells["displaystatus"].Value = Properties.Resources.x;
-                } else if ((String)item.Cells["status"].Value == "E") {
+                }
+                else if ((String)item.Cells["status"].Value == "E")
+                {
                     item.Cells["displaystatus"].Value = Properties.Resources.add;
-                } else {
+                }
+                else
+                {
                     item.Cells["displaystatus"].Value = Properties.Resources.check;
                 }
 
@@ -908,7 +976,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 dgv_ImageDisplay((string)item.Cells["id"].Value, (string)item.Cells["colour"].Value);
             }
 
-            if (dgv[currenttab].Rows.Count != 0) {
+            if (dgv[currenttab].Rows.Count != 0)
+            {
                 dgv[currenttab].AutoResizeColumn(dgv[currenttab].Columns["number"].Index);
                 dgv[currenttab].AutoResizeColumn(dgv[currenttab].Columns["name"].Index);
                 dgv[currenttab].AutoResizeColumn(dgv[currenttab].Columns["colourname"].Index);
@@ -924,15 +993,18 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region image loading timer tick
-        private void imageTimerNew_Tick(object sender, EventArgs e) {
+        private void imageTimerNew_Tick(object sender, EventArgs e)
+        {
             if (imagetimercount > 4) { return; }
 
             imagetimercount++;
 
             ImageDL thisimage = new ImageDL();
 
-            lock (imgTimerLock) {
-                if (imageDLList.Count == 0) {
+            lock (imgTimerLock)
+            {
+                if (imageDLList.Count == 0)
+                {
                     imagetimercount--;
                     return;
                 }
@@ -945,41 +1017,58 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            if (!File.Exists(thisimage.file)) {
+            if (!File.Exists(thisimage.file))
+            {
                 Bitmap dlImage = GetImage(thisimage.url);
-                if (dlImage == null) {
+                if (dlImage == null)
+                {
                     thisimage.url = thisimage.url.Replace(".jpg", ".gif");
                     dlImage = GetImage(thisimage.url);
                 }
-                if (dlImage != null) {
+                if (dlImage != null)
+                {
                     dlImage.Save(thisimage.file);
                 }
             }
 
-            if (thisimage.type == "s") {
-                foreach (DataGridViewRow item in dgv[currenttab].Rows) {
-                    if ((String)item.Cells["extid"].Value == thisimage.extid) {
-                        if ((String)item.Cells["imageloaded"].Value == "l") {
+            if (thisimage.type == "s")
+            {
+                foreach (DataGridViewRow item in dgv[currenttab].Rows)
+                {
+                    if ((String)item.Cells["extid"].Value == thisimage.extid)
+                    {
+                        if ((String)item.Cells["imageloaded"].Value == "l")
+                        {
                             continue;
-                        } else {
+                        }
+                        else
+                        {
                             item.Cells["imageloaded"].Value = "l";
                         }
 
-                        if (File.Exists(thisimage.file)) {
+                        if (File.Exists(thisimage.file))
+                        {
                             item.Cells["displayimage"].Value = Image.FromFile(thisimage.file);
-                        } else {
+                        }
+                        else
+                        {
                             item.Cells["displayimage"].Value = blank;
                         }
                     }
                 }
-            } else if (thisimage.type == "l") {
-                if (File.Exists(thisimage.file)) {
+            }
+            else if (thisimage.type == "l")
+            {
+                if (File.Exists(thisimage.file))
+                {
                     Image backimage = Image.FromFile(thisimage.file);
                     hoverZoomWindow.BackgroundImage = backimage;
                     hoverZoomWindow.Width = backimage.Width;
                     hoverZoomWindow.Height = backimage.Height;
                     hoverZoomWindow.HideLabel();
-                } else {
+                }
+                else
+                {
                     hoverZoomWindow.BackgroundImage = null;
                     hoverZoomWindow.Width = 100;
                     hoverZoomWindow.Height = 40;
@@ -994,15 +1083,18 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region item loading timer tick
-        private void itemTimerNew_Tick(object sender, EventArgs e) {
+        private void itemTimerNew_Tick(object sender, EventArgs e)
+        {
             if (itemtimercount > 0) { return; }
 
             itemtimercount++;
 
             ItemDL thisItem;
 
-            lock (itemTimerLock) {
-                if (itemDLList.Count == 0) {
+            lock (itemTimerLock)
+            {
+                if (itemDLList.Count == 0)
+                {
                     itemtimercount--;
                     return;
                 }
@@ -1043,8 +1135,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         {
             lock (itemTimerLock)
             {
-                itemDLList.Add(new ItemDL() {
-                    item = new Item() {
+                itemDLList.Add(new ItemDL()
+                {
+                    item = new Item()
+                    {
                         id = id,
                         extid = db_blitems[id].type + "-" + colour + "-" + db_blitems[id].number,
                         type = db_blitems[id].type,
@@ -1061,18 +1155,26 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         }
 
         #region display image on dgv
-        public static void dgv_ImageDisplay(string id, string colour = "0") {
+        public static void dgv_ImageDisplay(string id, string colour = "0")
+        {
             string imgfilename = GenerateImageFilename(id, colour);
 
-            if (File.Exists(imgfilename)) {
-                foreach (DataGridViewRow row in dgv[currenttab].Rows) {
-                    if (((string)row.Cells["id"].Value == id) && ((string)row.Cells["colour"].Value == colour)) {
+            if (File.Exists(imgfilename))
+            {
+                foreach (DataGridViewRow row in dgv[currenttab].Rows)
+                {
+                    if (((string)row.Cells["id"].Value == id) && ((string)row.Cells["colour"].Value == colour))
+                    {
                         row.Cells["displayimage"].Value = Image.FromFile(imgfilename);
                     }
                 }
-            } else {
-                lock (imgTimerLock) {
-                    imageDLList.Add(new ImageDL() {
+            }
+            else
+            {
+                lock (imgTimerLock)
+                {
+                    imageDLList.Add(new ImageDL()
+                    {
                         extid = db_blitems[id].type + "-" + colour + "-" + db_blitems[id].number,
                         file = imgfilename,
                         url = GenerateImageURL(id, colour),
@@ -1084,36 +1186,46 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region Import LDD file
-        private void importWorker_DoWork(object sender, DoWorkEventArgs e) {
+        private void importWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
             string filename = (string)e.Argument;
-            if (importLDD(filename)) {
-                this.BeginInvoke(new MethodInvoker(delegate() {
+            if (importLDD(filename))
+            {
+                this.BeginInvoke(new MethodInvoker(delegate ()
+                {
                     DisplayLoadedFile();
                     EnableMenu();
                 }));
             }
         }
 
-        private bool importLDD(string filename) {
+        private bool importLDD(string filename)
+        {
             StreamWriter swr = new StreamWriter(debuglddimport);
 
-            using (ZipFile zip = ZipFile.Read(filename)) {
+            using (ZipFile zip = ZipFile.Read(filename))
+            {
                 bool extracted = false;
                 string lddfile;
                 string xmlfile = programdata + "IMAGE100.LXFML";
                 Dictionary<string, LDDItem> extracteditems = new Dictionary<string, LDDItem>();
 
-                foreach (ZipEntry e in zip) {
-                    if (e.FileName == "IMAGE100.LXFML") {
+                foreach (ZipEntry e in zip)
+                {
+                    if (e.FileName == "IMAGE100.LXFML")
+                    {
                         e.Extract(programdata, ExtractExistingFileAction.OverwriteSilently);
                         extracted = true;
                         swr.WriteLine("IMAGE100.LXFML extracted to " + programdata);
-                    } else {
+                    }
+                    else
+                    {
                         swr.WriteLine("Skipping " + e.FileName);
                     }
                 }
 
-                if (extracted == false) {
+                if (extracted == false)
+                {
                     AddStatus("Error extracting xml from lxf");
                     swr.WriteLine("Error extracting xml from lxf");
                     swr.Close();
@@ -1121,11 +1233,15 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                     return false;
                 }
 
-                try {
-                    using (StreamReader sr = new StreamReader(xmlfile)) {
+                try
+                {
+                    using (StreamReader sr = new StreamReader(xmlfile))
+                    {
                         lddfile = sr.ReadToEnd();
                     }
-                } catch (Exception exc) {
+                }
+                catch (Exception exc)
+                {
                     AddStatus("Error reading xml file");
                     swr.WriteLine("Error reading xml file: " + exc.Message);
                     swr.Close();
@@ -1133,12 +1249,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                     return false;
                 }
 
-                foreach (DataTable thisdt in dt) {
+                foreach (DataTable thisdt in dt)
+                {
                     thisdt.Dispose();
                 }
 
                 BuildTable();
-//                List<Item> items = new List<Item>();
+                //                List<Item> items = new List<Item>();
 
                 List<String> lines = lddfile.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
 
@@ -1146,29 +1263,34 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 string brick = "";
                 bool partfound = false;
 
-                foreach (string line in lines) {
+                foreach (string line in lines)
+                {
                     swr.WriteLine(line);
                     Match brickmatch = Regex.Match(line, "<Brick refID=\"" + @".*?" + "\" designID=\"" + @"(.*?)" + "\"", RegexOptions.IgnoreCase);
-                    if (brickmatch.Success) {
+                    if (brickmatch.Success)
+                    {
                         brick = brickmatch.Groups[1].ToString();
                         partfound = false;
                         swr.WriteLine("brick: " + brick);
                         continue;
                     }
 
-                    if (partfound == true) {
+                    if (partfound == true)
+                    {
                         continue;
                     }
 
                     //                                 <Part refID= "      11       " designID= "       32062      " materials= "       21
                     Match ldditem = Regex.Match(line, "<Part refID=\"" + @".*?" + "\" designID=\"" + @"(.*?)" + "\" materials=\"" + @"(\d*)", RegexOptions.IgnoreCase);
-                    if (ldditem.Success) {
+                    if (ldditem.Success)
+                    {
                         partfound = true;
                         LDDItem item = new LDDItem();
 
                         item.num = ldditem.Groups[1].ToString();
 
-                        if (item.num != brick) {
+                        if (item.num != brick)
+                        {
                             swr.WriteLine("part of multi-part item: " + brick);
                             item.num = brick;
                         }
@@ -1176,9 +1298,12 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         item.col = ldditem.Groups[2].ToString();
                         item.id = item.col + "-" + item.num;
                         item.count = 1;
-                        if (db_LDD2BL.ContainsKey(item.col)) {
+                        if (db_LDD2BL.ContainsKey(item.col))
+                        {
                             item.blcol = db_LDD2BL[item.col];
-                        } else {
+                        }
+                        else
+                        {
                             swr.WriteLine("Unknown Lego colour id: " + item.col + Environment.NewLine);
                             AddStatus("Skipping Lego Element ID " + item.num + ". Unknown colour ID: " + item.col + Environment.NewLine);
                             continue;
@@ -1187,9 +1312,12 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         swr.WriteLine("num: " + item.num + Environment.NewLine +
                             "col: " + item.col + Environment.NewLine);
 
-                        if (extracteditems.ContainsKey(item.id)) {
+                        if (extracteditems.ContainsKey(item.id))
+                        {
                             extracteditems[item.id].count++;
-                        } else {
+                        }
+                        else
+                        {
                             extracteditems.Add(item.id, item);
                         }
                     }
@@ -1199,75 +1327,94 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 AddStatus("Querying Rebrickable.com for Bricklink part ID's" + Environment.NewLine);
                 swr.WriteLine(Environment.NewLine + "Querying Rebrickable.com for Bricklink part ID's");
 
-                foreach (LDDItem item in extracteditems.Values) {
+                foreach (LDDItem item in extracteditems.Values)
+                {
                     swr.WriteLine(Environment.NewLine + "ID: " + item.num);
 
                     //Lego and Bricklink are the same
-                    if (db_blitems.ContainsKey("P-" + item.num)) {
+                    if (db_blitems.ContainsKey("P-" + item.num))
+                    {
                         swr.WriteLine("Valid BrickLink ID number");
                         item.blnum = db_blitems["P-" + item.num].number;
                     }
-                        //Found Alt from Bricklink database
-                    else if (db_blaltids.ContainsKey(item.num)) {
+                    //Found Alt from Bricklink database
+                    else if (db_blaltids.ContainsKey(item.num))
+                    {
                         swr.WriteLine("Found BrickLink Alternate ID number from BrickLink");
                         item.blnum = db_blaltids[item.num];
                     }
-                        //Found Alt from Rebrickable Database
-                    else if (db_rebrickaltids.ContainsKey(item.num)) {
+                    //Found Alt from Rebrickable Database
+                    else if (db_rebrickaltids.ContainsKey(item.num))
+                    {
                         swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
                         item.blnum = db_rebrickaltids[item.num];
                     }
-                        //haven't checked rebrickable yet
-                    else if (!db_rebrickpages.ContainsKey(item.num)) {
+                    //haven't checked rebrickable yet
+                    else if (!db_rebrickpages.ContainsKey(item.num))
+                    {
                         swr.WriteLine("Checking Rebrickable...");
                         string url = "http://rebrickable.com/api/get_part" + @"?key=" + RBapiKey + "&part_id=" + item.num + "&inc_ext=1&format=json";
                         string page = GetRebrickablePage(url);
 
-                        if (page == null) {
+                        if (page == null)
+                        {
                             AddStatus("Rebrickable error retrieving part ID for part: " + item.num + Environment.NewLine);
                             swr.WriteLine("Error downloading from rebrickable api");
                             continue;
-                        } else {
+                        }
+                        else
+                        {
                             db_rebrickpages.Add(item.num, page);
                             swr.WriteLine(page);
                         }
 
                         Match itemmatch = Regex.Match(page, "{\"bricklink\":\"" + "(.*?)" + "\"}");
                         Match rbmatch = Regex.Match(page, "\"rebrickable_part_id\":\"" + "(.*?)" + "\"");
-                        if (rbmatch.Success) {
+                        if (rbmatch.Success)
+                        {
                             //found alt from rebrickable
-                            if (db_blitems.ContainsKey("P-" + rbmatch.Groups[1].Value.ToString())) {
+                            if (db_blitems.ContainsKey("P-" + rbmatch.Groups[1].Value.ToString()))
+                            {
                                 swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
                                 db_rebrickaltids.Add(item.num, rbmatch.Groups[1].Value.ToString());
                                 item.blnum = rbmatch.Groups[1].Value.ToString();
                             }
-                                //need to check BL alt id from rebrickable
-                            else {
+                            //need to check BL alt id from rebrickable
+                            else
+                            {
                                 url = "http://rebrickable.com/api/get_part" + @"?key=" + RBapiKey + "&part_id=" + rbmatch.Groups[1].Value.ToString() + "&inc_ext=1&format=json";
                                 page = GetRebrickablePage(url);
 
-                                if (page == null) {
+                                if (page == null)
+                                {
                                     AddStatus("Rebrickable error retrieving part ID for part: " + rbmatch.Groups[1].Value.ToString() + Environment.NewLine);
                                     swr.WriteLine("Error downloading from rebrickable api");
                                     continue;
-                                } else {
+                                }
+                                else
+                                {
                                     db_rebrickpages.Add(rbmatch.Groups[1].Value.ToString(), page);
                                     swr.WriteLine(page);
                                 }
 
                                 Match itemmatch2 = Regex.Match(page, "{\"bricklink\":\"" + "(.*?)" + "\"}");
-                                if (itemmatch2.Success) {
+                                if (itemmatch2.Success)
+                                {
                                     //found alt from rebrickable
-                                    if (db_blitems.ContainsKey("P-" + itemmatch2.Groups[1].Value.ToString())) {
+                                    if (db_blitems.ContainsKey("P-" + itemmatch2.Groups[1].Value.ToString()))
+                                    {
                                         swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
                                         item.blnum = itemmatch2.Groups[1].Value.ToString();
                                         db_rebrickaltids.Add(item.num, itemmatch2.Groups[1].Value.ToString());
                                     }
                                 }
                             }
-                        } else if (itemmatch.Success) {
+                        }
+                        else if (itemmatch.Success)
+                        {
                             //found alt from rebrickable
-                            if (db_blitems.ContainsKey("P-" + itemmatch.Groups[1].Value.ToString())) {
+                            if (db_blitems.ContainsKey("P-" + itemmatch.Groups[1].Value.ToString()))
+                            {
                                 swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
                                 item.blnum = itemmatch.Groups[1].Value.ToString();
                                 db_rebrickaltids.Add(item.num, itemmatch.Groups[1].Value.ToString());
@@ -1275,17 +1422,21 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         }
                     }
 
-                    if (item.blnum == "") {
+                    if (item.blnum == "")
+                    {
                         AddStatus("Error retrieving Bricklink part ID: " + item.num + Environment.NewLine +
                             "Info for adding manually: " + item.count + "x " + db_colours[item.blcol].name + " " + item.num + Environment.NewLine);
                         swr.WriteLine("Error: could not find a proper ID from bricklink or rebrickable");
                         continue;
-                    } else {
+                    }
+                    else
+                    {
                         swr.WriteLine("Found: " + item.blnum + Environment.NewLine);
                     }
 
                     string extid = "P-" + item.blcol + "-" + item.blnum;
-                    if (!dt[currenttab].Rows.Contains(extid)) {
+                    if (!dt[currenttab].Rows.Contains(extid))
+                    {
                         DataRow dr = dt[currenttab].NewRow();
                         dr["id"] = "P-" + item.blnum;
                         dr["colour"] = item.blcol;
@@ -1311,7 +1462,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         dr["imageloaded"] = "n";
                         dt[currenttab].Rows.Add(dr);
                     }
-                    else {
+                    else
+                    {
                         Debug.Assert(false, "Duplicate item in DLL file, how strange???");
                         dt[currenttab].Rows.Find(extid)["qty"] = (int)dt[currenttab].Rows.Find(extid)["qty"] + item.count;
                     }
@@ -1326,7 +1478,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
         private static int MAX_FAILS = 4;
         #region retrieve page as string
-        public string GetPage(string url, bool login = false) {
+        public string GetPage(string url, bool login = false)
+        {
             lock (pageLock)
             {
                 string cookieHeader;
@@ -1430,18 +1583,22 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region retrieve rebrickable page as string
-        private string GetRebrickablePage(string url) {
+        private string GetRebrickablePage(string url)
+        {
             int pagefail = 0;
             bool pagesuccess = false;
             string page = null;
 
-            while ((pagesuccess == false) && (pagefail < 4)) {
-                try {
+            while ((pagesuccess == false) && (pagefail < 4))
+            {
+                try
+                {
                     WebClient wc = new WebClient();
                     wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.0.3705;)");
                     page = wc.DownloadString(url);
                     pagesuccess = true;
-                } catch// (Exception ex)
+                }
+                catch// (Exception ex)
                 {
                     pagefail++;
                 }
@@ -1452,17 +1609,22 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region retrieve image as bitmap
-        static Bitmap GetImage(string url) {
+        static Bitmap GetImage(string url)
+        {
             WebClient wc = new WebClient();
-            try {
+            try
+            {
                 byte[] bytes = wc.DownloadData(url);
                 MemoryStream stream = new MemoryStream(bytes);
                 Image img = Bitmap.FromStream(stream);
                 Bitmap bmp = new Bitmap(img);
                 return bmp;
-            } catch (Exception exc) {
+            }
+            catch (Exception exc)
+            {
                 Match notfound = Regex.Match(exc.Message, @"404", RegexOptions.IgnoreCase);
-                if (!notfound.Success) {
+                if (!notfound.Success)
+                {
                     //MessageBox.Show("error getting image for " + url + ":" + Environment.NewLine + exc.Message);
                     return null;
                 }
@@ -1473,10 +1635,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region deselect datagridview rows if user clicks elsewhere
-        private void dgv_Mouseup(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Left) {
+        private void dgv_Mouseup(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
                 DataGridView.HitTestInfo hit = dgv[currenttab].HitTest(e.X, e.Y);
-                if (hit.Type == DataGridViewHitTestType.None) {
+                if (hit.Type == DataGridViewHitTestType.None)
+                {
                     dgv[currenttab].ClearSelection();
                 }
             }
@@ -1484,11 +1649,16 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region Add Status Text
-        public void AddStatus(string text) {
-            this.BeginInvoke(new MethodInvoker(delegate() {
-                if (text == "##Clear##") {
+        public void AddStatus(string text)
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
+                if (text == "##Clear##")
+                {
                     statusBox.Text = "";
-                } else {
+                }
+                else
+                {
                     statusBox.AppendText(text);
                 }
             }));
@@ -1496,8 +1666,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region Write XML settings
-        public static void WriteSettings() {
-            using (StreamWriter swr = new StreamWriter(settingsfilename)) {
+        public static void WriteSettings()
+        {
+            using (StreamWriter swr = new StreamWriter(settingsfilename))
+            {
                 XmlSerializer serializer = new XmlSerializer(typeof(Settings));
                 serializer.Serialize(swr, settings);
                 swr.Close();
@@ -1506,8 +1678,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region enable/disable menu inputs
-        private void DisableMenu() {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        private void DisableMenu()
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 newFileToolStripMenuItem.Enabled = false;
                 newFileToolStripButton.Enabled = false;
                 openMenuItem.Enabled = false;
@@ -1525,8 +1699,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 addItemToolstripButton.Enabled = false;
             }));
         }
-        void EnableMenu() {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        void EnableMenu()
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 newFileToolStripMenuItem.Enabled = true;
                 newFileToolStripButton.Enabled = true;
                 openMenuItem.Enabled = true;
@@ -1536,7 +1712,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 importLDDButton.Enabled = true;
                 importLDDToolStripMenuItem.Enabled = true;
                 dlMenuItem.Enabled = true;
-                if (dgv.Count > 0) {
+                if (dgv.Count > 0)
+                {
                     calculateToolStripMenuItem.Enabled = true;
                     calculateButton.Enabled = true;
                     saveAsMenuItem.Enabled = true;
@@ -1546,14 +1723,18 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 }
             }));
         }
-        private void DisableCalcStop() {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        private void DisableCalcStop()
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 stopCalculationToolStripMenuItem.Enabled = false;
                 stopCalculateButton.Enabled = false;
             }));
         }
-        private void EnableCalcStop() {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        private void EnableCalcStop()
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 stopCalculationToolStripMenuItem.Enabled = true;
                 stopCalculateButton.Enabled = true;
             }));
@@ -1561,45 +1742,58 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region Progress Bar
-        private void SetProgressBar(int value) {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        private void SetProgressBar(int value)
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 progressBar1.Value = 0;
                 progressBar1.Step = 1; // Added by CAC, 2015-06-26
                 progressBar1.Maximum = value;
             }));
         }
-        private void SetProgressPercent(int value) {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        private void SetProgressPercent(int value)
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 progressBar1.Value = value;
                 progressBar1.Maximum = 100;
             }));
         }
-        private void ResetProgressBar() {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        private void ResetProgressBar()
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 progressBar1.Value = 0;
             }));
         }
-        private void AddProgress(int value) {
-            this.BeginInvoke(new MethodInvoker(delegate() {
+        private void AddProgress(int value)
+        {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 AddStatus(value + Environment.NewLine);
                 progressBar1.Value = progressBar1.Value + value;
             }));
         }
-        private void Progress() {
+        private void Progress()
+        {
             // This is sporadically locking up the GUI.  No idea why.
             // CAC, 2015-06-24.
-            this.BeginInvoke(new MethodInvoker(delegate() {
+            this.BeginInvoke(new MethodInvoker(delegate ()
+            {
                 progressBar1.PerformStep();
             }));
         }
-        private void MainWindow_SizeChanged(object sender, EventArgs e) {
+        private void MainWindow_SizeChanged(object sender, EventArgs e)
+        {
             progressBar1.Width = this.Width - 35; // / 2;
         }
         #endregion
 
         #region Write a file
-        public static void WriteFile(string file, string text) {
-            using (StreamWriter swr = new StreamWriter(file)) {
+        public static void WriteFile(string file, string text)
+        {
+            using (StreamWriter swr = new StreamWriter(file))
+            {
                 swr.Write(text);
                 swr.Close();
             }
@@ -1607,10 +1801,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region convert between Datatables and Items
-        public List<Item> dt2item(DataTable thisdt) {
+        public List<Item> dt2item(DataTable thisdt)
+        {
             List<Item> thislist = new List<Item>();
-            foreach (DataRow item in thisdt.Rows) {
-                thislist.Add(new Item() {
+            foreach (DataRow item in thisdt.Rows)
+            {
+                thislist.Add(new Item()
+                {
                     status = item.Field<string>("status"),
                     number = item.Field<string>("number"),
                     condition = item.Field<string>("condition"),
@@ -1629,7 +1826,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             }
             return thislist;
         }
-        public static DataTable item2dt(List<Item> theseitems) {
+        public static DataTable item2dt(List<Item> theseitems)
+        {
             DataTable thisdt = new DataTable();
             thisdt.Columns.Add("status", typeof(string));
             thisdt.Columns.Add("number", typeof(string));
@@ -1656,7 +1854,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             thisdt.Columns.Add("largeimageurl", typeof(string));
             thisdt.Columns.Add("imageloaded", typeof(string));
             thisdt.Columns.Add("pgpage", typeof(string));
-            foreach (Item item in theseitems) {
+            foreach (Item item in theseitems)
+            {
                 DataRow dr = thisdt.NewRow();
                 dr.SetField<string>("status", item.status);
                 dr.SetField<string>("number", item.number);
@@ -1689,15 +1888,19 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region Modify string text when saving & loading
-        private string StringSaveMod(string text) {
-            if ((text != null) && (text != "")) {
+        private string StringSaveMod(string text)
+        {
+            if ((text != null) && (text != ""))
+            {
                 text = text.Replace("& ", "&amp; ");
                 text = text.Replace("<", "&lt;");
             }
             return text;
         }
-        private string StringLoadMod(string text) {
-            if ((text != null) && (text != "")) {
+        private string StringLoadMod(string text)
+        {
+            if ((text != null) && (text != ""))
+            {
                 text = text.Replace("&amp; ", "& ");
                 text = text.Replace("&lt;", "<");
             }
@@ -1706,14 +1909,16 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region convert to decimal - now with region support!
-        private decimal ConvertToDecimal(string text) {
+        private decimal ConvertToDecimal(string text)
+        {
             text = text.Replace(".", numberseperator);
             return Convert.ToDecimal(text);
         }
         #endregion
 
         #region Download and read Bricklink DB
-        private void dlWorker_DoWork(object sender, DoWorkEventArgs e) {
+        private void dlWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
             DisableMenu();
             AddStatus("##Clear##");
 
@@ -1764,29 +1969,38 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             db_blaltids.Clear();
 
             PopulateLookupsFromServices();
-        }        
+        }
         #endregion
 
         #region splitter moved
-        private void splitContainer_SplitterMoved(object sender, SplitterEventArgs e) {
+        private void splitContainer_SplitterMoved(object sender, SplitterEventArgs e)
+        {
             SplitterMoved();
         }
-        private void SplitterMoved() {
+        private void SplitterMoved()
+        {
             settings.splitterdistance = splitContainer.SplitterDistance;
             imageLabel.Height = splitContainer.Panel2.Height - 28;
             containerList.Height = splitContainer.Panel2.Height - 28;
             statusBox.Height = splitContainer.Panel2.Height - 28;
 
-            if (imageLabel.Visible == false) {
-                if (containerList.Visible == false) {
+            if (imageLabel.Visible == false)
+            {
+                if (containerList.Visible == false)
+                {
                     statusBox.Left = 1;
                     statusBox.Width = splitContainer.Panel2.Width - 6;
                 }
-            } else {
-                if (containerList.Visible == false) {
+            }
+            else
+            {
+                if (containerList.Visible == false)
+                {
                     statusBox.Left = 170;
                     statusBox.Width = splitContainer.Panel2.Width - 175;
-                } else {
+                }
+                else
+                {
                     statusBox.Left = 432;
                     statusBox.Width = splitContainer.Panel2.Width - 437;
                 }
@@ -1853,12 +2067,16 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region generate image URL
-        public static string GenerateImageURL(string id, string colour = "large") {
+        public static string GenerateImageURL(string id, string colour = "large")
+        {
             string imageurl;
-            if (colour != "large") {
+            if (colour != "large")
+            {
                 imageurl = "https://www.bricklink.com/getPic.asp?itemType=" + db_blitems[id].type + (colour == "0" ? "" : "&colorID=" + colour) + "&itemNo=" + db_blitems[id].number;
                 return imageurl;
-            } else {
+            }
+            else
+            {
                 imageurl = "https://www.bricklink.com/" + db_blitems[id].type + "L/" + db_blitems[id].number + ".jpg";
                 return imageurl;
             }
@@ -1866,15 +2084,22 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region generate image filename
-        public static string GenerateImageFilename(string id, string colour = "large") {
+        public static string GenerateImageFilename(string id, string colour = "large")
+        {
             string filename;
-            if (colour != "large") {
-                if ((db_blitems[id].type == "P") || (db_blitems[id].type == "G")) {
+            if (colour != "large")
+            {
+                if ((db_blitems[id].type == "P") || (db_blitems[id].type == "G"))
+                {
                     filename = programdata + "images\\" + db_blitems[id].type + "\\" + db_blitems[id].number + "\\" + colour + "\\small.png";
-                } else {
+                }
+                else
+                {
                     filename = programdata + "images\\" + db_blitems[id].type + "\\" + db_blitems[id].number + "\\small.png";
                 }
-            } else {
+            }
+            else
+            {
                 filename = programdata + "images\\" + db_blitems[id].type + "\\" + db_blitems[id].number + "\\large.png";
             }
             return filename;
@@ -1883,57 +2108,81 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region datagridview double click
-        private void dgv_doubleclick(object sender, DataGridViewCellEventArgs e) {
+        private void dgv_doubleclick(object sender, DataGridViewCellEventArgs e)
+        {
             DataGridView dgv_sender = sender as DataGridView;
             Point mousePoint = dgv_sender.PointToClient(Cursor.Position);
-            if (dgv[currenttab].HitTest(mousePoint.X, mousePoint.Y).Type == DataGridViewHitTestType.Cell) {
-                if (dgv[currenttab].Columns[e.ColumnIndex].Name == "displaystatus") {
-                    if ((String)dgv[currenttab].Rows[e.RowIndex].Cells["status"].Value == "I") {
+            if (dgv[currenttab].HitTest(mousePoint.X, mousePoint.Y).Type == DataGridViewHitTestType.Cell)
+            {
+                if (dgv[currenttab].Columns[e.ColumnIndex].Name == "displaystatus")
+                {
+                    if ((String)dgv[currenttab].Rows[e.RowIndex].Cells["status"].Value == "I")
+                    {
                         dgv[currenttab].Rows[e.RowIndex].Cells["status"].Value = "E";
                         dgv[currenttab].Rows[e.RowIndex].Cells["displaystatus"].Value = Properties.Resources.add;
-                    } else if ((String)dgv[currenttab].Rows[e.RowIndex].Cells["status"].Value == "E") {
+                    }
+                    else if ((String)dgv[currenttab].Rows[e.RowIndex].Cells["status"].Value == "E")
+                    {
                         dgv[currenttab].Rows[e.RowIndex].Cells["status"].Value = "X";
                         dgv[currenttab].Rows[e.RowIndex].Cells["displaystatus"].Value = Properties.Resources.x;
-                    } else {
+                    }
+                    else
+                    {
                         dgv[currenttab].Rows[e.RowIndex].Cells["status"].Value = "I";
                         dgv[currenttab].Rows[e.RowIndex].Cells["displaystatus"].Value = Properties.Resources.check;
                     }
-                } else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "displayimage") {
+                }
+                else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "displayimage")
+                {
                     string imgfilename = GenerateImageFilename((String)dgv[currenttab].Rows[e.RowIndex].Cells["id"].Value);
 
-                    if (!File.Exists(imgfilename)) {
+                    if (!File.Exists(imgfilename))
+                    {
                         hoverZoomWindow.BackgroundImage = null;
                         hoverZoomWindow.Width = 100;
                         hoverZoomWindow.Height = 40;
                         hoverZoomWindow.ShowLabel();
 
-                        lock (imgTimerLock) {
-                            imageDLList.Insert(0, new ImageDL() {
+                        lock (imgTimerLock)
+                        {
+                            imageDLList.Insert(0, new ImageDL()
+                            {
                                 extid = (String)dgv[currenttab].Rows[e.RowIndex].Cells["extid"].Value,
                                 file = imgfilename,
                                 url = (String)dgv[currenttab].Rows[e.RowIndex].Cells["largeimageurl"].Value,
                                 type = "l"
                             });
                         }
-                    } else {
+                    }
+                    else
+                    {
                         Image backimage = Image.FromFile(imgfilename);
                         hoverZoomWindow.BackgroundImage = backimage;
                         hoverZoomWindow.Width = backimage.Width;
                         hoverZoomWindow.Height = backimage.Height;
                         hoverZoomWindow.HideLabel();
                     }
-                } else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "name") {
+                }
+                else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "name")
+                {
                     changeItemWindow.DisplayItem(dgv[currenttab].Rows[e.RowIndex]);
                     changeItemWindow.BringToFront();
                     changeItemWindow.WindowState = FormWindowState.Normal;
                     changeItemWindow.Show();
-                } else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "condition") {
-                    if ((String)dgv[currenttab].Rows[e.RowIndex].Cells["condition"].Value == "U") {
+                }
+                else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "condition")
+                {
+                    if ((String)dgv[currenttab].Rows[e.RowIndex].Cells["condition"].Value == "U")
+                    {
                         dgv[currenttab].Rows[e.RowIndex].Cells["condition"].Value = "N";
-                    } else {
+                    }
+                    else
+                    {
                         dgv[currenttab].Rows[e.RowIndex].Cells["condition"].Value = "U";
                     }
-                } else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "colourname") {
+                }
+                else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "colourname")
+                {
                     setColourDialog();
                 }
             }
@@ -1941,12 +2190,18 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region datagridview right click
-        private void dgv_MouseDown(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Right) {
-                if (dgv[currenttab].HitTest(e.X, e.Y).Type == DataGridViewHitTestType.Cell) {
-                    if (dgv[currenttab].SelectedRows.Count == 0) {
+        private void dgv_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (dgv[currenttab].HitTest(e.X, e.Y).Type == DataGridViewHitTestType.Cell)
+                {
+                    if (dgv[currenttab].SelectedRows.Count == 0)
+                    {
                         dgv[currenttab].Rows[dgv[currenttab].HitTest(e.X, e.Y).RowIndex].Selected = true;
-                    } else if (dgv[currenttab].Rows[dgv[currenttab].HitTest(e.X, e.Y).RowIndex].Selected != true) {
+                    }
+                    else if (dgv[currenttab].Rows[dgv[currenttab].HitTest(e.X, e.Y).RowIndex].Selected != true)
+                    {
                         dgv[currenttab].ClearSelection();
                         dgv[currenttab].Rows[dgv[currenttab].HitTest(e.X, e.Y).RowIndex].Selected = true;
                     }
@@ -1954,11 +2209,14 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             }
         }
 
-        private void dgv_MouseUp(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Right) {
+        private void dgv_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
                 //if (dgv[currenttab].HitTest(e.X, e.Y).Type == DataGridViewHitTestType.Cell)
                 //{
-                if (dgv[currenttab].SelectedRows.Count == 0) {
+                if (dgv[currenttab].SelectedRows.Count == 0)
+                {
                     deleteToolStripMenuItem.Visible = false;
                     statusToolStripMenuItem.Visible = false;
                     conditionToolStripMenuItem.Visible = false;
@@ -1973,7 +2231,9 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                     toolStripSeparator5.Visible = false;
                     toolStripSeparator6.Visible = false;
                     toolStripSeparator7.Visible = false;
-                } else {
+                }
+                else
+                {
                     deleteToolStripMenuItem.Visible = true;
                     statusToolStripMenuItem.Visible = true;
                     conditionToolStripMenuItem.Visible = true;
@@ -1993,9 +2253,12 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 //}
             }
         }
-        private void dgv_MouseMove(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Right) {
-                if (dgv[currenttab].HitTest(e.X, e.Y).Type == DataGridViewHitTestType.Cell) {
+        private void dgv_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if (dgv[currenttab].HitTest(e.X, e.Y).Type == DataGridViewHitTestType.Cell)
+                {
                     dgv[currenttab].Rows[dgv[currenttab].HitTest(e.X, e.Y).RowIndex].Selected = true;
                 }
             }
@@ -2003,8 +2266,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region datagridview sorted
-        private void dgvSorted(object sender, EventArgs e) {
-            foreach (DataGridViewRow item in dgv[currenttab].Rows) {
+        private void dgvSorted(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow item in dgv[currenttab].Rows)
+            {
                 string imgfilename = GenerateImageFilename((string)item.Cells["id"].Value, (string)item.Cells["colour"].Value);
 
                 //if (((String)item.Cells["type"].Value == "P") || ((String)item.Cells["type"].Value == "G"))
@@ -2012,19 +2277,27 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 //else
                 //    imgfilename = programdata + "images\\" + item.Cells["type"].Value + "\\" + item.Cells["number"].Value + "\\small.png";
 
-                if (File.Exists(imgfilename)) {
+                if (File.Exists(imgfilename))
+                {
                     item.Cells["displayimage"].Value = Bitmap.FromFile(imgfilename);
                     item.Cells["imageloaded"].Value = "l";
-                } else {
+                }
+                else
+                {
                     item.Cells["displayimage"].Value = Properties.Resources.blank;
                 }
 
 
-                if ((String)item.Cells["status"].Value == "X") {
+                if ((String)item.Cells["status"].Value == "X")
+                {
                     item.Cells["displaystatus"].Value = Properties.Resources.x;
-                } else if ((String)item.Cells["status"].Value == "E") {
+                }
+                else if ((String)item.Cells["status"].Value == "E")
+                {
                     item.Cells["displaystatus"].Value = Properties.Resources.add;
-                } else {
+                }
+                else
+                {
                     item.Cells["displaystatus"].Value = Properties.Resources.check;
                 }
             }
@@ -2032,12 +2305,17 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region datagridview cell edit
-        private void dgvCellEdit(object sender, DataGridViewCellEventArgs e) {
-            if ((dgv[currenttab].Columns[e.ColumnIndex].Name == "qty") || (dgv[currenttab].Columns[e.ColumnIndex].Name == "price")) {
+        private void dgvCellEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if ((dgv[currenttab].Columns[e.ColumnIndex].Name == "qty") || (dgv[currenttab].Columns[e.ColumnIndex].Name == "price"))
+            {
                 dgv[currenttab].Rows[e.RowIndex].Cells["total"].Value = (Decimal)dgv[currenttab].Rows[e.RowIndex].Cells["price"].Value * (int)dgv[currenttab].Rows[e.RowIndex].Cells["qty"].Value;
-                if ((int)dgv[currenttab].Rows[e.RowIndex].Cells["qty"].Value == 0) {
+                if ((int)dgv[currenttab].Rows[e.RowIndex].Cells["qty"].Value == 0)
+                {
                     dgv[currenttab].Rows[e.RowIndex].Cells["qty"].Style.BackColor = errorcell;
-                } else {
+                }
+                else
+                {
                     dgv[currenttab].Rows[e.RowIndex].Cells["qty"].Style.BackColor = dgv[currenttab].Rows[e.RowIndex].Cells["status"].Style.BackColor;
                 }
             }
@@ -2045,16 +2323,21 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region datagridview cell validating
-        private void dgvCellVal(object sender, DataGridViewCellValidatingEventArgs e) {
-            if (dgv[currenttab].Columns[e.ColumnIndex].Name == "number") {
+        private void dgvCellVal(object sender, DataGridViewCellValidatingEventArgs e)
+        {
+            if (dgv[currenttab].Columns[e.ColumnIndex].Name == "number")
+            {
                 string number = e.FormattedValue.ToString();
                 string extid = dgv[currenttab].Rows[e.RowIndex].Cells["type"].Value + "-" +
                     dgv[currenttab].Rows[e.RowIndex].Cells["colour"].Value + "-" + number;
                 string id = dgv[currenttab].Rows[e.RowIndex].Cells["type"].Value + "-" + number;
 
-                if (number == dgv[currenttab].Rows[e.RowIndex].Cells["number"].Value.ToString()) {
+                if (number == dgv[currenttab].Rows[e.RowIndex].Cells["number"].Value.ToString())
+                {
                     return;
-                } else if (db_blitems.ContainsKey(id)) {
+                }
+                else if (db_blitems.ContainsKey(id))
+                {
                     dgv[currenttab].Rows[e.RowIndex].Cells["extid"].Value = extid;
                     dgv[currenttab].Rows[e.RowIndex].Cells["id"].Value = id;
                     dgv[currenttab].Rows[e.RowIndex].Cells["name"].Value = db_blitems[dgv[currenttab].Rows[e.RowIndex].Cells["id"].Value.ToString()].name;
@@ -2069,7 +2352,9 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
                     dgv_GetLiveStats(id, (string)dgv[currenttab].Rows[e.RowIndex].Cells["colour"].Value);
                     dgv_ImageDisplay(id, (string)dgv[currenttab].Rows[e.RowIndex].Cells["colour"].Value);
-                } else {
+                }
+                else
+                {
                     e.Cancel = true;
                     dgv[currenttab].CancelEdit();
                     MessageBox.Show("Item " + number + " not found in database.");
@@ -2079,38 +2364,52 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region datagridview cell keypress
-        private void dgvEditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e) {
+        private void dgvEditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
             e.Control.KeyPress -= new KeyPressEventHandler(CheckOtherNumericKey);
             e.Control.KeyPress -= new KeyPressEventHandler(CheckPriceNumericKey);
             e.Control.KeyPress -= new KeyPressEventHandler(CheckNoKey);
-            if (dgv[currenttab].Columns[dgv[currenttab].CurrentCell.ColumnIndex].Name == "qty") {
+            if (dgv[currenttab].Columns[dgv[currenttab].CurrentCell.ColumnIndex].Name == "qty")
+            {
                 e.Control.KeyPress += new KeyPressEventHandler(CheckOtherNumericKey);
-            } else if (dgv[currenttab].Columns[dgv[currenttab].CurrentCell.ColumnIndex].Name == "price") {
+            }
+            else if (dgv[currenttab].Columns[dgv[currenttab].CurrentCell.ColumnIndex].Name == "price")
+            {
                 e.Control.KeyPress += new KeyPressEventHandler(CheckPriceNumericKey);
-            } else {
+            }
+            else
+            {
                 e.Control.KeyPress += new KeyPressEventHandler(CheckNoKey);
             }
         }
-        private void CheckPriceNumericKey(object sender, KeyPressEventArgs e) {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != Convert.ToChar(numberseperator)) {
+        private void CheckPriceNumericKey(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != Convert.ToChar(numberseperator))
+            {
                 e.Handled = true;
             }
         }
-        private void CheckOtherNumericKey(object sender, KeyPressEventArgs e) {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) {
+        private void CheckOtherNumericKey(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
                 e.Handled = true;
             }
         }
-        private void CheckNoKey(object sender, KeyPressEventArgs e) {
+        private void CheckNoKey(object sender, KeyPressEventArgs e)
+        {
         }
         #endregion
 
         #region datagridview mouseover
-        private void dgv_CellMouseEnter(object sender, DataGridViewCellEventArgs e) {
+        private void dgv_CellMouseEnter(object sender, DataGridViewCellEventArgs e)
+        {
             DataGridView dgv_sender = sender as DataGridView;
             Point mousePoint = dgv_sender.PointToClient(Cursor.Position);
-            if (dgv[currenttab].HitTest(mousePoint.X, mousePoint.Y).Type == DataGridViewHitTestType.Cell) {
-                if (dgv_sender.Columns[e.ColumnIndex].Name == "displayimage") {
+            if (dgv[currenttab].HitTest(mousePoint.X, mousePoint.Y).Type == DataGridViewHitTestType.Cell)
+            {
+                if (dgv_sender.Columns[e.ColumnIndex].Name == "displayimage")
+                {
                     DataGridViewRow dgv_MouseOverRow = dgv_sender.Rows[e.RowIndex];
                     DataGridViewCell dgv_MouseOverCell = dgv_MouseOverRow.Cells[e.ColumnIndex];
                     string id = dgv_MouseOverRow.Cells["id"].Value.ToString();
@@ -2118,12 +2417,15 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
                     string filename = GenerateImageFilename(id, colour);
 
-                    if (!File.Exists(filename)) {
+                    if (!File.Exists(filename))
+                    {
                         hoverZoomWindow.BackgroundImage = null;
                         hoverZoomWindow.Width = 100;
                         hoverZoomWindow.Height = 50;
                         hoverZoomWindow.ShowLabel();
-                    } else {
+                    }
+                    else
+                    {
                         Bitmap bmp = (Bitmap)Image.FromFile(filename);
                         hoverZoomWindow.BackgroundImage = bmp;
                         hoverZoomWindow.Width = bmp.Width * 2;
@@ -2142,16 +2444,20 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
             }
         }
 
-        private void dgv_CellMouseLeave(object sender, DataGridViewCellEventArgs e) {
+        private void dgv_CellMouseLeave(object sender, DataGridViewCellEventArgs e)
+        {
             hoverZoomWindow.Hide();
             hoverZoomWindow.BackgroundImage = null;
         }
 
-        private void dgv_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e) {
+        private void dgv_CellMouseMove(object sender, DataGridViewCellMouseEventArgs e)
+        {
             DataGridView dgv_sender = sender as DataGridView;
             Point mousePoint = dgv_sender.PointToClient(Cursor.Position);
-            if (dgv[currenttab].HitTest(mousePoint.X, mousePoint.Y).Type == DataGridViewHitTestType.Cell) {
-                if (dgv_sender.Columns[e.ColumnIndex].Name == "displayimage") {
+            if (dgv[currenttab].HitTest(mousePoint.X, mousePoint.Y).Type == DataGridViewHitTestType.Cell)
+            {
+                if (dgv_sender.Columns[e.ColumnIndex].Name == "displayimage")
+                {
                     //Screen screen = Screen.FromPoint(Cursor.Position);
                     //hoverZoomWindow.Location = screen.Bounds.Location;
                     hoverZoomWindow.Left = System.Windows.Forms.Cursor.Position.X + 10;
@@ -2162,30 +2468,38 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region datagridview dataerror
-        private void dgvDataError(object sender, DataGridViewDataErrorEventArgs anError) {
+        private void dgvDataError(object sender, DataGridViewDataErrorEventArgs anError)
+        {
             AddStatus("Invalid value: " + dgv[currenttab].EditingControl.Text + Environment.NewLine);
         }
         #endregion
 
         #region datagridview selection changed
-        private void dgv_selectchange(object sender, EventArgs e) {
-            if (dgv[currenttab].SelectedRows.Count == 0) {
+        private void dgv_selectchange(object sender, EventArgs e)
+        {
+            if (dgv[currenttab].SelectedRows.Count == 0)
+            {
                 imageLabel.Visible = false;
                 containerList.Visible = false;
                 SplitterMoved();
 
                 imageLabel.Image = Properties.Resources.blank;
                 imageLabel.Text = "";
-            } else if (dgv[currenttab].SelectedRows.Count == 1) {
+            }
+            else if (dgv[currenttab].SelectedRows.Count == 1)
+            {
                 string qty = dgv[currenttab].SelectedRows[0].Cells["qty"].Value.ToString();
                 string color = (string)dgv[currenttab].SelectedRows[0].Cells["colourname"].Value;
                 string name = (string)dgv[currenttab].SelectedRows[0].Cells["name"].Value;
                 Image tmpimage = (Image)dgv[currenttab].SelectedRows[0].Cells["displayimage"].Value;
 
-                if (tmpimage != null) {
+                if (tmpimage != null)
+                {
                     Bitmap image = new Bitmap(tmpimage, new Size(tmpimage.Width * 2, tmpimage.Height * 2));
                     imageLabel.Image = image;
-                } else {
+                }
+                else
+                {
                     imageLabel.Image = Properties.Resources.blank;
                 }
 
@@ -2194,29 +2508,38 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
                 containerList.Rows.Clear();
 
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    if (db_containers.ContainsKey(row.Cells["extid"].Value.ToString())) {
-                        foreach (DBItemContain itemcontain in db_containers[row.Cells["extid"].Value.ToString()]) {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                {
+                    if (db_containers.ContainsKey(row.Cells["extid"].Value.ToString()))
+                    {
+                        foreach (DBItemContain itemcontain in db_containers[row.Cells["extid"].Value.ToString()])
+                        {
                             containerList.Rows.Add(itemcontain.qty, db_blitems[itemcontain.item].name, itemcontain.item);
                         }
                     }
                 }
 
-                if (containerList.Rows.Count > 0) {
+                if (containerList.Rows.Count > 0)
+                {
                     containerList.Sort(containerList.Columns[0], ListSortDirection.Descending);
                     containerList.Visible = true;
-                } else {
+                }
+                else
+                {
                     containerList.Visible = false;
                 }
 
                 imageLabel.Visible = true;
                 SplitterMoved();
-            } else {
+            }
+            else
+            {
                 int pieces = 0;
                 int lots = 0;
                 decimal price = 0;
 
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                {
                     lots++;
                     pieces = pieces + (int)row.Cells["qty"].Value;
                     price = price + (decimal)row.Cells["total"].Value;
@@ -2235,15 +2558,19 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region Set Colour Dialog
-        private void setColourDialog() {
+        private void setColourDialog()
+        {
 
             // Set the selected colour of the colourPicker to be the colour of the first selected brick.
             colourPickerWindow.num = dgv[currenttab].SelectedRows[0].Cells["colour"].Value.ToString();
 
             DialogResult result = colourPickerWindow.ShowDialog();
-            if (result == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    if ((row.Cells["type"].Value.ToString() == "P") || (row.Cells["type"].Value.ToString() == "G")) {
+            if (result == DialogResult.OK)
+            {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                {
+                    if ((row.Cells["type"].Value.ToString() == "P") || (row.Cells["type"].Value.ToString() == "G"))
+                    {
                         row.Cells["colour"].Value = colourPickerWindow.num;
                         row.Cells["colourname"].Value = db_colours[colourPickerWindow.num].name;
                         row.Cells["imageloaded"].Value = "n";
@@ -2262,8 +2589,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
         #region Menu Options
         #region (File -> New)
-        private void newFileToolStripButton_Click(object sender, EventArgs e) {
-            foreach (DataTable thisdt in dt) {
+        private void newFileToolStripButton_Click(object sender, EventArgs e)
+        {
+            foreach (DataTable thisdt in dt)
+            {
                 thisdt.Dispose();
             }
 
@@ -2292,11 +2621,16 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (File -> Save as)
-        public void saveAsMenuItem_Click(object sender, EventArgs e) {
-            if (dgv.Count < 1) {
+        public void saveAsMenuItem_Click(object sender, EventArgs e)
+        {
+            if (dgv.Count < 1)
+            {
                 MessageBox.Show("Error: No file to save.");
-            } else {
-                if (saveFileDialog1.ShowDialog() == DialogResult.OK) {
+            }
+            else
+            {
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
                     string outfile;
                     outfile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine;
                     outfile = outfile + "<!DOCTYPE BrickStoreXML>" + Environment.NewLine;
@@ -2305,7 +2639,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
                     List<Item> saveitems = dt2item(dt[currenttab]);
 
-                    foreach (Item item in saveitems) {
+                    foreach (Item item in saveitems)
+                    {
                         string comments = item.comments;
                         string remarks = item.remarks;
                         string name = MainWindow.db_blitems[item.id].name;
@@ -2337,10 +2672,12 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                         outfile = outfile + "   <Qty>" + item.qty + "</Qty>" + Environment.NewLine;
                         outfile = outfile + "   <Price>" + price + "</Price>" + Environment.NewLine;
                         outfile = outfile + "   <Condition>" + item.condition + "</Condition>" + Environment.NewLine;
-                        if ((comments != null) && (comments != "")) {
+                        if ((comments != null) && (comments != ""))
+                        {
                             outfile = outfile + "   <Comments>" + comments + "</Comments>" + Environment.NewLine;
                         }
-                        if ((remarks != null) && (remarks != "")) {
+                        if ((remarks != null) && (remarks != ""))
+                        {
                             outfile = outfile + "   <Remarks>" + remarks + "</Remarks>" + Environment.NewLine;
                         }
                         outfile = outfile + "  </Item>" + Environment.NewLine;
@@ -2349,7 +2686,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                     outfile = outfile + " </Inventory>" + Environment.NewLine;
                     outfile = outfile + "</BrickStoreXML>" + Environment.NewLine;
 
-                    using (StreamWriter swr = new StreamWriter(saveFileDialog1.FileName)) {
+                    using (StreamWriter swr = new StreamWriter(saveFileDialog1.FileName))
+                    {
                         swr.Write(outfile);
                     }
                     AddStatus("File Saved: " + saveFileDialog1.FileName.ToString() + Environment.NewLine);
@@ -2361,7 +2699,7 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #region (File -> Import -> BL Wanted) Import BrickLink Wanted List
         private void importBLWantedMenuItem_Click(object sender, EventArgs e)
         {
-            if(dt.Count == 0)
+            if (dt.Count == 0)
             {
                 BuildTable();
                 DisplayLoadedFile();
@@ -2381,8 +2719,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (File -> Import -> LDD) Import LDD file
-        private void importLDDMenuItem_Click(object sender, EventArgs e) {
-            if (importLDDFileDialog.ShowDialog() == DialogResult.OK) {
+        private void importLDDMenuItem_Click(object sender, EventArgs e)
+        {
+            if (importLDDFileDialog.ShowDialog() == DialogResult.OK)
+            {
                 DisableMenu();
                 importWorker.RunWorkerAsync(importLDDFileDialog.FileName);
             }
@@ -2390,40 +2730,50 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (File -> Export -> Wanted List)
-        private void exportWantedListToolStripMenuItem_Click(object sender, EventArgs e) {
-            if (wantedListWindow.ShowDialog() == DialogResult.OK) {
+        private void exportWantedListToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (wantedListWindow.ShowDialog() == DialogResult.OK)
+            {
                 string wlid = wantedListWindow.wlid;
                 string wanted = "<INVENTORY>" + Environment.NewLine;
 
-                foreach (DataGridViewRow item in dgv[currenttab].SelectedRows) {
+                foreach (DataGridViewRow item in dgv[currenttab].SelectedRows)
+                {
                     wanted = wanted + " <ITEM>" + Environment.NewLine;
 
                     wanted = wanted + "  <ITEMTYPE>" + item.Cells["type"].Value.ToString() + "</ITEMTYPE>" + Environment.NewLine;
                     wanted = wanted + "  <ITEMID>" + item.Cells["number"].Value.ToString() + "</ITEMID>" + Environment.NewLine;
 
-                    if ((item.Cells["type"].Value.ToString() == "P") || (item.Cells["type"].Value.ToString() == "G")) {
-                        if (item.Cells["colour"].Value.ToString() != "0") {
+                    if ((item.Cells["type"].Value.ToString() == "P") || (item.Cells["type"].Value.ToString() == "G"))
+                    {
+                        if (item.Cells["colour"].Value.ToString() != "0")
+                        {
                             wanted = wanted + "  <COLOR>" + item.Cells["colour"].Value.ToString() + "</COLOR>" + Environment.NewLine;
                         }
                     }
 
-                    if ((decimal)item.Cells["price"].Value > 0) {
+                    if ((decimal)item.Cells["price"].Value > 0)
+                    {
                         wanted = wanted + "  <MAXPRICE>" + item.Cells["price"].Value.ToString() + "</MAXPRICE>" + Environment.NewLine;
                     }
 
-                    if (item.Cells["qty"].Value.ToString() != "0") {
+                    if (item.Cells["qty"].Value.ToString() != "0")
+                    {
                         wanted = wanted + "  <MINQTY>" + item.Cells["qty"].Value.ToString() + "</MINQTY>" + Environment.NewLine;
                     }
 
-                    if (item.Cells["condition"].Value.ToString() == "N") {
+                    if (item.Cells["condition"].Value.ToString() == "N")
+                    {
                         wanted = wanted + "  <CONDITION>" + item.Cells["condition"].Value.ToString() + "</CONDITION>" + Environment.NewLine;
                     }
 
-                    if (item.Cells["remarks"].Value.ToString() != "") {
+                    if (item.Cells["remarks"].Value.ToString() != "")
+                    {
                         wanted = wanted + "  <REMARKS>" + item.Cells["remarks"].Value.ToString() + "</REMARKS>" + Environment.NewLine;
                     }
 
-                    if (wlid != "") {
+                    if (wlid != "")
+                    {
                         wanted = wanted + "  <WANTEDLISTID>" + wlid + "</WANTEDLISTID>" + Environment.NewLine;
                     }
 
@@ -2434,9 +2784,12 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
                 System.Windows.Forms.Clipboard.SetText(wanted);
 
                 string url = "https://www.bricklink.com/wantedXML.asp";
-                try {
+                try
+                {
                     System.Diagnostics.Process.Start(url);
-                } catch {
+                }
+                catch
+                {
                     AddStatus("Error displaying Wanted List Upload page in your default web browser. The Wanted List text is still in your clipboard.");
                 }
             }
@@ -2444,13 +2797,15 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (File -> Exit)
-        private void exitMenuItem_Click(object sender, EventArgs e) {
+        private void exitMenuItem_Click(object sender, EventArgs e)
+        {
             Close();
         }
         #endregion
 
         #region (Toolstrip -> Add)
-        private void addItemToolstripButton_Click(object sender, EventArgs e) {
+        private void addItemToolstripButton_Click(object sender, EventArgs e)
+        {
             addItemWindow.Show();
             addItemWindow.BringToFront();
             addItemWindow.WindowState = FormWindowState.Normal;
@@ -2459,40 +2814,53 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
 
         #region (Tools -> Calculate and Calculate2)
 
-        private void oldAlgorithmToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void oldAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             runTheAlgorithm(RUN_OLD);
         }
 
-        private void newAlgorithmToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void newAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             runTheAlgorithm(RUN_NEW);
         }
-        private void calculateButton_Click(object sender, EventArgs e) {
+        private void calculateButton_Click(object sender, EventArgs e)
+        {
             runTheAlgorithm(RUN_NEW);
         }
 
-        private void approximationAlgorithmToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void approximationAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             runTheAlgorithm(RUN_APPROX);
         }
-        private void customAlgorithmToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void customAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             runTheAlgorithm(RUN_CUSTOM);
         }
-        private void customApproximationAlgorithmToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void customApproximationAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             runTheAlgorithm(RUN_CUSTOM_APPROX);
         }
         //private void calculateToolStripMenuItem_Click(object sender, EventArgs e)
         //{
         //}
         #endregion
-        private void runTheAlgorithm(int whichAlgorithm) {
+        private void runTheAlgorithm(int whichAlgorithm)
+        {
             whichAlgToRun = whichAlgorithm;
-            if (dgv.Count < 1) {
+            if (dgv.Count < 1)
+            {
                 MessageBox.Show("Error: no file to calculate.");
-            } else if (dgv[currenttab].Rows.Count == 0) {
+            }
+            else if (dgv[currenttab].Rows.Count == 0)
+            {
                 MessageBox.Show("Error: must have at least one item to search for.");
-            } else {
-                calcOptionsWindow.ShowApproxOptions(whichAlgorithm==RUN_APPROX || whichAlgorithm==RUN_CUSTOM_APPROX);
+            }
+            else
+            {
+                calcOptionsWindow.ShowApproxOptions(whichAlgorithm == RUN_APPROX || whichAlgorithm == RUN_CUSTOM_APPROX);
                 DialogResult result = calcOptionsWindow.ShowDialog();
-                if (result == DialogResult.OK) {
+                if (result == DialogResult.OK)
+                {
                     WriteSettings();
                     StartCalculate();
                 }
@@ -2500,8 +2868,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         }
 
         #region (Tools -> Stop Calculation)
-        private void stopCalculationToolStripMenuItem_Click(object sender, EventArgs e) {
-            if (calcWorker.IsBusy) {
+        private void stopCalculationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (calcWorker.IsBusy)
+            {
                 DisableCalcStop();
                 calcWorker.CancelAsync();
                 //while (calcWorker.IsBusy)
@@ -2513,34 +2883,46 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Tools -> View Report)
-        private void viewReportToolStripMenuItem_Click(object sender, EventArgs e) {
-            if (File.Exists(outputfilename)) {
-                try {
+        private void viewReportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(outputfilename))
+            {
+                try
+                {
                     System.Diagnostics.Process.Start(outputfilename);
-                } catch {
+                }
+                catch
+                {
                     MessageBox.Show("Error displaying report in your default web browser." + Environment.NewLine +
                         "Report file is available here: " + outputfilename + Environment.NewLine);
                 }
-            } else {
+            }
+            else
+            {
                 MessageBox.Show("No report found.");
             }
         }
         #endregion
 
         #region (Tools -> Download BrickLink Database)
-        private void dlMenuItem_Click(object sender, EventArgs e) {
+        private void dlMenuItem_Click(object sender, EventArgs e)
+        {
             DialogResult result = _updateConfirmationForm.ShowDialog();
-            if (result == DialogResult.OK) {
-                foreach (DataTable thisdt in dt) {
+            if (result == DialogResult.OK)
+            {
+                foreach (DataTable thisdt in dt)
+                {
                     thisdt.Dispose();
                 }
                 dt.Clear();
-                foreach (DataGridView thisdgv in dgv) {
+                foreach (DataGridView thisdgv in dgv)
+                {
                     thisdgv.Dispose();
                 }
                 dgv.Clear();
 
-                if (File.Exists(databasefilename)) {
+                if (File.Exists(databasefilename))
+                {
                     File.Delete(databasefilename);
                 }
                 dlWorker.RunWorkerAsync();
@@ -2549,16 +2931,20 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Help -> About) Show the About window
-        private void aboutMenuItem_Click(object sender, EventArgs e) {
+        private void aboutMenuItem_Click(object sender, EventArgs e)
+        {
             aboutWindow.ShowDialog();
         }
         #endregion
 
         #region (Context -> Delete)
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e) {
-            for (int i = dgv[currenttab].Rows.Count - 1; i >= 0; i--) {
-                if (dgv[currenttab].Rows[i].Selected == true) {
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            for (int i = dgv[currenttab].Rows.Count - 1; i >= 0; i--)
+            {
+                if (dgv[currenttab].Rows[i].Selected == true)
+                {
                     dgv[currenttab].Rows.RemoveAt(i);
                 }
             }
@@ -2566,16 +2952,20 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Select All)
-        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dgv[currenttab].Rows)
+            {
                 row.Selected = true;
             }
         }
         #endregion
 
         #region (Context -> Invert Selection)
-        private void invertSelectionToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].Rows) {
+        private void invertSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dgv[currenttab].Rows)
+            {
                 if (row.Selected == true)
                     row.Selected = false;
                 else
@@ -2628,17 +3018,19 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         }
 
         #region (Context -> Status -> Include)
-        private void includeToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void includeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
 
             List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
-            valuesList.Add( new Tuple<string, Del>("status", current => "I") );
+            valuesList.Add(new Tuple<string, Del>("status", current => "I"));
 
             SortSafeSet(valuesList);
         }
         #endregion
 
         #region (Context -> Status -> Exclude)
-        private void excludeToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void excludeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
             valuesList.Add(new Tuple<string, Del>("status", current => "X"));
             valuesList.Add(new Tuple<string, Del>("displaystatus", current => Properties.Resources.x));
@@ -2648,7 +3040,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Status -> Extra)
-        private void extraToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void extraToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
             valuesList.Add(new Tuple<string, Del>("status", current => "E"));
             valuesList.Add(new Tuple<string, Del>("displaystatus", current => Properties.Resources.add));
@@ -2658,7 +3051,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Status -> Toggle)
-        private void toggleStatusToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void toggleStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
             valuesList.Add(new Tuple<string, Del>("status", current => current == "I" ? "X" : "I"));
             valuesList.Add(new Tuple<string, Del>("displaystatus", current => current == Properties.Resources.x ? Properties.Resources.check
@@ -2668,7 +3062,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Condition -> New)
-        private void newToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
             valuesList.Add(new Tuple<string, Del>("condition", current => "N"));
 
@@ -2677,7 +3072,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Condition -> Used)
-        private void usedToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void usedToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
             valuesList.Add(new Tuple<string, Del>("condition", current => "U"));
 
@@ -2686,7 +3082,8 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Condition -> Toggle)
-        private void toggleCondToolStripMenuItem1_Click(object sender, EventArgs e) {
+        private void toggleCondToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
             List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
             valuesList.Add(new Tuple<string, Del>("condition", current => current == "U" ? "N" : "U"));
 
@@ -2695,15 +3092,18 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Set Colour...)
-        private void setColourToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void setColourToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             setColourDialog();
         }
         #endregion
 
         #region (Context -> Quantity -> Multiply)
-        private void multiplyToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void multiplyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             DialogResult dialogresult = multiplyItemsWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
                 List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
                 valuesList.Add(new Tuple<string, Del>("qty", current => (int)current * multiplyItemsWindow.num));
                 valuesList.Add(new Tuple<string, Del>("total", current => (decimal)current * multiplyItemsWindow.num));
@@ -2714,9 +3114,11 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Quantity -> Divide)
-        private void divideToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void divideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             DialogResult dialogresult = divideItemsWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
                 List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
                 valuesList.Add(new Tuple<string, Del>("qty", current => (int)current / multiplyItemsWindow.num));
                 valuesList.Add(new Tuple<string, Del>("total", current => (decimal)current / multiplyItemsWindow.num));
@@ -2727,10 +3129,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Quantity -> Add)
-        private void addToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void addToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             DialogResult dialogresult = addItemsWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+            if (dialogresult == DialogResult.OK)
+            {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                {
 
                     row.Cells["qty"].Value = (int)row.Cells["qty"].Value + addItemsWindow.num;
                     if ((int)row.Cells["qty"].Value < 0)
@@ -2742,10 +3147,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Quantity -> Subtract)
-        private void subtractToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void subtractToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             DialogResult dialogresult = subtractItemsWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+            if (dialogresult == DialogResult.OK)
+            {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                {
                     row.Cells["qty"].Value = (int)row.Cells["qty"].Value - subtractItemsWindow.num;
                     if ((int)row.Cells["qty"].Value < 0)
                         row.Cells["qty"].Value = 0;
@@ -2756,12 +3164,15 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Price -> Set)
-        private void setToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void setToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             setPriceWindow.num = Convert.ToDecimal(dgv[currenttab].SelectedRows[0].Cells["price"].Value);
 
             DialogResult dialogresult = setPriceWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+            if (dialogresult == DialogResult.OK)
+            {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                {
                     row.Cells["price"].Value = setPriceWindow.num;
                     row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                 }
@@ -2770,27 +3181,40 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Price -> Inc or Dec)
-        private void incOrDecToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+        private void incOrDecToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+            {
                 setCommentsWindow.text = row.Cells["comments"].Value.ToString();
                 break;
             }
             DialogResult dialogresult = incdecPriceWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
-                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
-                    if (incdecPriceWindow.percent) {
-                        if (incdecPriceWindow.increase) {
+            if (dialogresult == DialogResult.OK)
+            {
+                foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+                {
+                    if (incdecPriceWindow.percent)
+                    {
+                        if (incdecPriceWindow.increase)
+                        {
                             row.Cells["price"].Value = (decimal)row.Cells["price"].Value + ((decimal)row.Cells["price"].Value * incdecPriceWindow.num / 100);
                             row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                        } else {
+                        }
+                        else
+                        {
                             row.Cells["price"].Value = (decimal)row.Cells["price"].Value - ((decimal)row.Cells["price"].Value * incdecPriceWindow.num / 100);
                             row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                         }
-                    } else {
-                        if (incdecPriceWindow.increase) {
+                    }
+                    else
+                    {
+                        if (incdecPriceWindow.increase)
+                        {
                             row.Cells["price"].Value = (decimal)row.Cells["price"].Value + incdecPriceWindow.num;
                             row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
-                        } else {
+                        }
+                        else
+                        {
                             row.Cells["price"].Value = (decimal)row.Cells["price"].Value - incdecPriceWindow.num;
                             row.Cells["total"].Value = (int)row.Cells["qty"].Value * (decimal)row.Cells["price"].Value;
                         }
@@ -2804,11 +3228,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Comments -> Set)
-        private void setToolStripMenuItem1_Click(object sender, EventArgs e) {
+        private void setToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
             setCommentsWindow.text = dgv[currenttab].SelectedRows[0].Cells["comments"].Value.ToString();
 
             DialogResult dialogresult = setCommentsWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
                 List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
                 valuesList.Add(new Tuple<string, Del>("comments", current => setCommentsWindow.text));
 
@@ -2818,13 +3244,16 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Comments -> Add)
-        private void addToToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void addToToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             addCommentsWindow.text = "";
             DialogResult dialogresult = addCommentsWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
 
-                Del add = current => {
-                    if (current.ToString().Length == 0) 
+                Del add = current =>
+                {
+                    if (current.ToString().Length == 0)
                         return addCommentsWindow.text;
                     else
                         return current.ToString().Trim(' ') + " " + addCommentsWindow.text.Trim(' ');
@@ -2839,27 +3268,35 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Comments -> Remove)
-        private void removeFromToolStripMenuItem_Click(object sender, EventArgs e) {
+        private void removeFromToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             removeCommentsWindow.text = "";
             DialogResult dialogresult = removeCommentsWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
 
                 string replace = removeCommentsWindow.text.Trim(' ');
-                Del rem = current => {
-                    if (current.ToString().ToUpper() == replace.ToUpper()) {
+                Del rem = current =>
+                {
+                    if (current.ToString().ToUpper() == replace.ToUpper())
+                    {
                         current = "";
                     }
-                    else {
+                    else
+                    {
                         Match midmatch = Regex.Match(current.ToString(), replace, RegexOptions.IgnoreCase);
-                        if (midmatch.Success) {
+                        if (midmatch.Success)
+                        {
                             current = Regex.Replace(current.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
                         }
                         Match beginmatch = Regex.Match(current.ToString(), "^" + replace, RegexOptions.IgnoreCase);
-                        if (beginmatch.Success) {
+                        if (beginmatch.Success)
+                        {
                             current = Regex.Replace(current.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
                         }
                         Match endmatch = Regex.Match(current.ToString(), replace + "$", RegexOptions.IgnoreCase);
-                        if (endmatch.Success) {
+                        if (endmatch.Success)
+                        {
                             current = Regex.Replace(current.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
                         }
                     }
@@ -2876,11 +3313,13 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Remarks -> Set)
-        private void setToolStripMenuItem2_Click(object sender, EventArgs e) {
+        private void setToolStripMenuItem2_Click(object sender, EventArgs e)
+        {
             setRemarksWindow.text = dgv[currenttab].SelectedRows[0].Cells["remarks"].Value.ToString();
             DialogResult dialogresult = setRemarksWindow.ShowDialog(this);
 
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
                 List<Tuple<string, Del>> valuesList = new List<Tuple<string, Del>>();
                 valuesList.Add(new Tuple<string, Del>("remarks", current => setRemarksWindow.text));
 
@@ -2890,13 +3329,16 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Remarks -> Add)
-        private void addToToolStripMenuItem1_Click(object sender, EventArgs e) {
+        private void addToToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
             addRemarksWindow.text = "";
             DialogResult dialogresult = addRemarksWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
 
-                Del add = current => {
-                    if (current.ToString().Length == 0) 
+                Del add = current =>
+                {
+                    if (current.ToString().Length == 0)
                         return addRemarksWindow.text;
                     else
                         return current.ToString().Trim(' ') + " " + addRemarksWindow.text.Trim(' ');
@@ -2911,27 +3353,35 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> Remarks -> Remove)
-        private void removeFromToolStripMenuItem1_Click(object sender, EventArgs e) {
+        private void removeFromToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
             removeRemarksWindow.text = "";
             DialogResult dialogresult = removeRemarksWindow.ShowDialog(this);
-            if (dialogresult == DialogResult.OK) {
+            if (dialogresult == DialogResult.OK)
+            {
 
                 string replace = removeRemarksWindow.text.Trim(' ');
-                Del rem = current => {
-                    if (current.ToString().ToUpper() == replace.ToUpper()) {
+                Del rem = current =>
+                {
+                    if (current.ToString().ToUpper() == replace.ToUpper())
+                    {
                         current = "";
                     }
-                    else {
+                    else
+                    {
                         Match midmatch = Regex.Match(current.ToString(), replace, RegexOptions.IgnoreCase);
-                        if (midmatch.Success) {
+                        if (midmatch.Success)
+                        {
                             current = Regex.Replace(current.ToString(), " " + replace + " ", " ", RegexOptions.IgnoreCase);
                         }
                         Match beginmatch = Regex.Match(current.ToString(), "^" + replace, RegexOptions.IgnoreCase);
-                        if (beginmatch.Success) {
+                        if (beginmatch.Success)
+                        {
                             current = Regex.Replace(current.ToString(), "^" + replace + " ", "", RegexOptions.IgnoreCase);
                         }
                         Match endmatch = Regex.Match(current.ToString(), replace + "$", RegexOptions.IgnoreCase);
-                        if (endmatch.Success) {
+                        if (endmatch.Success)
+                        {
                             current = Regex.Replace(current.ToString(), " " + replace + "$", "", RegexOptions.IgnoreCase);
                         }
                     }
@@ -2948,12 +3398,17 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> BL Catalog)
-        private void showBricklinkCatalogInfoToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+        private void showBricklinkCatalogInfoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+            {
                 string url = "https://www.bricklink.com/catalogItem.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString();
-                try {
+                try
+                {
                     System.Diagnostics.Process.Start(url);
-                } catch {
+                }
+                catch
+                {
                     AddStatus("Error displaying page in your default web browser.");
                 }
             }
@@ -2961,8 +3416,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> BL Price Guide)
-        private void showBricklinkPriceGuideToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+        private void showBricklinkPriceGuideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+            {
                 string url = "https://www.bricklink.com/catalogPG.asp?" + row.Cells["type"].Value.ToString() + "=" + row.Cells["number"].Value.ToString() +
                     "&colorID=" + row.Cells["colour"].Value.ToString();
                 try
@@ -2978,8 +3435,10 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         #endregion
 
         #region (Context -> BL 4sale)
-        private void showLotsForSaleOnBricklinkToolStripMenuItem_Click(object sender, EventArgs e) {
-            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows) {
+        private void showLotsForSaleOnBricklinkToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dgv[currenttab].SelectedRows)
+            {
                 string url = "https://www.bricklink.com/search.asp?viewFrom=sa&itemType=" + row.Cells["type"].Value.ToString() + "&q=" +
                     row.Cells["number"].Value.ToString() + "&colorID=" + row.Cells["colour"].Value.ToString();
                 try
@@ -2994,28 +3453,5 @@ dgv[currenttab].Columns["availstores"].ReadOnly = true;
         }
         #endregion
     }
-        #endregion
-
-    #region Classes
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     #endregion
 }
