@@ -70,6 +70,8 @@ namespace Brickficiency
         // don't really want this referenced here directly, but it will take a bit to decouple this code
         private readonly IBricklinkLoginApi _bricklinkLoginApi;
 
+        private readonly ApplicationMediator _applicationMediator;
+
         #region prepare some vars
         //global stuff
         public static string version = "v2.0.0"; // CHANGE APPLICATION PROPERTIES > Assembly Information
@@ -77,9 +79,7 @@ namespace Brickficiency
         static string appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         static string programdata = appdata + "\\" + programname + "\\";
         public static string settingsfilename = programdata + programname + "-Settings.xml";
-        public static string databasefilename = programdata + "bfdb.sdf";
-        public static string databasezipfilename = programdata + "bfdb.zip";
-        public static string databaseurl = "http://www.buildingoutloud.com/bf/bfdb.zip";
+
         string debugpgfilename = programdata + "\\debug\\Debug-priceguide.txt";
         string debugparsesource = programdata + "\\debug\\Debug-parsesource.html";
         string debugopenfilename = programdata + "\\debug\\Debug-open.txt";
@@ -493,8 +493,11 @@ namespace Brickficiency
             ImportWantedListForm importWantedListForm,
             UpdateCheck updateConfirmationForm,
             IDataUpdateService dataUpdateService,
-            IBricklinkCredentialProvider bricklinkCredentialProvider)
+            IBricklinkCredentialProvider bricklinkCredentialProvider,
+            ApplicationMediator applicationMediator)
         {
+            _applicationMediator = applicationMediator;
+
             _colorService = colorService;
             _itemTypeService = itemTypeService;
             _categoryService = categoryService;
@@ -2721,6 +2724,14 @@ namespace Brickficiency
         #region (File -> Import -> LDD) Import LDD file
         private void importLDDMenuItem_Click(object sender, EventArgs e)
         {
+            if (dt.Count == 0)
+            {
+                BuildTable();
+                DisplayLoadedFile();
+                EnableMenu();
+            }
+
+            _applicationMediator.ImportLddFile();
             if (importLDDFileDialog.ShowDialog() == DialogResult.OK)
             {
                 DisableMenu();
@@ -2914,17 +2925,16 @@ namespace Brickficiency
                 {
                     thisdt.Dispose();
                 }
+
                 dt.Clear();
+
                 foreach (DataGridView thisdgv in dgv)
                 {
                     thisdgv.Dispose();
                 }
+
                 dgv.Clear();
 
-                if (File.Exists(databasefilename))
-                {
-                    File.Delete(databasefilename);
-                }
                 dlWorker.RunWorkerAsync();
             }
         }

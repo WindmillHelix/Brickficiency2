@@ -63,14 +63,14 @@
             this.StatusLabel.AutoSize = false;
             this.StatusLabel.ForeColor = System.Drawing.Color.White;
             this.StatusLabel.Name = "StatusLabel";
-            this.StatusLabel.Size = new System.Drawing.Size(150, 17);
+            this.StatusLabel.Size = new System.Drawing.Size(203, 17);
             this.StatusLabel.Text = " ";
             this.StatusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // InitializationProgressBar
             // 
             this.InitializationProgressBar.Name = "InitializationProgressBar";
-            this.InitializationProgressBar.Size = new System.Drawing.Size(100, 16);
+            this.InitializationProgressBar.Size = new System.Drawing.Size(105, 16);
             // 
             // InitializationForm
             // 

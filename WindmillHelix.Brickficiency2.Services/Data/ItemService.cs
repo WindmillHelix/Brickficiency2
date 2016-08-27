@@ -85,5 +85,11 @@ namespace WindmillHelix.Brickficiency2.Services.Data
         {
             base.Refresh();
         }
+
+        public ItemDetails GetItem(string itemTypeCode, string itemId)
+        {
+            // todo: populate and use dictionaries for this
+            return GetItems().SingleOrDefault(x => x.ItemTypeCode == itemTypeCode && x.ItemId == itemId);
+        }
     }
 }

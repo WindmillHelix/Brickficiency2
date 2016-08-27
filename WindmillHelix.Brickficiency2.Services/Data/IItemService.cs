@@ -10,5 +10,7 @@ namespace WindmillHelix.Brickficiency2.Services.Data
     public interface IItemService : IRefreshable
     {
         IReadOnlyCollection<ItemDetails> GetItems();
+
+        ItemDetails GetItem(string itemTypeCode, string itemId);
     }
 }

@@ -36,6 +36,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -62,6 +64,12 @@
     <Compile Include="IRefreshable.cs" />
     <Compile Include="Data\ItemTypeService.cs" />
     <Compile Include="IWantedListService.cs" />
+    <Compile Include="Ldd\ILddFileService.cs" />
+    <Compile Include="Ldd\ILddMapperService.cs" />
+    <Compile Include="Ldd\LddFileService.cs" />
+    <Compile Include="Ldd\LddMapperService.cs" />
+    <Compile Include="Ldd\LddPart.cs" />
+    <Compile Include="Ldd\MappedPart.cs" />
     <Compile Include="Models\SerializableNetworkCredential.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServicesAssemblyLocator.cs" />
