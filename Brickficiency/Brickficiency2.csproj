@@ -1,0 +1,510 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{79715873-E6D6-4B9B-B8BC-6828FBB13DC8}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Brickficiency</RootNamespace>
+    <AssemblyName>Brickficiency2</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <FodyPath>..\packages\Fody.1.14.0</FodyPath>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\brickficiency.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>BuildingOutLoud.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>7955C398334042DA4EC4B35EDFE6A8A8760A1F58</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>Brickficiency_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.0.0\lib\net451\Autofac.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip">
+      <HintPath>References\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.SqlServerCe, Version=4.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Data.SqlServerCe.Entity, Version=4.0.0.1, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Microsoft SQL Server Compact Edition\v4.0\Desktop\System.Data.SqlServerCe.Entity\System.Data.SqlServerCe.Entity.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddItem.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddItem.Designer.cs">
+      <DependentUpon>AddItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CalculationExtras\Blacklist.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CalculationExtras\Blacklist.Designer.cs">
+      <DependentUpon>Blacklist.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CalculationExtras\CalcOptions.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CalculationExtras\CalcOptions.Designer.cs">
+      <DependentUpon>CalcOptions.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Calculations.cs">
+      <DependentUpon>Main.cs</DependentUpon>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Classes\DBBLItem.cs" />
+    <Compile Include="Classes\DBCat.cs" />
+    <Compile Include="Classes\DBItemContain.cs" />
+    <Compile Include="Classes\FinalMatch.cs" />
+    <Compile Include="Classes\ImageDL.cs" />
+    <Compile Include="Classes\Item.cs" />
+    <Compile Include="Classes\ItemDL.cs" />
+    <Compile Include="Classes\KSubsetGenerator.cs" />
+    <Compile Include="Classes\LDDItem.cs" />
+    <Compile Include="Classes\SerializableDictionary.cs" />
+    <Compile Include="Classes\Settings.cs" />
+    <Compile Include="Classes\Store.cs" />
+    <Compile Include="Classes\StoreItem.cs" />
+    <Compile Include="Classes\TabInfo.cs" />
+    <Compile Include="ContextMenuStuff\ColourPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\ColourPicker.Designer.cs">
+      <DependentUpon>ColourPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CalculationExtras\GetPassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CalculationExtras\GetPassword.Designer.cs">
+      <DependentUpon>GetPassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\AddComments.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\AddComments.Designer.cs">
+      <DependentUpon>AddComments.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\AddRemarks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\AddRemarks.Designer.cs">
+      <DependentUpon>AddRemarks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\RemoveRemarks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\RemoveRemarks.Designer.cs">
+      <DependentUpon>RemoveRemarks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\RemoveComments.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\RemoveComments.Designer.cs">
+      <DependentUpon>RemoveComments.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SetRemarks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SetRemarks.Designer.cs">
+      <DependentUpon>SetRemarks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SetComments.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SetComments.Designer.cs">
+      <DependentUpon>SetComments.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\IncDecPrice.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\IncDecPrice.Designer.cs">
+      <DependentUpon>IncDecPrice.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SetPrice.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SetPrice.Designer.cs">
+      <DependentUpon>SetPrice.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SubtractItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\SubtractItems.Designer.cs">
+      <DependentUpon>SubtractItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\AddItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\AddItems.Designer.cs">
+      <DependentUpon>AddItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\DivideItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\DivideItems.Designer.cs">
+      <DependentUpon>DivideItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ContextMenuStuff\MultiplyItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ContextMenuStuff\MultiplyItems.Designer.cs">
+      <DependentUpon>MultiplyItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ChangeItem.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChangeItem.Designer.cs">
+      <DependentUpon>ChangeItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Algorithms.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DependencyInjection\AppModule.cs" />
+    <Compile Include="ExtensionMethods.Control.cs">
+      <DependentUpon>ExtensionMethods.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ExtensionMethods.cs" />
+    <Compile Include="HoverZoom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HoverZoom.Designer.cs">
+      <DependentUpon>HoverZoom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Providers\BricklinkCredentialProvider.cs" />
+    <Compile Include="UI\ApplicationMediator.cs" />
+    <Compile Include="UI\ImportLddForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ImportLddForm.Designer.cs">
+      <DependentUpon>ImportLddForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\ImportWantedListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\ImportWantedListForm.Designer.cs">
+      <DependentUpon>ImportWantedListForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\InitializationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\InitializationForm.Designer.cs">
+      <DependentUpon>InitializationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UpdateCheck.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UpdateCheck.Designer.cs">
+      <DependentUpon>UpdateCheck.cs</DependentUpon>
+    </Compile>
+    <Compile Include="WantedListID.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WantedListID.Designer.cs">
+      <DependentUpon>WantedListID.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddItem.resx">
+      <DependentUpon>AddItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CalculationExtras\Blacklist.resx">
+      <DependentUpon>Blacklist.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CalculationExtras\CalcOptions.resx">
+      <DependentUpon>CalcOptions.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\ColourPicker.resx">
+      <DependentUpon>ColourPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CalculationExtras\GetPassword.resx">
+      <DependentUpon>GetPassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\AddComments.resx">
+      <DependentUpon>AddComments.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\AddRemarks.resx">
+      <DependentUpon>AddRemarks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\RemoveRemarks.resx">
+      <DependentUpon>RemoveRemarks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\RemoveComments.resx">
+      <DependentUpon>RemoveComments.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\SetRemarks.resx">
+      <DependentUpon>SetRemarks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\SetComments.resx">
+      <DependentUpon>SetComments.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\IncDecPrice.resx">
+      <DependentUpon>IncDecPrice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\SetPrice.resx">
+      <DependentUpon>SetPrice.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\SubtractItems.resx">
+      <DependentUpon>SubtractItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\AddItems.resx">
+      <DependentUpon>AddItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\DivideItems.resx">
+      <DependentUpon>DivideItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ContextMenuStuff\MultiplyItems.resx">
+      <DependentUpon>MultiplyItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChangeItem.resx">
+      <DependentUpon>ChangeItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HoverZoom.resx">
+      <DependentUpon>HoverZoom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <EmbeddedResource Include="UI\ImportLddForm.resx">
+      <DependentUpon>ImportLddForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\ImportWantedListForm.resx">
+      <DependentUpon>ImportWantedListForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\InitializationForm.resx">
+      <DependentUpon>InitializationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UpdateCheck.resx">
+      <DependentUpon>UpdateCheck.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WantedListID.resx">
+      <DependentUpon>WantedListID.cs</DependentUpon>
+    </EmbeddedResource>
+    <None Include="BOLpublic.snk" />
+    <None Include="Brickficiency.config" />
+    <None Include="Brickficiency_TemporaryKey.pfx" />
+    <None Include="BuildingOutLoud.snk" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\blank.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="brickficiency.ico" />
+    <Content Include="FodyWeavers.xml" />
+    <None Include="Resources\brick_add.png" />
+    <None Include="Resources\page_white_add.png" />
+    <None Include="Resources\brick_image.png" />
+    <None Include="Resources\brick_lddimport.bmp" />
+    <None Include="Resources\addition_smaller.png" />
+    <None Include="Resources\addition.png" />
+    <None Include="Resources\tick.png" />
+    <None Include="Resources\cross.png" />
+    <None Include="Resources\page_money.png" />
+    <None Include="Resources\money_dollar_stop.png" />
+    <None Include="Resources\money_dollar.png" />
+    <None Include="Resources\brick_import.png" />
+    <None Include="Resources\brick_save.png" />
+    <None Include="Resources\brick_edit.png" />
+    <None Include="Resources\folder_brick.png" />
+    <None Include="Resources\brickficiency.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 Client Profile %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.SQL.Server.Compact.4.0">
+      <Visible>False</Visible>
+      <ProductName>SQL Server Compact 4.0 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WindmillHelix.Brickficiency2.Common\WindmillHelix.Brickficiency2.Common.csproj">
+      <Project>{bc14fca3-1f52-4843-848d-68990a0b04a6}</Project>
+      <Name>WindmillHelix.Brickficiency2.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindmillHelix.Brickficiency2.DependencyInjection\WindmillHelix.Brickficiency2.DependencyInjection.csproj">
+      <Project>{4876e4a0-4c20-4e35-8c61-9794a74d1bd3}</Project>
+      <Name>WindmillHelix.Brickficiency2.DependencyInjection</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindmillHelix.Brickficiency2.ExternalApi\WindmillHelix.Brickficiency2.ExternalApi.csproj">
+      <Project>{d292740f-d062-4f81-9e1b-80edfa08c864}</Project>
+      <Name>WindmillHelix.Brickficiency2.ExternalApi</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindmillHelix.Brickficiency2.Services\WindmillHelix.Brickficiency2.Services.csproj">
+      <Project>{7b695010-2a60-4f0d-a3d5-3804f696d18c}</Project>
+      <Name>WindmillHelix.Brickficiency2.Services</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <UsingTask TaskName="CosturaCleanup" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" TaskFactory="CodeTaskFactory">
+    <ParameterGroup>
+      <Config Output="false" Required="true" ParameterType="Microsoft.Build.Framework.ITaskItem" />
+      <Files Output="false" Required="true" ParameterType="Microsoft.Build.Framework.ITaskItem[]" />
+    </ParameterGroup>
+    <Task Evaluate="true">
+      <Reference xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Include="System.Xml" />
+      <Reference xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Include="System.Xml.Linq" />
+      <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System" />
+      <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System.IO" />
+      <Using xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Namespace="System.Xml.Linq" />
+      <Code xmlns="http://schemas.microsoft.com/developer/msbuild/2003" Type="Fragment" Language="cs"><![CDATA[
+var config = XElement.Load(Config.ItemSpec).Elements("Costura").FirstOrDefault();
+
+if (config == null) return true;
+
+var excludedAssemblies = new List<string>();
+var attribute = config.Attribute("ExcludeAssemblies");
+if (attribute != null)
+    foreach (var item in attribute.Value.Split('|').Select(x => x.Trim()).Where(x => x != string.Empty))
+        excludedAssemblies.Add(item);
+var element = config.Element("ExcludeAssemblies");
+if (element != null)
+    foreach (var item in element.Value.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).Where(x => x != string.Empty))
+        excludedAssemblies.Add(item);
+
+var filesToCleanup = Files.Select(f => f.ItemSpec).Where(f => !excludedAssemblies.Contains(Path.GetFileNameWithoutExtension(f), StringComparer.InvariantCultureIgnoreCase));
+
+foreach (var item in filesToCleanup)
+  File.Delete(item);
+]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="CleanReferenceCopyLocalPaths" AfterTargets="AfterBuild;NonWinFodyTarget">
+    <CosturaCleanup Config="FodyWeavers.xml" Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename)%(Extension)')" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

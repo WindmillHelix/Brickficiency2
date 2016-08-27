@@ -12,7 +12,6 @@ namespace Brickficiency.Classes
         public int maxstores;
         public bool cont;
         public bool sortcolour;
-        public string username;
         public bool login;
         public int splitterdistance;
         public List<string> countries = new List<string>();

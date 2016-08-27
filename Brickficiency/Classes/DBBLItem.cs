@@ -11,8 +11,6 @@ namespace Brickficiency.Classes
         public string number;
         public string type;
         public string name;
-        public string weight;
-        public string dimensions;
         public string catid;
         public Dictionary<string, string> pgpage = new Dictionary<string, string>();
         public string pgcolourspage;

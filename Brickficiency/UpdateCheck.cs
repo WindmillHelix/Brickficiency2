@@ -7,20 +7,32 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using WindmillHelix.Brickficiency2.Services.Data;
 
 namespace Brickficiency
 {
     public partial class UpdateCheck : Form
     {
-        public UpdateCheck()
+        private readonly IDataUpdateService _dataUpdateService;
+
+        public UpdateCheck(IDataUpdateService dataUpdateService)
         {
+            _dataUpdateService = dataUpdateService;
             InitializeComponent();
         }
 
         private void UpdateCheck_Shown(object sender, EventArgs e)
         {
-            int days = Convert.ToInt32((DateTime.Now - File.GetLastWriteTime(MainWindow.databasezipfilename)).TotalDays);
-            label1.Text = "The database is " + days + " days old. Update?";
+            var lastDataUpdate = _dataUpdateService.GetLastFullUpdate();
+            if (lastDataUpdate.HasValue)
+            {
+                int days = Convert.ToInt32((DateTime.Now - lastDataUpdate.Value).TotalDays);
+                label1.Text = "The catalog is " + days + " days old. Update?";
+            }
+            else
+            {
+                label1.Text = "The catalog has never been updated. Update?";
+            }
         }
 
         private void okButton_Click(object sender, EventArgs e)
