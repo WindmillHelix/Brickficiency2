@@ -12,12 +12,11 @@ namespace Brickficiency.Classes
         public int maxstores;
         public bool cont;
         public bool sortcolour;
-        public string username;
         public bool login;
         public int splitterdistance;
         public List<string> countries = new List<string>();
         public string blacklist = "";
 
-        public int approxtime; // added by CAC, 7/8/15
+        public int approxtime; // added by CAC, 2015-07-08
     }
 }

@@ -27,6 +27,11 @@ namespace Brickficiency.Classes {
             return items[id].qty;
         }
 
+        public string getColour(string id)
+        {
+            return items[id].colour;
+        }
+
         public string getName() {
             return name;
         }

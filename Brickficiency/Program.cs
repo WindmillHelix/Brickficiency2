@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using WindmillHelix.Brickficiency2.DependencyInjection;
+using Autofac;
+using Brickficiency.UI;
 
 namespace Brickficiency
 {
@@ -14,10 +17,14 @@ namespace Brickficiency
         [STAThread]
         static void Main()
         {
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
+
+            var container = DependencyInjectionConfig.Setup();
+
+            var initializationForm = container.Resolve<InitializationForm>();
+
+            Application.Run(initializationForm);
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using Brickficiency.Classes;
+using WindmillHelix.Brickficiency2.Common;
 
 namespace Brickficiency
 {
@@ -480,8 +481,10 @@ namespace Brickficiency
                     currentrow.Cells["largeimageurl"].Value = MainWindow.GenerateImageURL(id);
                     currentrow.Cells["imageloaded"].Value = "n";
                     currentrow.Cells["pgpage"].Value = "";
+                    currentrow.Cells["availstores"].Value = -1;
                     currentrow.Cells["displayimage"].Value = Properties.Resources.blank;
 
+                    MainWindow.dgv_GetLiveStats(id, colour);
                     MainWindow.dgv_ImageDisplay(id, colour);
                     this.Hide();
                     break;
