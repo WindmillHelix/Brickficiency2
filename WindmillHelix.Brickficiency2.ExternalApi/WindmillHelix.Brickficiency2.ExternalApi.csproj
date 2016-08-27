@@ -72,6 +72,10 @@
     <Compile Include="DependencyInjection\ExternalApiModule.cs" />
     <Compile Include="ExternalApiAssemblyLocator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rebrickable\IRebrickableApi.cs" />
+    <Compile Include="Rebrickable\PartInfo.cs" />
+    <Compile Include="Rebrickable\RebrickableApi.cs" />
+    <Compile Include="Rebrickable\RebrickableConstants.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WindmillHelix.Brickficiency2.Common\WindmillHelix.Brickficiency2.Common.csproj">

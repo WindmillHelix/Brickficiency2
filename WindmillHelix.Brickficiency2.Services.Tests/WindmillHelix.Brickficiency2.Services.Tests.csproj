@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="ColorServiceTests.cs" />
     <Compile Include="ItemServiceTests.cs" />
+    <Compile Include="LddMapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

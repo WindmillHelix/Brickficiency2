@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WindmillHelix.Brickficiency2.Common;
 using WindmillHelix.Brickficiency2.Common.Domain;
+using WindmillHelix.Brickficiency2.ExternalApi.Rebrickable;
 using WindmillHelix.Brickficiency2.Services.Data;
 
 namespace WindmillHelix.Brickficiency2.Services.Ldd
@@ -12,11 +13,16 @@ namespace WindmillHelix.Brickficiency2.Services.Ldd
     internal class LddMapperService : ILddMapperService
     {
         private readonly IItemService _itemService;
+        private readonly IRebrickableApi _rebrickableApi;
+
         private readonly IDictionary<string, int> _colorMap = new Dictionary<string, int>();
 
-        public LddMapperService(IItemService itemService)
+        public LddMapperService(
+            IItemService itemService,
+            IRebrickableApi rebrickableApi)
         {
             _itemService = itemService;
+            _rebrickableApi = rebrickableApi;
 
             PopulateColorMap();
         }
@@ -46,7 +52,7 @@ namespace WindmillHelix.Brickficiency2.Services.Ldd
 
             mapped.ColorId = colorId.Value;
 
-            if (!string.IsNullOrWhiteSpace(source.Decoration))
+            if (!string.IsNullOrWhiteSpace(source.Decoration) && source.Decoration != "0")
             {
                 result.WasSuccessful = false;
                 result.Message = string.Format("Decorated elements are not currently supported.");
@@ -61,20 +67,52 @@ namespace WindmillHelix.Brickficiency2.Services.Ldd
 
         private ItemDetails GetPart(LddPart source)
         {
-            var itemDetails = _itemService.GetItem(ItemTypeCodes.Part, source.DesignId);
-            // todo: check other places
+            var idsToCheck = new List<string>();
+            var checkedIds = new List<string>();
 
-            return itemDetails;
+            idsToCheck.Add(source.DesignId);
+
+            while (idsToCheck.Count > 0)
+            {
+                var id = idsToCheck[0];
+                idsToCheck.RemoveAt(0);
+                checkedIds.Add(id);
+
+                var itemDetails = _itemService.GetItem(ItemTypeCodes.Part, id);
+                if(itemDetails != null)
+                {
+                    return itemDetails;
+                }
+
+                var rebrickablePartInfo = _rebrickableApi.GetPartInfo(id);
+                if(rebrickablePartInfo != null)
+                {
+                    var candidates = new List<string>();
+                    candidates.AddRange(rebrickablePartInfo.BricklinkItemIds);
+                    candidates.AddRange(rebrickablePartInfo.RebrickablePartIds);
+
+                    var toAdd = candidates.Where(c => !idsToCheck.Contains(c) && !checkedIds.Contains(c));
+                    idsToCheck.AddRange(toAdd);
+                }
+            }
+
+            return null;
         }
 
         private int? GetColorId(LddPart source)
         {
-            if(!_colorMap.ContainsKey(source.Materials))
+            var colorId = source.Materials;
+            if(colorId.EndsWith(",0"))
+            {
+                colorId = colorId.Substring(0, colorId.Length - 2);
+            }
+
+            if(!_colorMap.ContainsKey(colorId))
             {
                 return null;
             }
 
-            return _colorMap[source.Materials];
+            return _colorMap[colorId];
         }
 
         private void PopulateColorMap()

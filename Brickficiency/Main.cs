@@ -98,11 +98,7 @@ namespace Brickficiency
         public static Dictionary<string, string> db_typenames = new Dictionary<string, string>();
         public static Dictionary<string, DBBLItem> db_blitems = new Dictionary<string, DBBLItem>();
         public static Dictionary<string, string> db_countries = new Dictionary<string, string>();
-        public static Dictionary<string, string> db_LDD2BL = new Dictionary<string, string>();
         public static Dictionary<string, List<DBItemContain>> db_containers = new Dictionary<string, List<DBItemContain>>();
-        public static Dictionary<string, string> db_rebrickpages = new Dictionary<string, string>();
-        public static Dictionary<string, string> db_rebrickaltids = new Dictionary<string, string>();
-        public static Dictionary<string, string> db_blaltids = new Dictionary<string, string>();
         int imagetimercount = 0;
         int itemtimercount = 0;
         Bitmap blank = Brickficiency.Properties.Resources.blank;
@@ -307,62 +303,6 @@ namespace Brickficiency
             db_countries.Add("United Kingdom", "UK");
             db_countries.Add("USA", "US");
             db_countries.Add("Venezuela", "VE");
-            #endregion
-
-            #region LDD colours
-            db_LDD2BL.Add("26", "11");
-            db_LDD2BL.Add("23", "7");
-            db_LDD2BL.Add("37", "36");
-            db_LDD2BL.Add("191", "110");
-            db_LDD2BL.Add("226", "103");
-            db_LDD2BL.Add("221", "104");
-            db_LDD2BL.Add("140", "63");
-            db_LDD2BL.Add("199", "85");
-            db_LDD2BL.Add("308", "120");
-            db_LDD2BL.Add("141", "80");
-            db_LDD2BL.Add("38", "68");
-            db_LDD2BL.Add("268", "89");
-            db_LDD2BL.Add("154", "59");
-            db_LDD2BL.Add("138", "69");
-            db_LDD2BL.Add("18", "28");
-            db_LDD2BL.Add("294", "159");
-            db_LDD2BL.Add("28", "6");
-            db_LDD2BL.Add("212", "62");
-            db_LDD2BL.Add("194", "86");
-            db_LDD2BL.Add("283", "90");
-            db_LDD2BL.Add("222", "56");
-            db_LDD2BL.Add("119", "34");
-            db_LDD2BL.Add("124", "71");
-            db_LDD2BL.Add("102", "42");
-            db_LDD2BL.Add("312", "150");
-            db_LDD2BL.Add("331", "76");
-            db_LDD2BL.Add("330", "155");
-            db_LDD2BL.Add("106", "4");
-            db_LDD2BL.Add("148", "77");
-            db_LDD2BL.Add("297", "115");
-            db_LDD2BL.Add("131", "66");
-            db_LDD2BL.Add("21", "5");
-            db_LDD2BL.Add("192", "88");
-            db_LDD2BL.Add("135", "55");
-            db_LDD2BL.Add("151", "48");
-            db_LDD2BL.Add("5", "2");
-            db_LDD2BL.Add("111", "13");
-            db_LDD2BL.Add("40", "12");
-            db_LDD2BL.Add("48", "20");
-            db_LDD2BL.Add("311", "16");
-            db_LDD2BL.Add("49", "16");
-            db_LDD2BL.Add("47", "18");
-            db_LDD2BL.Add("182", "98");
-            db_LDD2BL.Add("113", "107");
-            db_LDD2BL.Add("126", "51");
-            db_LDD2BL.Add("41", "17");
-            db_LDD2BL.Add("44", "19");
-            db_LDD2BL.Add("208", "49");
-            db_LDD2BL.Add("1", "1");
-            db_LDD2BL.Add("24", "3");
-            db_LDD2BL.Add("43", "14");
-            db_LDD2BL.Add("143", "74");
-            db_LDD2BL.Add("42", "15");
             #endregion
 
             #region Settings
@@ -1189,297 +1129,6 @@ namespace Brickficiency
         }
         #endregion
 
-        #region Import LDD file
-        private void importWorker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            string filename = (string)e.Argument;
-            if (importLDD(filename))
-            {
-                this.BeginInvoke(new MethodInvoker(delegate ()
-                {
-                    DisplayLoadedFile();
-                    EnableMenu();
-                }));
-            }
-        }
-
-        private bool importLDD(string filename)
-        {
-            StreamWriter swr = new StreamWriter(debuglddimport);
-
-            using (ZipFile zip = ZipFile.Read(filename))
-            {
-                bool extracted = false;
-                string lddfile;
-                string xmlfile = programdata + "IMAGE100.LXFML";
-                Dictionary<string, LDDItem> extracteditems = new Dictionary<string, LDDItem>();
-
-                foreach (ZipEntry e in zip)
-                {
-                    if (e.FileName == "IMAGE100.LXFML")
-                    {
-                        e.Extract(programdata, ExtractExistingFileAction.OverwriteSilently);
-                        extracted = true;
-                        swr.WriteLine("IMAGE100.LXFML extracted to " + programdata);
-                    }
-                    else
-                    {
-                        swr.WriteLine("Skipping " + e.FileName);
-                    }
-                }
-
-                if (extracted == false)
-                {
-                    AddStatus("Error extracting xml from lxf");
-                    swr.WriteLine("Error extracting xml from lxf");
-                    swr.Close();
-                    EnableMenu();
-                    return false;
-                }
-
-                try
-                {
-                    using (StreamReader sr = new StreamReader(xmlfile))
-                    {
-                        lddfile = sr.ReadToEnd();
-                    }
-                }
-                catch (Exception exc)
-                {
-                    AddStatus("Error reading xml file");
-                    swr.WriteLine("Error reading xml file: " + exc.Message);
-                    swr.Close();
-                    EnableMenu();
-                    return false;
-                }
-
-                foreach (DataTable thisdt in dt)
-                {
-                    thisdt.Dispose();
-                }
-
-                BuildTable();
-                //                List<Item> items = new List<Item>();
-
-                List<String> lines = lddfile.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-                swr.WriteLine("");
-                string brick = "";
-                bool partfound = false;
-
-                foreach (string line in lines)
-                {
-                    swr.WriteLine(line);
-                    Match brickmatch = Regex.Match(line, "<Brick refID=\"" + @".*?" + "\" designID=\"" + @"(.*?)" + "\"", RegexOptions.IgnoreCase);
-                    if (brickmatch.Success)
-                    {
-                        brick = brickmatch.Groups[1].ToString();
-                        partfound = false;
-                        swr.WriteLine("brick: " + brick);
-                        continue;
-                    }
-
-                    if (partfound == true)
-                    {
-                        continue;
-                    }
-
-                    //                                 <Part refID= "      11       " designID= "       32062      " materials= "       21
-                    Match ldditem = Regex.Match(line, "<Part refID=\"" + @".*?" + "\" designID=\"" + @"(.*?)" + "\" materials=\"" + @"(\d*)", RegexOptions.IgnoreCase);
-                    if (ldditem.Success)
-                    {
-                        partfound = true;
-                        LDDItem item = new LDDItem();
-
-                        item.num = ldditem.Groups[1].ToString();
-
-                        if (item.num != brick)
-                        {
-                            swr.WriteLine("part of multi-part item: " + brick);
-                            item.num = brick;
-                        }
-
-                        item.col = ldditem.Groups[2].ToString();
-                        item.id = item.col + "-" + item.num;
-                        item.count = 1;
-                        if (db_LDD2BL.ContainsKey(item.col))
-                        {
-                            item.blcol = db_LDD2BL[item.col];
-                        }
-                        else
-                        {
-                            swr.WriteLine("Unknown Lego colour id: " + item.col + Environment.NewLine);
-                            AddStatus("Skipping Lego Element ID " + item.num + ". Unknown colour ID: " + item.col + Environment.NewLine);
-                            continue;
-                        }
-
-                        swr.WriteLine("num: " + item.num + Environment.NewLine +
-                            "col: " + item.col + Environment.NewLine);
-
-                        if (extracteditems.ContainsKey(item.id))
-                        {
-                            extracteditems[item.id].count++;
-                        }
-                        else
-                        {
-                            extracteditems.Add(item.id, item);
-                        }
-                    }
-                }
-
-                AddStatus("##Clear##");
-                AddStatus("Querying Rebrickable.com for Bricklink part ID's" + Environment.NewLine);
-                swr.WriteLine(Environment.NewLine + "Querying Rebrickable.com for Bricklink part ID's");
-
-                foreach (LDDItem item in extracteditems.Values)
-                {
-                    swr.WriteLine(Environment.NewLine + "ID: " + item.num);
-
-                    //Lego and Bricklink are the same
-                    if (db_blitems.ContainsKey("P-" + item.num))
-                    {
-                        swr.WriteLine("Valid BrickLink ID number");
-                        item.blnum = db_blitems["P-" + item.num].number;
-                    }
-                    //Found Alt from Bricklink database
-                    else if (db_blaltids.ContainsKey(item.num))
-                    {
-                        swr.WriteLine("Found BrickLink Alternate ID number from BrickLink");
-                        item.blnum = db_blaltids[item.num];
-                    }
-                    //Found Alt from Rebrickable Database
-                    else if (db_rebrickaltids.ContainsKey(item.num))
-                    {
-                        swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
-                        item.blnum = db_rebrickaltids[item.num];
-                    }
-                    //haven't checked rebrickable yet
-                    else if (!db_rebrickpages.ContainsKey(item.num))
-                    {
-                        swr.WriteLine("Checking Rebrickable...");
-                        string url = "http://rebrickable.com/api/get_part" + @"?key=" + RBapiKey + "&part_id=" + item.num + "&inc_ext=1&format=json";
-                        string page = GetRebrickablePage(url);
-
-                        if (page == null)
-                        {
-                            AddStatus("Rebrickable error retrieving part ID for part: " + item.num + Environment.NewLine);
-                            swr.WriteLine("Error downloading from rebrickable api");
-                            continue;
-                        }
-                        else
-                        {
-                            db_rebrickpages.Add(item.num, page);
-                            swr.WriteLine(page);
-                        }
-
-                        Match itemmatch = Regex.Match(page, "{\"bricklink\":\"" + "(.*?)" + "\"}");
-                        Match rbmatch = Regex.Match(page, "\"rebrickable_part_id\":\"" + "(.*?)" + "\"");
-                        if (rbmatch.Success)
-                        {
-                            //found alt from rebrickable
-                            if (db_blitems.ContainsKey("P-" + rbmatch.Groups[1].Value.ToString()))
-                            {
-                                swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
-                                db_rebrickaltids.Add(item.num, rbmatch.Groups[1].Value.ToString());
-                                item.blnum = rbmatch.Groups[1].Value.ToString();
-                            }
-                            //need to check BL alt id from rebrickable
-                            else
-                            {
-                                url = "http://rebrickable.com/api/get_part" + @"?key=" + RBapiKey + "&part_id=" + rbmatch.Groups[1].Value.ToString() + "&inc_ext=1&format=json";
-                                page = GetRebrickablePage(url);
-
-                                if (page == null)
-                                {
-                                    AddStatus("Rebrickable error retrieving part ID for part: " + rbmatch.Groups[1].Value.ToString() + Environment.NewLine);
-                                    swr.WriteLine("Error downloading from rebrickable api");
-                                    continue;
-                                }
-                                else
-                                {
-                                    db_rebrickpages.Add(rbmatch.Groups[1].Value.ToString(), page);
-                                    swr.WriteLine(page);
-                                }
-
-                                Match itemmatch2 = Regex.Match(page, "{\"bricklink\":\"" + "(.*?)" + "\"}");
-                                if (itemmatch2.Success)
-                                {
-                                    //found alt from rebrickable
-                                    if (db_blitems.ContainsKey("P-" + itemmatch2.Groups[1].Value.ToString()))
-                                    {
-                                        swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
-                                        item.blnum = itemmatch2.Groups[1].Value.ToString();
-                                        db_rebrickaltids.Add(item.num, itemmatch2.Groups[1].Value.ToString());
-                                    }
-                                }
-                            }
-                        }
-                        else if (itemmatch.Success)
-                        {
-                            //found alt from rebrickable
-                            if (db_blitems.ContainsKey("P-" + itemmatch.Groups[1].Value.ToString()))
-                            {
-                                swr.WriteLine("Found BrickLink Alternate ID number from Rebrickable.com");
-                                item.blnum = itemmatch.Groups[1].Value.ToString();
-                                db_rebrickaltids.Add(item.num, itemmatch.Groups[1].Value.ToString());
-                            }
-                        }
-                    }
-
-                    if (item.blnum == "")
-                    {
-                        AddStatus("Error retrieving Bricklink part ID: " + item.num + Environment.NewLine +
-                            "Info for adding manually: " + item.count + "x " + db_colours[item.blcol].name + " " + item.num + Environment.NewLine);
-                        swr.WriteLine("Error: could not find a proper ID from bricklink or rebrickable");
-                        continue;
-                    }
-                    else
-                    {
-                        swr.WriteLine("Found: " + item.blnum + Environment.NewLine);
-                    }
-
-                    string extid = "P-" + item.blcol + "-" + item.blnum;
-                    if (!dt[currenttab].Rows.Contains(extid))
-                    {
-                        DataRow dr = dt[currenttab].NewRow();
-                        dr["id"] = "P-" + item.blnum;
-                        dr["colour"] = item.blcol;
-                        dr["number"] = item.blnum;
-                        dr["extid"] = extid;
-                        dr["categoryid"] = db_blitems["P-" + item.blnum].catid;
-                        dr["name"] = db_blitems["P-" + item.blnum].name;
-                        dr["colourname"] = db_colours[item.blcol].name;
-                        dr["qty"] = item.count;
-                        dr["categoryname"] = db_categories[db_blitems["P-" + item.blnum].catid].name;
-                        dr["imageurl"] = GenerateImageURL("P-" + item.blnum, item.blcol);
-                        dr["largeimageurl"] = GenerateImageURL("P-" + item.blnum);
-                        dr["type"] = "P";
-                        dr["typename"] = db_typenames["P"];
-                        dr["status"] = "I";
-                        dr["condition"] = "U";
-                        dr["availstores"] = -1;
-                        dr["price"] = "0";
-                        dr["comments"] = "";
-                        dr["remarks"] = "";
-                        dr["origqty"] = 0;
-                        dr["origprice"] = 0;
-                        dr["imageloaded"] = "n";
-                        dt[currenttab].Rows.Add(dr);
-                    }
-                    else
-                    {
-                        Debug.Assert(false, "Duplicate item in DLL file, how strange???");
-                        dt[currenttab].Rows.Find(extid)["qty"] = (int)dt[currenttab].Rows.Find(extid)["qty"] + item.count;
-                    }
-                }
-            }
-
-            AddStatus("Done." + Environment.NewLine);
-            swr.Close();
-            return true;
-        }
-        #endregion
-
         private static int MAX_FAILS = 4;
         #region retrieve page as string
         public string GetPage(string url, bool login = false)
@@ -1585,31 +1234,6 @@ namespace Brickficiency
         }
         #endregion
 
-        #region retrieve rebrickable page as string
-        private string GetRebrickablePage(string url)
-        {
-            int pagefail = 0;
-            bool pagesuccess = false;
-            string page = null;
-
-            while ((pagesuccess == false) && (pagefail < 4))
-            {
-                try
-                {
-                    WebClient wc = new WebClient();
-                    wc.Headers.Add("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.0.3705;)");
-                    page = wc.DownloadString(url);
-                    pagesuccess = true;
-                }
-                catch// (Exception ex)
-                {
-                    pagefail++;
-                }
-            }
-
-            return page;
-        }
-        #endregion
 
         #region retrieve image as bitmap
         static Bitmap GetImage(string url)
@@ -1969,7 +1593,6 @@ namespace Brickficiency
             db_categories.Clear();
             db_blitems.Clear();
             db_typenames.Clear();
-            db_blaltids.Clear();
 
             PopulateLookupsFromServices();
         }
@@ -2732,11 +2355,6 @@ namespace Brickficiency
             }
 
             _applicationMediator.ImportLddFile();
-            if (importLDDFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                DisableMenu();
-                importWorker.RunWorkerAsync(importLDDFileDialog.FileName);
-            }
         }
         #endregion
 
