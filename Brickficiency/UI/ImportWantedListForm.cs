@@ -89,9 +89,10 @@ namespace Brickficiency.UI
                     itemsToAdd.AddRange(items.Where(x => x.Quantity > 0));
                     completed++;
 
+                    var newCompleted = completed;
                     this.InvokeAction(() =>
                     {
-                        ProgressBar.Value = ProgressBar.Maximum * completed / toComplete;
+                        ProgressBar.Value = ProgressBar.Maximum * newCompleted / toComplete;
                     });
                 }
 

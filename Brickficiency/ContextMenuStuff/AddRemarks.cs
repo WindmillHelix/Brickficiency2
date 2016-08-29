@@ -32,12 +32,6 @@ namespace Brickficiency.ContextMenuStuff
             DialogResult = DialogResult.OK;
         }
 
-        private void numericUpDown1_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)Keys.Enter)
-                DialogResult = DialogResult.OK;
-        }
-
         private void SetComments_VisibleChanged(object sender, EventArgs e)
         {
             textBox1.Select();

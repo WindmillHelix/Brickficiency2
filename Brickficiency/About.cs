@@ -54,11 +54,6 @@ namespace Brickficiency
             }
         }
 
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-        }
-
         private void Link_Click(object sender, EventArgs e)
         {
             var linkLabel = (LinkLabel)sender;
@@ -68,11 +63,6 @@ namespace Brickficiency
         private void button1_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.OK;
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-            OpenLink("http://www.buildingoutloud.com/go/brickficiency");
         }
 
         private void About_Shown(object sender, EventArgs e)

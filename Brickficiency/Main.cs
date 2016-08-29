@@ -81,11 +81,8 @@ namespace Brickficiency
         public static string settingsfilename = programdata + programname + "-Settings.xml";
 
         string debugpgfilename = programdata + "\\debug\\Debug-priceguide.txt";
-        string debugparsesource = programdata + "\\debug\\Debug-parsesource.html";
         string debugopenfilename = programdata + "\\debug\\Debug-open.txt";
-        string debugdbfilename = programdata + "\\debug\\Debug-db.txt";
         string debugwebreqfilename = programdata + "\\debug\\Debug-webreq.txt";
-        string debuglddimport = programdata + "\\debug\\Debug-lddimport.txt";
         public static string debugimportfilename = programdata + "\\debug\\Debug-import.txt";
         public static Settings settings = new Settings();
         public static string blacklist = "";
@@ -119,7 +116,6 @@ namespace Brickficiency
         public static int inLock = 0;
         public static List<ImageDL> imageDLList = new List<ImageDL>();
         public static List<ItemDL> itemDLList = new List<ItemDL>();
-        public static string RBapiKey = "bITJSRewdX";
 
         //calc stuff
         public Dictionary<string, string> db_countrystores = new Dictionary<string, string>();
@@ -145,11 +141,8 @@ namespace Brickficiency
         private System.Timers.Timer timeoutTimer;
         public HashSet<string> storesWithItemsList = new HashSet<string>();
 
-        public const int RUN_OLD = 0;
         public const int RUN_NEW = 1;
         public const int RUN_APPROX = 2;
-        public const int RUN_CUSTOM = 3;
-        public const int RUN_CUSTOM_APPROX = 4;
         private int whichAlgToRun = 1;
         private Boolean running = false;
         //--------------------------------------------------------------------
@@ -193,11 +186,6 @@ namespace Brickficiency
         {
             DisableMenu();
             DisableCalcStop();
-
-            // Remove two menu items that are only used when the software is being used for a class.
-            customAlgorithmToolStripMenuItem.Visible = classroomUseMode;
-            customApproximationAlgorithmToolStripMenuItem.Visible = classroomUseMode;
-            oldAlgorithmToolStripMenuItem.Visible = classroomUseMode;
 
             this.splitContainer.SplitterDistance = System.Convert.ToInt32(this.Size.Height * 0.72);
             //DownloadBrickLinkDB();
@@ -1135,7 +1123,6 @@ namespace Brickficiency
         {
             lock (pageLock)
             {
-                string cookieHeader;
                 string pageSource;
                 //            StreamWriter swr = new StreamWriter(debugwebreqfilename);
 
@@ -1177,7 +1164,6 @@ namespace Brickficiency
                             tmpreq.ContentType = "application/x-www-form-urlencoded";
                             tmpreq.UserAgent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:25.0) Gecko/20100101 Firefox/25.0";
                             HttpWebResponse tmpresp = (HttpWebResponse)tmpreq.GetResponse();
-                            cookieHeader = tmpresp.Headers["Set-cookie"];
                             cookies.Add(tmpresp.Cookies);
                             cookietime = DateTime.Now;
                             pagesuccess = true;
@@ -1378,14 +1364,7 @@ namespace Brickficiency
                 progressBar1.Maximum = value;
             }));
         }
-        private void SetProgressPercent(int value)
-        {
-            this.BeginInvoke(new MethodInvoker(delegate ()
-            {
-                progressBar1.Value = value;
-                progressBar1.Maximum = 100;
-            }));
-        }
+
         private void ResetProgressBar()
         {
             this.BeginInvoke(new MethodInvoker(delegate ()
@@ -1393,14 +1372,7 @@ namespace Brickficiency
                 progressBar1.Value = 0;
             }));
         }
-        private void AddProgress(int value)
-        {
-            this.BeginInvoke(new MethodInvoker(delegate ()
-            {
-                AddStatus(value + Environment.NewLine);
-                progressBar1.Value = progressBar1.Value + value;
-            }));
-        }
+
         private void Progress()
         {
             // This is sporadically locking up the GUI.  No idea why.
@@ -2037,7 +2009,6 @@ namespace Brickficiency
                 if (dgv_sender.Columns[e.ColumnIndex].Name == "displayimage")
                 {
                     DataGridViewRow dgv_MouseOverRow = dgv_sender.Rows[e.RowIndex];
-                    DataGridViewCell dgv_MouseOverCell = dgv_MouseOverRow.Cells[e.ColumnIndex];
                     string id = dgv_MouseOverRow.Cells["id"].Value.ToString();
                     string colour = dgv_MouseOverRow.Cells["colour"].Value.ToString();
 
@@ -2443,15 +2414,11 @@ namespace Brickficiency
 
         #region (Tools -> Calculate and Calculate2)
 
-        private void oldAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            runTheAlgorithm(RUN_OLD);
-        }
-
         private void newAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
         {
             runTheAlgorithm(RUN_NEW);
         }
+
         private void calculateButton_Click(object sender, EventArgs e)
         {
             runTheAlgorithm(RUN_NEW);
@@ -2461,18 +2428,8 @@ namespace Brickficiency
         {
             runTheAlgorithm(RUN_APPROX);
         }
-        private void customAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            runTheAlgorithm(RUN_CUSTOM);
-        }
-        private void customApproximationAlgorithmToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            runTheAlgorithm(RUN_CUSTOM_APPROX);
-        }
-        //private void calculateToolStripMenuItem_Click(object sender, EventArgs e)
-        //{
-        //}
         #endregion
+
         private void runTheAlgorithm(int whichAlgorithm)
         {
             whichAlgToRun = whichAlgorithm;
@@ -2486,7 +2443,7 @@ namespace Brickficiency
             }
             else
             {
-                calcOptionsWindow.ShowApproxOptions(whichAlgorithm == RUN_APPROX || whichAlgorithm == RUN_CUSTOM_APPROX);
+                calcOptionsWindow.ShowApproxOptions(whichAlgorithm == RUN_APPROX);
                 DialogResult result = calcOptionsWindow.ShowDialog();
                 if (result == DialogResult.OK)
                 {

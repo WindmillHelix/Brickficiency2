@@ -89,20 +89,11 @@ namespace Brickficiency
 
             switch (whichAlgToRun)
             {
-                case RUN_OLD:
-                    runTheAlgorithm(settings.minstores, settings.maxstores, settings.cont, StoreList, WantedItemList, RunOldAlgorithmOn, StandardPreProcess);
-                    break;
                 case RUN_NEW:
                     runTheAlgorithm(settings.minstores, settings.maxstores, settings.cont, StoreList, WantedItemList, KStoreCalc, StandardPreProcess);
                     break;
-                case RUN_CUSTOM:
-                    runTheAlgorithm(settings.minstores, settings.maxstores, settings.cont, StoreList, WantedItemList, CustomAlgorithm, CustomPreProcess);
-                    break;
                 case RUN_APPROX:
                     runApproxAlgorithm(settings.minstores, settings.maxstores, settings.approxtime * 1000, StoreList, WantedItemList, KStoreCalc, StandardPreProcess);
-                    break;
-                case RUN_CUSTOM_APPROX:
-                    runApproxAlgorithm(settings.minstores, settings.maxstores, settings.approxtime * 1000, StoreList, WantedItemList, CustomApproximationAlgorithm, CustomApproximationPreProcess);
                     break;
             }
 
