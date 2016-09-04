@@ -1139,6 +1139,7 @@ namespace Brickficiency
                 string pageSource;
                 //            StreamWriter swr = new StreamWriter(debugwebreqfilename);
 
+                // "(DateTime.Now > cookietime.AddMinutes(10))" is probably not an appropriate check as to wether to log in again.
                 if ((login == true) && ((loggedin == false) || (cookietime == null) || (DateTime.Now > cookietime.AddMinutes(10))))
                 {
                     var credential = _bricklinkCredentialProvider.GetCredentials();
@@ -1791,10 +1792,11 @@ namespace Brickficiency
                 }
                 else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "name")
                 {
+                    // The changeItemWindow Form must be 'Loaded' before 'DisplayItem(...)' is called.
+                    changeItemWindow.Show();    // 'Show()' is used to invoke 'Load()'
                     changeItemWindow.DisplayItem(dgv[currenttab].Rows[e.RowIndex]);
                     changeItemWindow.BringToFront();
                     changeItemWindow.WindowState = FormWindowState.Normal;
-                    changeItemWindow.Show();
                 }
                 else if (dgv[currenttab].Columns[e.ColumnIndex].Name == "condition")
                 {
@@ -2096,7 +2098,10 @@ namespace Brickficiency
         #region datagridview dataerror
         private void dgvDataError(object sender, DataGridViewDataErrorEventArgs anError)
         {
-            AddStatus("Invalid value: " + dgv[currenttab].EditingControl.Text + Environment.NewLine);
+            if (dgv[currenttab].EditingControl != null)
+                AddStatus("Invalid value: " + dgv[currenttab].EditingControl.Text + Environment.NewLine);
+            else
+                AddStatus("Invalid value: No EdditControl" + Environment.NewLine);
         }
         #endregion
 
