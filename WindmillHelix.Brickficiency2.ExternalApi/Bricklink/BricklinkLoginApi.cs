@@ -48,7 +48,8 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
                 var serializer = new JsonSerializer();
 
                 dynamic content = serializer.Deserialize(reader);
-                var result = content.returnCode.ToString() == "0";
+                var result =    content.returnCode.ToString() == "0"
+                             || content.returnMessage.ToString() == "Already Logged-in!";
 
                 return result;
             }
