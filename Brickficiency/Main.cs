@@ -162,7 +162,7 @@ namespace Brickficiency
         About aboutWindow = new About();
         CalcOptions calcOptionsWindow = new CalcOptions();
         HoverZoom hoverZoomWindow = new HoverZoom();
-        AddItem addItemWindow = new AddItem();
+        private AddItem addItemWindow;
         ChangeItem changeItemWindow = new ChangeItem();
         WantedListID wantedListWindow = new WantedListID();
         Brickficiency.ContextMenuStuff.ColourPicker colourPickerWindow = new Brickficiency.ContextMenuStuff.ColourPicker();
@@ -422,7 +422,8 @@ namespace Brickficiency
             UpdateCheck updateConfirmationForm,
             IDataUpdateService dataUpdateService,
             IBricklinkCredentialProvider bricklinkCredentialProvider,
-            ApplicationMediator applicationMediator)
+            ApplicationMediator applicationMediator,
+            AddItem addItemForm)
         {
             _applicationMediator = applicationMediator;
 
@@ -436,6 +437,7 @@ namespace Brickficiency
 
             _importWantedListForm = importWantedListForm;
             _updateConfirmationForm = updateConfirmationForm;
+            addItemWindow = addItemForm;
 
             // don't really want this referenced here directly, but it will take a bit to decouple this code
             _bricklinkLoginApi = bricklinkLoginApi;

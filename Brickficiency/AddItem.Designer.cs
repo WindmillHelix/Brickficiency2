@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.typePick = new System.Windows.Forms.ComboBox();
+            this.ItemTypeComboBox = new System.Windows.Forms.ComboBox();
             this.catList = new System.Windows.Forms.ListBox();
             this.filterBox = new System.Windows.Forms.TextBox();
             this.closeButton = new System.Windows.Forms.Button();
@@ -41,19 +41,18 @@
             ((System.ComponentModel.ISupportInitialize)(this.colourGrid)).BeginInit();
             this.SuspendLayout();
             // 
-            // typePick
+            // ItemTypeComboBox
             // 
-            this.typePick.DropDownHeight = 170;
-            this.typePick.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.typePick.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.typePick.FormattingEnabled = true;
-            this.typePick.IntegralHeight = false;
-            this.typePick.Location = new System.Drawing.Point(12, 12);
-            this.typePick.Name = "typePick";
-            this.typePick.Size = new System.Drawing.Size(170, 28);
-            this.typePick.Sorted = true;
-            this.typePick.TabIndex = 0;
-            this.typePick.SelectedValueChanged += new System.EventHandler(this.typePick_SelectedValueChanged);
+            this.ItemTypeComboBox.DropDownHeight = 170;
+            this.ItemTypeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ItemTypeComboBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ItemTypeComboBox.FormattingEnabled = true;
+            this.ItemTypeComboBox.IntegralHeight = false;
+            this.ItemTypeComboBox.Location = new System.Drawing.Point(12, 12);
+            this.ItemTypeComboBox.Name = "ItemTypeComboBox";
+            this.ItemTypeComboBox.Size = new System.Drawing.Size(170, 28);
+            this.ItemTypeComboBox.Sorted = true;
+            this.ItemTypeComboBox.TabIndex = 0;
             // 
             // catList
             // 
@@ -183,7 +182,7 @@
             this.Controls.Add(this.closeButton);
             this.Controls.Add(this.filterBox);
             this.Controls.Add(this.catList);
-            this.Controls.Add(this.typePick);
+            this.Controls.Add(this.ItemTypeComboBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
             this.Name = "AddItem";
@@ -198,7 +197,7 @@
 
         #endregion
 
-        private System.Windows.Forms.ComboBox typePick;
+        private System.Windows.Forms.ComboBox ItemTypeComboBox;
         private System.Windows.Forms.ListBox catList;
         private System.Windows.Forms.TextBox filterBox;
         private System.Windows.Forms.Button closeButton;

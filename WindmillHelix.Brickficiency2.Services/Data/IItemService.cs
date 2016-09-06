@@ -12,5 +12,7 @@ namespace WindmillHelix.Brickficiency2.Services.Data
         IReadOnlyCollection<ItemDetails> GetItems();
 
         ItemDetails GetItem(string itemTypeCode, string itemId);
+
+        IReadOnlyCollection<ItemDetails> SearchItems(string itemTypeCode, int? categoryId, string filter);
     }
 }

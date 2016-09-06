@@ -6,12 +6,7 @@ using System.Threading.Tasks;
 
 namespace WindmillHelix.Brickficiency2.Common
 {
-    public static class ItemTypeCodes
+    public static partial class ExtensionMethods
     {
-        public const string Part = "P";
-
-        public const string Gear = "G";
-
-        public const string UnsortedLot = "U";
     }
 }

@@ -9,6 +9,8 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using Brickficiency.Classes;
+using Brickficiency.Helpers;
+
 using WindmillHelix.Brickficiency2.Common;
 
 namespace Brickficiency
@@ -295,7 +297,7 @@ namespace Brickficiency
                             }
                         }
                     }
-                    itemList.ListViewItemSorter = new ListViewItemComparer(1);
+                    itemList.ListViewItemSorter = new AddEditItemListViewItemComparer(1);
                 }
             }
         }
@@ -442,7 +444,7 @@ namespace Brickficiency
 
         private void itemList_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            itemList.ListViewItemSorter = new ListViewItemComparer(e.Column);
+            itemList.ListViewItemSorter = new AddEditItemListViewItemComparer(e.Column);
         }
 
         private void okButton_Click(object sender, EventArgs e)

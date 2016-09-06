@@ -27,6 +27,10 @@ namespace WindmillHelix.Brickficiency2.Services.Data
 
         protected abstract List<T> GetItemsFromSource();
 
+        protected virtual void AfterItemsModified(IReadOnlyCollection<T> items)
+        {
+        }
+
         protected IReadOnlyCollection<T> GetItems()
         {
             var isInitialized = _isInitialized.Value;
@@ -48,6 +52,8 @@ namespace WindmillHelix.Brickficiency2.Services.Data
             var serializer = new TypedXmlSerializer<List<T>>();
             var serialized = serializer.SerializeToString(items);
             _appDataService.WriteAppData(AppDataKey, serialized);
+
+            AfterItemsModified(_items);
         }
 
         private bool EnsureInitialized()
@@ -61,6 +67,8 @@ namespace WindmillHelix.Brickficiency2.Services.Data
             {
                 _items.Clear();
                 _items.AddRange(items);
+
+                AfterItemsModified(_items);
             }
 
             return true;

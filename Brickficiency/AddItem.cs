@@ -3,65 +3,122 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading.Tasks;
+
 using Brickficiency.Classes;
+using Brickficiency.Helpers;
+
 using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.Services;
+using WindmillHelix.Brickficiency2.Services.Data;
 
 namespace Brickficiency
 {
     public partial class AddItem : Form
     {
-        Color enabledcol = new Color();
-        Color disabledcol = new Color();
-        HoverZoom hoverZoomWindow = new HoverZoom();
-        public string filter
+        private readonly IItemService _itemService;
+        private readonly Action<string> _debouncedFilterTextChanged;
+        private readonly IItemTypeService _itemTypeService;
+        private readonly IImageService _imageService;
+
+        private readonly HoverZoom _hoverZoomWindow = new HoverZoom();
+        private readonly object _hoverLock = new object();
+        private string _hoverKey = null;
+
+        private Color _enableColor = new Color();
+        private Color _disabledColor = new Color();
+
+        public AddItem(
+            IItemService itemService, 
+            IItemTypeService itemTypeService,
+            IImageService imageService)
         {
-            get{
+            _imageService = imageService;
+            _itemTypeService = itemTypeService;
+            _itemService = itemService;
+
+            _debouncedFilterTextChanged = Actions.Debounce<string>(x => this.InvokeAction(ChangeItems));
+            InitializeComponent();
+        }
+
+        private ItemType SelectedItemType
+        {
+            get
+            {
+                return ItemTypeComboBox.SelectedItem as ItemType;
+            }
+        }
+
+        private string SearchText
+        {
+            get
+            {
                 return filterBox.Text;
             }
         }
 
-        public AddItem()
+        private int? SelectedCategoryId
         {
-            InitializeComponent();
+            get
+            {
+                string categoryName = (string)catList.SelectedItem;
+                string categoryIdString;
+                if (categoryName == "(All Items)")
+                {
+                    categoryIdString = null;
+                }
+                else
+                {
+                    categoryIdString = MainWindow.db_categories.Values.Single(x => x.name == categoryName).id;
+                }
+
+                int? categoryId = ParseUtil.TryParseInt(categoryIdString);
+                return categoryId;
+            }
         }
 
         private void AddItem_Load(object sender, EventArgs e)
         {
-            if (typePick.Items.Count == 0)
-            {
-                Screen screen = Screen.FromPoint(Cursor.Position);
-                this.Location = screen.Bounds.Location;
-                this.Left = screen.WorkingArea.Right - this.Width;
-                this.Top = screen.WorkingArea.Height / 2 - this.Height / 2;
+            var itemTypes =
+                _itemTypeService.GetItemTypes()
+                    .Where(x => x.ItemTypeCode != ItemTypeCodes.UnsortedLot)
+                    .OrderBy(x => x.Name)
+                    .ToList();
 
-                foreach (string type in MainWindow.db_typenames.Values)
-                {
-                    if (type != "Unsorted Lot")
-                    {
-                        typePick.Items.Add(type);
-                    }
-                }
+            var partItemType = itemTypes.Single(x => x.ItemTypeCode == ItemTypeCodes.Part);
 
-                typePick.SelectedItem = "Part";
-                ChangeType();
-            }
+            ItemTypeComboBox.DataSource = itemTypes;
+            ItemTypeComboBox.DisplayMember = nameof(ItemType.Name);
+            ItemTypeComboBox.ValueMember = nameof(ItemType.ItemTypeCode);
+
+            Screen screen = Screen.FromPoint(Cursor.Position);
+            this.Location = screen.Bounds.Location;
+            this.Left = screen.WorkingArea.Right - this.Width;
+            this.Top = screen.WorkingArea.Height / 2 - this.Height / 2;
+
+            ItemTypeComboBox.SelectedItem = partItemType;
+            ItemTypeComboBox.SelectedValueChanged += typePick_SelectedValueChanged;
+
+            ChangeType();
 
             foreach (DBColour dbcolour in MainWindow.db_colours.Values)
             {
                 Color thiscol;
                 if (dbcolour.id == "0")
                 {
-                    thiscol = (Color)System.Drawing.ColorTranslator.FromHtml("#FFFFFF");
+                    thiscol = ColorTranslator.FromHtml("#FFFFFF");
                 }
                 else
                 {
-                    thiscol = (Color)System.Drawing.ColorTranslator.FromHtml("#" + dbcolour.rgb);
+                    thiscol = ColorTranslator.FromHtml("#" + dbcolour.rgb);
                 }
+
                 DataGridViewRow dgvrow = new DataGridViewRow();
                 DataGridViewTextBoxCell dgvcell1 = new DataGridViewTextBoxCell();
                 dgvcell1.Style.ForeColor = thiscol;
@@ -72,11 +129,12 @@ namespace Brickficiency
                 dgvrow.Cells.Add(dgvcell2);
                 colourGrid.Rows.Add(dgvrow);
             }
+
             colourGrid.Rows[0].Cells[1].Selected = true;
             colourGrid.FirstDisplayedScrollingRowIndex = 0;
 
-            enabledcol = colourGrid.ForeColor;
-            disabledcol = System.Drawing.SystemColors.ControlDark;
+            _enableColor = colourGrid.ForeColor;
+            _disabledColor = System.Drawing.SystemColors.ControlDark;
         }
 
         private void AddItem_FormClosing(object sender, FormClosingEventArgs e)
@@ -93,36 +151,38 @@ namespace Brickficiency
 
         private void ChangeType()
         {
-            foreach (string t in MainWindow.db_typenames.Keys)
+            if (SelectedItemType?.ItemTypeCode == ItemTypeCodes.Part
+                || SelectedItemType?.ItemTypeCode == ItemTypeCodes.Gear)
             {
-                if ((string)typePick.SelectedItem == MainWindow.db_typenames[t])
-                {
-                    if (((string)typePick.SelectedItem == "Part") || ((string)typePick.SelectedItem == "Gear"))
-                    {
-                        colourGrid.Enabled = true;
-                        colourGrid.ForeColor = enabledcol;
-                    }
-                    else
-                    {
-                        colourGrid.Enabled = false;
-                        colourGrid.ForeColor = disabledcol;
-                    }
-                    catList.Items.Clear();
-
-                    List<string> items = new List<string>();
-                    items.Add("(All Items)");
-
-                    foreach (DBBLItem item in MainWindow.db_blitems.Values.Where(i => i.type == t))
-                    {
-                        if (!items.Contains(MainWindow.db_categories[item.catid].name))
-                        {
-                            items.Add(MainWindow.db_categories[item.catid].name);
-                        }
-                    }
-
-                    catList.Items.AddRange(items.ToArray());
-                }
+                colourGrid.Enabled = true;
+                colourGrid.ForeColor = _enableColor;
             }
+            else
+            {
+                colourGrid.Enabled = false;
+                colourGrid.ForeColor = _disabledColor;
+            }
+
+            ResetCategoryList();
+        }
+
+        private void ResetCategoryList()
+        {
+            catList.Items.Clear();
+
+            List<string> items = new List<string>();
+            items.Add("(All Items)");
+
+            var itemTypeCode = SelectedItemType?.ItemTypeCode;
+            foreach (var categoryIdString in
+                MainWindow.db_blitems.Values.Where(i => i.type == itemTypeCode)
+                    .Select(x => x.catid)
+                    .Distinct())
+            {
+                items.Add(MainWindow.db_categories[categoryIdString].name);
+            }
+
+            catList.Items.AddRange(items.ToArray());
         }
 
         private void typePick_SelectedValueChanged(object sender, EventArgs e)
@@ -132,116 +192,62 @@ namespace Brickficiency
 
         private void ChangeItems()
         {
-            string selid = "";
+            string selid = string.Empty;
             if (itemList.SelectedItems.Count > 0)
             {
                 selid = itemList.SelectedItems[0].SubItems[0].Text;
             }
 
-            foreach (string t in MainWindow.db_typenames.Keys)
+            var itemTypeCode = SelectedItemType?.ItemTypeCode;
+            var categoryId = SelectedCategoryId;
+
+            itemList.Clear();
+            itemList.Columns.Add("id", "Item ID");
+            itemList.Columns.Add("name", "Description");
+
+            List<ListViewItem> lvis = new List<ListViewItem>();
+
+            var filtered = _itemService.SearchItems(itemTypeCode, categoryId, SearchText);
+
+            foreach (var item in filtered)
             {
-                if ((string)typePick.SelectedItem == MainWindow.db_typenames[t])
+                ListViewItem listItem = new ListViewItem();
+                listItem.Tag = item;
+
+                listItem.SubItems[0].Text = item.ItemId;
+                listItem.SubItems.Add(item.Name);
+                lvis.Add(listItem);
+            }
+
+            itemList.Items.AddRange(lvis.ToArray());
+
+            if (selid != string.Empty)
+            {
+                foreach (ListViewItem lvi in itemList.Items)
                 {
-                    if ((string)catList.SelectedItem == "(All Items)")
+                    if (lvi.SubItems[0].Text == selid)
                     {
-                        itemList.Clear();
-                        ColumnHeader ch = new ColumnHeader();
-                        itemList.Columns.Add("id", "Item ID");
-                        itemList.Columns.Add("name", "Description");
-
-                        List<ListViewItem> lvis = new List<ListViewItem>();
-
-                        foreach (DBBLItem item in MainWindow.db_blitems.Values.Where(i => i.type == t &&
-                            (filter == "" || i.name.ToLower().Contains(filter.ToLower()) || i.number.ToLower().Contains(filter.ToLower()))))
-                        {
-                            ListViewItem listitems = new ListViewItem();
-                            listitems.SubItems[0].Text = item.number;
-                            listitems.SubItems.Add(item.name);
-                            lvis.Add(listitems);
-                        }
-
-                        itemList.Items.AddRange(lvis.ToArray());
-
-                        if (selid != "")
-                        {
-                            foreach (ListViewItem lvi in itemList.Items)
-                            {
-                                if (lvi.SubItems[0].Text == selid)
-                                {
-                                    lvi.Selected = true;
-                                    break;
-                                }
-                            }
-                            if ((itemList.Items.Count > 0) && (itemList.SelectedItems.Count == 0))
-                            {
-                                itemList.Items[0].Selected = true;
-                            }
-                        }
-                        else
-                        {
-                            if (itemList.Items.Count > 0)
-                            {
-                                itemList.Items[0].Selected = true;
-                            }
-                        }
-
-                        itemList.Columns["id"].Width = -1;
-                        itemList.Columns["name"].Width = -2;
+                        lvi.Selected = true;
+                        break;
                     }
-                    else
-                    {
-                        foreach (string cat in MainWindow.db_categories.Keys)
-                        {
-                            if ((string)catList.SelectedItem == MainWindow.db_categories[cat].name)
-                            {
-                                itemList.Clear();
-                                itemList.Columns.Add("id", "Item ID");
-                                itemList.Columns.Add("name", "Description");
-
-                                List<ListViewItem> lvis = new List<ListViewItem>();
-
-                                foreach (DBBLItem item in MainWindow.db_blitems.Values.Where(i => i.catid == cat && i.type == t &&
-                                    (filter == "" || i.name.ToLower().Contains(filter.ToLower()) || i.number.ToLower().Contains(filter.ToLower()))))
-                                {
-                                    ListViewItem listitems = new ListViewItem();
-                                    listitems.SubItems[0].Text = item.number;
-                                    listitems.SubItems.Add(item.name);
-                                    lvis.Add(listitems);
-                                }
-
-                                itemList.Items.AddRange(lvis.ToArray());
-
-                                if (selid != "")
-                                {
-                                    foreach (ListViewItem lvi in itemList.Items)
-                                    {
-                                        if (lvi.SubItems[0].Text == selid)
-                                        {
-                                            lvi.Selected = true;
-                                            break;
-                                        }
-                                    }
-                                    if ((itemList.Items.Count > 0) && (itemList.SelectedItems.Count == 0))
-                                    {
-                                        itemList.Items[0].Selected = true;
-                                    }
-                                }
-                                else
-                                {
-                                    if (itemList.Items.Count > 0)
-                                    {
-                                        itemList.Items[0].Selected = true;
-                                    }
-                                }
-
-                                itemList.Columns["id"].Width = -1;
-                                itemList.Columns["name"].Width = -2;
-                            }
-                        }
-                    }
-                    itemList.ListViewItemSorter = new ListViewItemComparer(1);
+                }
+                if ((itemList.Items.Count > 0) && (itemList.SelectedItems.Count == 0))
+                {
+                    itemList.Items[0].Selected = true;
                 }
             }
+            else
+            {
+                if (itemList.Items.Count > 0)
+                {
+                    itemList.Items[0].Selected = true;
+                }
+            }
+
+            itemList.Columns["id"].Width = -1;
+            itemList.Columns["name"].Width = -2;
+
+            itemList.ListViewItemSorter = new AddEditItemListViewItemComparer(1);
         }
 
         private void catList_SelectedValueChanged(object sender, EventArgs e)
@@ -260,7 +266,7 @@ namespace Brickficiency
 
         private void filterBox_TextChanged(object sender, EventArgs e)
         {
-            ChangeItems();
+            _debouncedFilterTextChanged(SearchText);
         }
 
         private void addButton_Click(object sender, EventArgs e)
@@ -270,34 +276,28 @@ namespace Brickficiency
                 return;
             }
 
-            foreach (string t in MainWindow.db_typenames.Keys)
+            var itemTypeCode = SelectedItemType?.ItemTypeCode;
+            string number = itemList.SelectedItems[0].SubItems[0].Text;
+            string id = itemTypeCode + "-" + number;
+            string colour = "0";
+            if (colourGrid.Enabled == true)
             {
-                if ((string)typePick.SelectedItem == MainWindow.db_typenames[t])
+                foreach (DBColour dbcolour in MainWindow.db_colours.Values)
                 {
-                    string type = t;
-                    string number = itemList.SelectedItems[0].SubItems[0].Text;
-                    string id = t + "-" + number;
-                    string colour = "0";
-                    if (colourGrid.Enabled == true)
+                    if (dbcolour.name == colourGrid.SelectedCells[0].Value.ToString())
                     {
-                        foreach (DBColour dbcolour in MainWindow.db_colours.Values)
-                        {
-                            if (dbcolour.name == colourGrid.SelectedCells[0].Value.ToString())
-                            {
-                                colour = dbcolour.id;
-                            }
-                        }
-                    }
-
-                    if (MainWindow.db_blitems.ContainsKey(id))
-                    {
-                        MainWindow.dgv_AddItem(id, colour);
-                    }
-                    else
-                    {
-                        MessageBox.Show("Oops? " + id);
+                        colour = dbcolour.id;
                     }
                 }
+            }
+
+            if (MainWindow.db_blitems.ContainsKey(id))
+            {
+                MainWindow.dgv_AddItem(id, colour);
+            }
+            else
+            {
+                MessageBox.Show("Oops? " + id);
             }
         }
 
@@ -310,16 +310,20 @@ namespace Brickficiency
             {
                 Rectangle rowBounds = e.Bounds;
                 int leftMargin = e.Item.GetBounds(ItemBoundsPortion.Label).Left;
-                Rectangle bounds = new Rectangle(leftMargin, rowBounds.Top, rowBounds.Width - leftMargin, rowBounds.Height);
+                Rectangle bounds = new Rectangle(
+                                       leftMargin,
+                                       rowBounds.Top,
+                                       rowBounds.Width - leftMargin,
+                                       rowBounds.Height);
                 e.Graphics.FillRectangle(SystemBrushes.Highlight, bounds);
             }
-            else
-                e.DrawDefault = true;
+            else e.DrawDefault = true;
         }
 
         private void itemList_DrawSubItem(object sender, DrawListViewSubItemEventArgs e)
         {
-            const int TEXT_OFFSET = 1;    // I don't know why the text is located at 1px to the right. Maybe it's only for me.
+            const int TEXT_OFFSET = 1;
+            // I don't know why the text is located at 1px to the right. Maybe it's only for me.
 
             ListView listView = (ListView)sender;
 
@@ -329,7 +333,15 @@ namespace Brickficiency
                 Rectangle rowBounds = e.SubItem.Bounds;
                 Rectangle labelBounds = e.Item.GetBounds(ItemBoundsPortion.Label);
                 int leftMargin = labelBounds.Left - TEXT_OFFSET;
-                Rectangle bounds = new Rectangle(rowBounds.Left + leftMargin, rowBounds.Top, e.ColumnIndex == 0 ? labelBounds.Width : (rowBounds.Width - leftMargin - TEXT_OFFSET), rowBounds.Height);
+
+                Rectangle bounds = new Rectangle(
+                                       rowBounds.Left + leftMargin,
+                                       rowBounds.Top,
+                                       e.ColumnIndex == 0
+                                           ? labelBounds.Width
+                                           : (rowBounds.Width - leftMargin - TEXT_OFFSET),
+                                       rowBounds.Height);
+
                 TextFormatFlags align;
                 switch (listView.Columns[e.ColumnIndex].TextAlign)
                 {
@@ -343,17 +355,61 @@ namespace Brickficiency
                         align = TextFormatFlags.Left;
                         break;
                 }
-                TextRenderer.DrawText(e.Graphics, e.SubItem.Text, listView.Font, bounds, SystemColors.HighlightText,
-                    align | TextFormatFlags.SingleLine | TextFormatFlags.GlyphOverhangPadding | TextFormatFlags.VerticalCenter | TextFormatFlags.WordEllipsis);
+
+                var format = align | TextFormatFlags.SingleLine | TextFormatFlags.GlyphOverhangPadding
+                             | TextFormatFlags.VerticalCenter | TextFormatFlags.WordEllipsis;
+
+                TextRenderer.DrawText(
+                    e.Graphics,
+                    e.SubItem.Text,
+                    listView.Font,
+                    bounds,
+                    SystemColors.HighlightText,
+                    format);
             }
             else
+            {
                 e.DrawDefault = true;
+            }
         }
 
         private void itemList_DrawColumnHeader(object sender, DrawListViewColumnHeaderEventArgs e)
         {
             e.DrawDefault = true;
 
+        }
+
+        private void SetHoverKey(string value)
+        {
+            // todo: introduce locking on this
+            _hoverKey = value;
+        }
+
+        private Task OnImageAcquired(Task<Image> imageTask, string hoverKey)
+        {
+            if (_hoverKey != hoverKey)
+            {
+                // they must have moused over something else before we got the image
+                return Task.FromResult(true);
+            }
+
+            lock (_hoverLock)
+            {
+                if (_hoverKey != hoverKey)
+                {
+                    // they must have moused over something else before we got the image
+                    return Task.FromResult(true);
+                }
+
+                if (imageTask.IsFaulted || imageTask.Result == null)
+                {
+                    _hoverZoomWindow.ShowNotFound();
+                    return Task.FromResult(true);
+                }
+
+                _hoverZoomWindow.ShowImage(imageTask.Result);
+                return Task.FromResult(true);
+            }
         }
 
         private void itemList_MouseMove(object sender, MouseEventArgs e)
@@ -363,68 +419,49 @@ namespace Brickficiency
             ListViewItem item = itemList.GetItemAt(e.X, e.Y);
             if (item == null)
             {
+                SetHoverKey(null);
                 return;
             }
 
-            ListViewItem.ListViewSubItem subitem = item.GetSubItemAt(e.X, e.Y);
-            if (subitem == null)
+            var itemDetails = item.Tag as ItemDetails;
+            if (itemDetails == null)
             {
                 return;
             }
 
-            foreach (string t in MainWindow.db_typenames.Keys)
+            _hoverZoomWindow.Location = new Point(Cursor.Position.X + 10, Cursor.Position.Y + 20);
+            if (!_hoverZoomWindow.Visible)
             {
-                if ((string)typePick.SelectedItem == MainWindow.db_typenames[t])
-                {
-                    string filename = MainWindow.GenerateImageFilename(t + "-" + item.SubItems[0].Text);
-
-                    if (!File.Exists(filename))
-                    {
-                        hoverZoomWindow.BackgroundImage = null;
-                        hoverZoomWindow.Width = 100;
-                        hoverZoomWindow.Height = 50;
-                        hoverZoomWindow.ShowLabel();
-
-                        lock (MainWindow.imgTimerLock)
-                        {
-                            MainWindow.imageDLList.Insert(0, new ImageDL()
-                            {
-                                extid = "",
-                                file = filename,
-                                url = MainWindow.GenerateImageURL(t + "-" + item.SubItems[0].Text),
-                                type = "l"
-                            });
-                        }
-                    }
-                    else
-                    {
-                        Bitmap bmp = (Bitmap)Image.FromFile(filename);
-                        hoverZoomWindow.BackgroundImage = bmp;
-                        hoverZoomWindow.Width = bmp.Width;
-                        hoverZoomWindow.Height = bmp.Height;
-                        hoverZoomWindow.HideLabel();
-                    }
-                }
+                _hoverZoomWindow.Show();
+                this.Focus();
             }
 
-            if (hoverZoomWindow.Visible == false)
-            {
-                hoverZoomWindow.Show();
-            }
-            hoverZoomWindow.Location = new System.Drawing.Point(Cursor.Position.X + 10, Cursor.Position.Y + 20);
             this.TopMost = false;
-            this.Focus();
+
+            var hoverKey = string.Format("{0}_{1}", itemDetails.ItemTypeCode, itemDetails.ItemId);
+            if (hoverKey == _hoverKey)
+            {
+                return;
+            }
+
+            SetHoverKey(hoverKey);
+
+            _hoverZoomWindow.ShowLoading();
+
+            _imageService.GetLargeImageAsync(itemDetails.ItemTypeCode, itemDetails.ItemId)
+                .ContinueWith(t => OnImageAcquired(t, hoverKey));
         }
 
         private void itemList_MouseLeave(object sender, EventArgs e)
         {
-            hoverZoomWindow.Hide();
+            SetHoverKey(null);
+            _hoverZoomWindow.Hide();
             this.TopMost = true;
         }
 
         private void itemList_ColumnClick(object sender, ColumnClickEventArgs e)
         {
-            itemList.ListViewItemSorter = new ListViewItemComparer(e.Column);
+            itemList.ListViewItemSorter = new AddEditItemListViewItemComparer(e.Column);
         }
 
         private void catList_MouseEnter(object sender, EventArgs e)
@@ -435,23 +472,6 @@ namespace Brickficiency
         private void colourGrid_MouseEnter(object sender, EventArgs e)
         {
             colourGrid.Focus();
-        }
-    }
-
-    class ListViewItemComparer : IComparer
-    {
-        private int col;
-        public ListViewItemComparer()
-        {
-            col = 0;
-        }
-        public ListViewItemComparer(int column)
-        {
-            col = column;
-        }
-        public int Compare(object x, object y)
-        {
-            return String.Compare(((ListViewItem)x).SubItems[col].Text, ((ListViewItem)y).SubItems[col].Text);
         }
     }
 }
