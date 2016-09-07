@@ -26,6 +26,8 @@ using WindmillHelix.Brickficiency2.Services;
 using WindmillHelix.Brickficiency2.Services.Data;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
 using Brickficiency.UI;
+
+using WindmillHelix.Brickficiency2.Common.Domain;
 using WindmillHelix.Brickficiency2.Common.Providers;
 
 namespace Brickficiency
@@ -127,12 +129,6 @@ namespace Brickficiency
 
         public List<FinalMatch> matches = new List<FinalMatch>();
         public Dictionary<string, bool> blacklistdic = new Dictionary<string, bool>();
-
-        //-------------------------------------------------------------------
-        // Fields added or significantly modified by CAC, 2015-06-24
-
-        // Set to true when this is being used for a class and false when it is being released to the public. 
-        public Boolean classroomUseMode = false;
 
         public List<Item> WantedItemList = new List<Item>();
         public Dictionary<string, Dictionary<string, StoreItem>> StoreDictionary = new Dictionary<string, Dictionary<string, StoreItem>>();
@@ -1543,7 +1539,18 @@ namespace Brickficiency
                 .ToDictionary(x => x.id, x => x);
             db_categories = categories;
 
-            var colors = _colorService.GetColors().ToDictionary(x => x.id, x => x);
+            var colors = _colorService.GetColors()
+                .ToDictionary(
+                    x => x.ColorId.ToString(),
+                    x =>
+                        new DBColour()
+                            {
+                                id = x.ColorId.ToString(),
+                                name = x.Name,
+                                rgb = x.Rgb,
+                                type = x.ColorTypeCode
+                            });
+
             db_colours = colors;
 
             // todo: not accounting for items that contain other items
@@ -2408,7 +2415,7 @@ namespace Brickficiency
         #region (Toolstrip -> Add)
         private void addItemToolstripButton_Click(object sender, EventArgs e)
         {
-            addItemWindow.Show();
+            addItemWindow.Show(this);
             addItemWindow.BringToFront();
             addItemWindow.WindowState = FormWindowState.Normal;
         }

@@ -13,8 +13,10 @@ using System.Threading.Tasks;
 
 using Brickficiency.Classes;
 using Brickficiency.Helpers;
+using Brickficiency.Providers;
 
 using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.Common.Domain;
 using WindmillHelix.Brickficiency2.Services;
 using WindmillHelix.Brickficiency2.Services.Data;
 
@@ -22,23 +24,34 @@ namespace Brickficiency
 {
     public partial class AddItem : Form
     {
-        private readonly IItemService _itemService;
         private readonly Action<string> _debouncedFilterTextChanged;
+
+        private readonly IItemService _itemService;
         private readonly IItemTypeService _itemTypeService;
         private readonly IImageService _imageService;
+        private readonly IColorService _colorService;
+        private readonly ICategoryService _categoryService;
+
+        private readonly List<Category> _categories = new List<Category>();
+        private readonly List<ItemColor> _colors = new List<ItemColor>();
 
         private readonly HoverZoom _hoverZoomWindow = new HoverZoom();
         private readonly object _hoverLock = new object();
         private string _hoverKey = null;
 
-        private Color _enableColor = new Color();
+        private Color _enabledColor = new Color();
         private Color _disabledColor = new Color();
+        private IItemWorkbook _itemWorkbook;
 
         public AddItem(
             IItemService itemService, 
             IItemTypeService itemTypeService,
-            IImageService imageService)
+            IImageService imageService,
+            IColorService colorService,
+            ICategoryService categoryService)
         {
+            _categoryService = categoryService;
+            _colorService = colorService;
             _imageService = imageService;
             _itemTypeService = itemTypeService;
             _itemService = itemService;
@@ -47,6 +60,13 @@ namespace Brickficiency
             InitializeComponent();
         }
 
+        public void Show(IItemWorkbook itemWorkbook)
+        {
+            _itemWorkbook = itemWorkbook;
+            Show();
+        }
+
+        #region Facades
         private ItemType SelectedItemType
         {
             get
@@ -63,33 +83,64 @@ namespace Brickficiency
             }
         }
 
-        private int? SelectedCategoryId
+        private Category SelectedCategory
         {
             get
             {
-                string categoryName = (string)catList.SelectedItem;
-                string categoryIdString;
-                if (categoryName == "(All Items)")
-                {
-                    categoryIdString = null;
-                }
-                else
-                {
-                    categoryIdString = MainWindow.db_categories.Values.Single(x => x.name == categoryName).id;
-                }
-
-                int? categoryId = ParseUtil.TryParseInt(categoryIdString);
-                return categoryId;
+                var result = catList.SelectedValue as Category;
+                return result;
             }
         }
 
+        private ItemColor SelectedColor
+        {
+            get
+            {
+                if (!ColorGrid.Enabled)
+                {
+                    return _colors.Single(x => x.ColorId == 0);
+                }
+
+                var colorName = ColorGrid.SelectedCells[0].Value.ToString();
+                var result = string.IsNullOrWhiteSpace(colorName)
+                                 ? _colors.Single(x => x.ColorId == 0)
+                                 : _colors.Single(x => x.Name == colorName);
+
+                return result;
+            }
+        }
+        #endregion
+
         private void AddItem_Load(object sender, EventArgs e)
         {
+            _colors.Clear();
+            _colors.AddRange(_colorService.GetColors());
+
+            _categories.Clear();
+            _categories.AddRange(_categoryService.GetCategories());
+
+            InitializeItemTypeComboBox();
+            InitializeColorGrid();
+            OnChangeItemType();
+
+            Screen screen = Screen.FromPoint(Cursor.Position);
+            this.Location = screen.Bounds.Location;
+            this.Left = screen.WorkingArea.Right - this.Width;
+            this.Top = screen.WorkingArea.Height / 2 - this.Height / 2;
+
+            ItemTypeComboBox.SelectedValueChanged += HandleItemTypeComboBoxSelectedValueChanged;
+
+            _enabledColor = ColorGrid.ForeColor;
+            _disabledColor = SystemColors.ControlDark;
+        }
+
+        private void InitializeItemTypeComboBox()
+        {
             var itemTypes =
-                _itemTypeService.GetItemTypes()
-                    .Where(x => x.ItemTypeCode != ItemTypeCodes.UnsortedLot)
-                    .OrderBy(x => x.Name)
-                    .ToList();
+                            _itemTypeService.GetItemTypes()
+                                .Where(x => x.ItemTypeCode != ItemTypeCodes.UnsortedLot)
+                                .OrderBy(x => x.Name)
+                                .ToList();
 
             var partItemType = itemTypes.Single(x => x.ItemTypeCode == ItemTypeCodes.Part);
 
@@ -97,44 +148,40 @@ namespace Brickficiency
             ItemTypeComboBox.DisplayMember = nameof(ItemType.Name);
             ItemTypeComboBox.ValueMember = nameof(ItemType.ItemTypeCode);
 
-            Screen screen = Screen.FromPoint(Cursor.Position);
-            this.Location = screen.Bounds.Location;
-            this.Left = screen.WorkingArea.Right - this.Width;
-            this.Top = screen.WorkingArea.Height / 2 - this.Height / 2;
-
             ItemTypeComboBox.SelectedItem = partItemType;
-            ItemTypeComboBox.SelectedValueChanged += typePick_SelectedValueChanged;
+        }
 
-            ChangeType();
-
-            foreach (DBColour dbcolour in MainWindow.db_colours.Values)
+        private void InitializeColorGrid()
+        {
+            foreach (var color in _colors)
             {
-                Color thiscol;
-                if (dbcolour.id == "0")
+                Color thisColor;
+                if (color.ColorId == 0)
                 {
-                    thiscol = ColorTranslator.FromHtml("#FFFFFF");
+                    thisColor = ColorTranslator.FromHtml("#FFFFFF");
                 }
                 else
                 {
-                    thiscol = ColorTranslator.FromHtml("#" + dbcolour.rgb);
+                    thisColor = ColorTranslator.FromHtml("#" + color.Rgb);
                 }
 
-                DataGridViewRow dgvrow = new DataGridViewRow();
-                DataGridViewTextBoxCell dgvcell1 = new DataGridViewTextBoxCell();
-                dgvcell1.Style.ForeColor = thiscol;
-                dgvcell1.Style.BackColor = thiscol;
-                DataGridViewTextBoxCell dgvcell2 = new DataGridViewTextBoxCell();
-                dgvcell2.Value = dbcolour.name;
-                dgvrow.Cells.Add(dgvcell1);
-                dgvrow.Cells.Add(dgvcell2);
-                colourGrid.Rows.Add(dgvrow);
+                DataGridViewRow row = new DataGridViewRow();
+
+                DataGridViewTextBoxCell swatchCell = new DataGridViewTextBoxCell();
+                swatchCell.Style.ForeColor = thisColor;
+                swatchCell.Style.BackColor = thisColor;
+
+                DataGridViewTextBoxCell nameCell = new DataGridViewTextBoxCell();
+                nameCell.Value = color.Name;
+
+                row.Cells.Add(swatchCell);
+                row.Cells.Add(nameCell);
+
+                ColorGrid.Rows.Add(row);
             }
 
-            colourGrid.Rows[0].Cells[1].Selected = true;
-            colourGrid.FirstDisplayedScrollingRowIndex = 0;
-
-            _enableColor = colourGrid.ForeColor;
-            _disabledColor = System.Drawing.SystemColors.ControlDark;
+            ColorGrid.Rows[0].Cells[1].Selected = true;
+            ColorGrid.FirstDisplayedScrollingRowIndex = 0;
         }
 
         private void AddItem_FormClosing(object sender, FormClosingEventArgs e)
@@ -149,18 +196,18 @@ namespace Brickficiency
             this.Hide();
         }
 
-        private void ChangeType()
+        private void OnChangeItemType()
         {
             if (SelectedItemType?.ItemTypeCode == ItemTypeCodes.Part
                 || SelectedItemType?.ItemTypeCode == ItemTypeCodes.Gear)
             {
-                colourGrid.Enabled = true;
-                colourGrid.ForeColor = _enableColor;
+                ColorGrid.Enabled = true;
+                ColorGrid.ForeColor = _enabledColor;
             }
             else
             {
-                colourGrid.Enabled = false;
-                colourGrid.ForeColor = _disabledColor;
+                ColorGrid.Enabled = false;
+                ColorGrid.ForeColor = _disabledColor;
             }
 
             ResetCategoryList();
@@ -168,26 +215,25 @@ namespace Brickficiency
 
         private void ResetCategoryList()
         {
-            catList.Items.Clear();
-
-            List<string> items = new List<string>();
-            items.Add("(All Items)");
-
             var itemTypeCode = SelectedItemType?.ItemTypeCode;
-            foreach (var categoryIdString in
-                MainWindow.db_blitems.Values.Where(i => i.type == itemTypeCode)
-                    .Select(x => x.catid)
-                    .Distinct())
-            {
-                items.Add(MainWindow.db_categories[categoryIdString].name);
-            }
+            var categoryIds = _itemService.GetCategoryIdsForItemType(itemTypeCode);
 
-            catList.Items.AddRange(items.ToArray());
+            var query = from id in categoryIds
+                        join c in _categories on id equals c.CategoryId
+                        orderby c.Name
+                        select new KeyValuePair<Category, string>(c, c.Name);
+
+            var categories = query.ToList();
+            categories.Insert(0, new KeyValuePair<Category, string>(null, "(All Items)"));
+
+            catList.DataSource = categories;
+            catList.ValueMember = nameof(KeyValuePair<Category, string>.Key);
+            catList.DisplayMember = nameof(KeyValuePair<Category, string>.Value);
         }
 
-        private void typePick_SelectedValueChanged(object sender, EventArgs e)
+        private void HandleItemTypeComboBoxSelectedValueChanged(object sender, EventArgs e)
         {
-            ChangeType();
+            OnChangeItemType();
         }
 
         private void ChangeItems()
@@ -199,7 +245,7 @@ namespace Brickficiency
             }
 
             var itemTypeCode = SelectedItemType?.ItemTypeCode;
-            var categoryId = SelectedCategoryId;
+            var categoryId = SelectedCategory?.CategoryId;
 
             itemList.Clear();
             itemList.Columns.Add("id", "Item ID");
@@ -260,7 +306,7 @@ namespace Brickficiency
             if (e.Cell.ColumnIndex == 0)
             {
                 e.Cell.Selected = false;
-                colourGrid.Rows[e.Cell.RowIndex].Cells[1].Selected = true;
+                ColorGrid.Rows[e.Cell.RowIndex].Cells[1].Selected = true;
             }
         }
 
@@ -277,28 +323,9 @@ namespace Brickficiency
             }
 
             var itemTypeCode = SelectedItemType?.ItemTypeCode;
-            string number = itemList.SelectedItems[0].SubItems[0].Text;
-            string id = itemTypeCode + "-" + number;
-            string colour = "0";
-            if (colourGrid.Enabled == true)
-            {
-                foreach (DBColour dbcolour in MainWindow.db_colours.Values)
-                {
-                    if (dbcolour.name == colourGrid.SelectedCells[0].Value.ToString())
-                    {
-                        colour = dbcolour.id;
-                    }
-                }
-            }
+            string itemId = itemList.SelectedItems[0].SubItems[0].Text;
 
-            if (MainWindow.db_blitems.ContainsKey(id))
-            {
-                MainWindow.dgv_AddItem(id, colour);
-            }
-            else
-            {
-                MessageBox.Show("Oops? " + id);
-            }
+            _itemWorkbook.AddItem(itemTypeCode, itemId, SelectedColor.ColorId);
         }
 
         private void itemList_DrawItem(object sender, DrawListViewItemEventArgs e)
@@ -471,7 +498,7 @@ namespace Brickficiency
 
         private void colourGrid_MouseEnter(object sender, EventArgs e)
         {
-            colourGrid.Focus();
+            ColorGrid.Focus();
         }
     }
 }

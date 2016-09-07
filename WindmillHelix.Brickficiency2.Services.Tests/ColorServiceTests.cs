@@ -26,10 +26,10 @@ namespace WindmillHelix.Brickficiency2.Services.Tests
             Assert.IsNotNull(colors);
             Assert.AreNotEqual(0, colors.Count);
 
-            var white = colors.SingleOrDefault(x => x.id == "1");
+            var white = colors.SingleOrDefault(x => x.ColorId == 1);
             Assert.IsNotNull(white);
-            Assert.AreEqual("White", white.name);
-            Assert.AreEqual("FFFFFF", white.rgb);
+            Assert.AreEqual("White", white.Name);
+            Assert.AreEqual("FFFFFF", white.Rgb);
         }
     }
 }

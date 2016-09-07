@@ -102,44 +102,6 @@ namespace WindmillHelix.Brickficiency2.Services
             return null;
         }
 
-        private Image GetImage(string key, Func<ImageFormat, byte[]> retrieveMethod)
-        {
-            if (_images.ContainsKey(key))
-            {
-                return _images[key];
-            }
-
-            foreach (var imageFormat in _imageFormats)
-            {
-                var bytes = retrieveMethod(imageFormat);
-                if (bytes != null && bytes.Length > 0)
-                {
-                    using (var stream = new MemoryStream())
-                    {
-                        stream.Write(bytes, 0, bytes.Length);
-                        var image = Image.FromStream(stream);
-                        lock (_images)
-                        {
-                            if (!_images.ContainsKey(key))
-                            {
-                                _images.Add(key, image);
-                            }
-                        }
-
-                        return image;
-                    }
-                }
-            }
-
-            lock (_images)
-            {
-                // put null into memory cache so we don't keep trying if it's not found
-                _images.Add(key, null);
-            }
-
-            return null;
-        }
-
         private string GetLargeImageKey(string itemTypeCode, string itemId)
         {
             return string.Format("Image_Large_{0}_{1}", itemTypeCode, itemId).ToLowerInvariant();

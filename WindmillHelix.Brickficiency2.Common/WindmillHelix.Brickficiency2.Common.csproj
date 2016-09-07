@@ -42,9 +42,9 @@
   <ItemGroup>
     <Compile Include="Actions.cs" />
     <Compile Include="AssemblyNames.cs" />
-    <Compile Include="Category.cs" />
-    <Compile Include="DBColour.cs" />
+    <Compile Include="Domain\Category.cs" />
     <Compile Include="Domain\ExternalSystem.cs" />
+    <Compile Include="Domain\ItemColor.cs" />
     <Compile Include="Domain\MappingResult.cs" />
     <Compile Include="Domain\WantedList.cs" />
     <Compile Include="Domain\WantedListItem.cs" />
@@ -58,9 +58,9 @@
     <Compile Include="ExtensionMethods.Stream.cs">
       <DependentUpon>ExtensionMethods.cs</DependentUpon>
     </Compile>
-    <Compile Include="ItemCondition.cs" />
-    <Compile Include="ItemDetails.cs" />
-    <Compile Include="ItemType.cs" />
+    <Compile Include="Domain\ItemCondition.cs" />
+    <Compile Include="Domain\ItemDetails.cs" />
+    <Compile Include="Domain\ItemType.cs" />
     <Compile Include="ItemTypeCodes.cs" />
     <Compile Include="Net\ExtendedWebClient.cs">
       <SubType>Component</SubType>

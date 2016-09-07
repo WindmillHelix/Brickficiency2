@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.Common.Domain;
 
 namespace WindmillHelix.Brickficiency2.Services.Data
 {
@@ -14,5 +15,7 @@ namespace WindmillHelix.Brickficiency2.Services.Data
         ItemDetails GetItem(string itemTypeCode, string itemId);
 
         IReadOnlyCollection<ItemDetails> SearchItems(string itemTypeCode, int? categoryId, string filter);
+
+        IReadOnlyCollection<int> GetCategoryIdsForItemType(string itemTypeCode);
     }
 }

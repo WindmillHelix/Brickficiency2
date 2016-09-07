@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.Common.Domain;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink.Models;
 
@@ -16,6 +18,8 @@ namespace WindmillHelix.Brickficiency2.Services.Data
         private readonly IBricklinkCatalogApi _bricklinkCatalogService;
         private readonly IItemTypeService _itemTypeService;
         private readonly List<Tuple<string, ItemDetails>> _searchList = new List<Tuple<string, ItemDetails>>();
+
+        private IDictionary<string, List<int>> _itemTypeToCategoryIds = new Dictionary<string, List<int>>();
 
         public ItemService(
             IAppDataService appDataService,
@@ -119,10 +123,22 @@ namespace WindmillHelix.Brickficiency2.Services.Data
             return filtered;
         }
 
+        public IReadOnlyCollection<int> GetCategoryIdsForItemType(string itemTypeCode)
+        {
+            if (!_itemTypeToCategoryIds.ContainsKey(itemTypeCode))
+            {
+                return new List<int>();
+            }
+
+            return _itemTypeToCategoryIds[itemTypeCode];
+        }
+
         protected override void AfterItemsModified(IReadOnlyCollection<ItemDetails> items)
         {
             base.AfterItemsModified(items);
+
             RebuildSearchList(items);
+            RebuildPartTypeToCategoryMap(items);
         }
 
         private void RebuildSearchList(IReadOnlyCollection<ItemDetails> items)
@@ -143,6 +159,17 @@ namespace WindmillHelix.Brickficiency2.Services.Data
 
             _searchList.Clear();
             _searchList.AddRange(searchList);
+        }
+
+        private void RebuildPartTypeToCategoryMap(IReadOnlyCollection<ItemDetails> items)
+        {
+            var relations = from p in items
+                          group p.CategoryId by p.ItemTypeCode into g
+                          select new { ItemTypeCode = g.Key, CategoryIds = g.Distinct().ToList() };
+
+            var newDictionary = relations.ToDictionary(x => x.ItemTypeCode, x => x.CategoryIds);
+
+            _itemTypeToCategoryIds = newDictionary;
         }
     }
 }
