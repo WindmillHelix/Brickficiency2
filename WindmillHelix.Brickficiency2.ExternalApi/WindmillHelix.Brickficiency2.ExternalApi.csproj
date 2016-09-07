@@ -44,6 +44,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -54,11 +55,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bricklink\BricklinkCatalogApi.cs" />
+    <Compile Include="Bricklink\BricklinkImageApi.cs" />
     <Compile Include="Bricklink\BricklinkLoginApi.cs" />
     <Compile Include="Bricklink\BricklinkPriceGuideApi.cs" />
     <Compile Include="Bricklink\BricklinkSessionService.cs" />
     <Compile Include="Bricklink\BricklinkWantedListApi.cs" />
     <Compile Include="Bricklink\IBricklinkCatalogApi.cs" />
+    <Compile Include="Bricklink\IBricklinkImageApi.cs" />
     <Compile Include="Bricklink\IBricklinkLoginApi.cs" />
     <Compile Include="Bricklink\IBricklinkSessionService.cs" />
     <Compile Include="Bricklink\IBricklinkWantedListApi.cs" />

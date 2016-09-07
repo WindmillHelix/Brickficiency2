@@ -16,6 +16,7 @@ namespace Brickficiency.DependencyInjection
             builder.RegisterType<MainWindow>();
             builder.RegisterType<ImportWantedListForm>();
             builder.RegisterType<GetPassword>();
+            builder.RegisterType<AddItem>();
             builder.RegisterType<UpdateCheck>();
             builder.RegisterType<InitializationForm>();
             builder.RegisterType<ImportLddForm>();

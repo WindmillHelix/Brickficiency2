@@ -41,6 +41,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <Choose>
@@ -51,7 +52,9 @@
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+          <Private>False</Private>
+        </Reference>
       </ItemGroup>
     </Otherwise>
   </Choose>
@@ -59,6 +62,7 @@
     <Compile Include="AppConfig.cs" />
     <Compile Include="AppConfigBricklinkCredentialProvider.cs" />
     <Compile Include="BricklinkCatalogTests.cs" />
+    <Compile Include="BricklinkImageTests.cs" />
     <Compile Include="BricklinkLoginTests.cs" />
     <Compile Include="BricklinkWantedListTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

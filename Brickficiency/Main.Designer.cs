@@ -45,10 +45,7 @@
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.calculateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newAlgorithmToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.oldAlgorithmToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.customAlgorithmToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.approximationAlgorithmToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.customApproximationAlgorithmToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopCalculationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -170,21 +167,21 @@
             // newFileToolStripMenuItem
             // 
             this.newFileToolStripMenuItem.Name = "newFileToolStripMenuItem";
-            this.newFileToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.newFileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.newFileToolStripMenuItem.Text = "New";
             this.newFileToolStripMenuItem.Click += new System.EventHandler(this.newFileToolStripButton_Click);
             // 
             // openMenuItem
             // 
             this.openMenuItem.Name = "openMenuItem";
-            this.openMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.openMenuItem.Size = new System.Drawing.Size(152, 22);
             this.openMenuItem.Text = "Open...";
             this.openMenuItem.Click += new System.EventHandler(this.openMenuItem_Click);
             // 
             // saveAsMenuItem
             // 
             this.saveAsMenuItem.Name = "saveAsMenuItem";
-            this.saveAsMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.saveAsMenuItem.Size = new System.Drawing.Size(152, 22);
             this.saveAsMenuItem.Text = "Save as...";
             this.saveAsMenuItem.Click += new System.EventHandler(this.saveAsMenuItem_Click);
             // 
@@ -194,7 +191,7 @@
             this.importToolStripMenuItem,
             this.importLDDToolStripMenuItem});
             this.importToolStripMenuItem1.Name = "importToolStripMenuItem1";
-            this.importToolStripMenuItem1.Size = new System.Drawing.Size(121, 22);
+            this.importToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
             this.importToolStripMenuItem1.Text = "Import";
             // 
             // importToolStripMenuItem
@@ -216,7 +213,7 @@
             this.exportToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.exportWantedListToolStripMenuItem});
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exportToolStripMenuItem.Text = "Export";
             // 
             // exportWantedListToolStripMenuItem
@@ -229,12 +226,12 @@
             // toolStripSeparator8
             // 
             this.toolStripSeparator8.Name = "toolStripSeparator8";
-            this.toolStripSeparator8.Size = new System.Drawing.Size(118, 6);
+            this.toolStripSeparator8.Size = new System.Drawing.Size(149, 6);
             // 
             // exitMenuItem
             // 
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(121, 22);
+            this.exitMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.exitMenuItem_Click);
             // 
@@ -254,10 +251,7 @@
             // 
             this.calculateToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newAlgorithmToolStripMenuItem,
-            this.oldAlgorithmToolStripMenuItem,
-            this.customAlgorithmToolStripMenuItem,
-            this.approximationAlgorithmToolStripMenuItem,
-            this.customApproximationAlgorithmToolStripMenuItem});
+            this.approximationAlgorithmToolStripMenuItem});
             this.calculateToolStripMenuItem.Name = "calculateToolStripMenuItem";
             this.calculateToolStripMenuItem.Size = new System.Drawing.Size(209, 22);
             this.calculateToolStripMenuItem.Text = "Calculate";
@@ -265,37 +259,16 @@
             // newAlgorithmToolStripMenuItem
             // 
             this.newAlgorithmToolStripMenuItem.Name = "newAlgorithmToolStripMenuItem";
-            this.newAlgorithmToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
+            this.newAlgorithmToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.newAlgorithmToolStripMenuItem.Text = "Best Solution";
             this.newAlgorithmToolStripMenuItem.Click += new System.EventHandler(this.newAlgorithmToolStripMenuItem_Click);
-            // 
-            // oldAlgorithmToolStripMenuItem
-            // 
-            this.oldAlgorithmToolStripMenuItem.Name = "oldAlgorithmToolStripMenuItem";
-            this.oldAlgorithmToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
-            this.oldAlgorithmToolStripMenuItem.Text = "Best Solution (Slower)";
-            this.oldAlgorithmToolStripMenuItem.Click += new System.EventHandler(this.oldAlgorithmToolStripMenuItem_Click);
-            // 
-            // customAlgorithmToolStripMenuItem
-            // 
-            this.customAlgorithmToolStripMenuItem.Name = "customAlgorithmToolStripMenuItem";
-            this.customAlgorithmToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
-            this.customAlgorithmToolStripMenuItem.Text = "Best Solution (Custom)";
-            this.customAlgorithmToolStripMenuItem.Click += new System.EventHandler(this.customAlgorithmToolStripMenuItem_Click);
             // 
             // approximationAlgorithmToolStripMenuItem
             // 
             this.approximationAlgorithmToolStripMenuItem.Name = "approximationAlgorithmToolStripMenuItem";
-            this.approximationAlgorithmToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
+            this.approximationAlgorithmToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.approximationAlgorithmToolStripMenuItem.Text = "Approximate Solution";
             this.approximationAlgorithmToolStripMenuItem.Click += new System.EventHandler(this.approximationAlgorithmToolStripMenuItem_Click);
-            // 
-            // customApproximationAlgorithmToolStripMenuItem
-            // 
-            this.customApproximationAlgorithmToolStripMenuItem.Name = "customApproximationAlgorithmToolStripMenuItem";
-            this.customApproximationAlgorithmToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
-            this.customApproximationAlgorithmToolStripMenuItem.Text = "Approximate Solution (Custom)";
-            this.customApproximationAlgorithmToolStripMenuItem.Click += new System.EventHandler(this.customApproximationAlgorithmToolStripMenuItem_Click);
             // 
             // stopCalculationToolStripMenuItem
             // 
@@ -334,7 +307,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutMenuItem_Click);
             // 
@@ -348,7 +321,7 @@
             // statusBox
             // 
             this.statusBox.Location = new System.Drawing.Point(432, 2);
-            this.statusBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.statusBox.Margin = new System.Windows.Forms.Padding(2);
             this.statusBox.MaxLength = 100000;
             this.statusBox.Multiline = true;
             this.statusBox.Name = "statusBox";
@@ -1094,11 +1067,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn qty;
         private System.Windows.Forms.DataGridViewTextBoxColumn setname;
         private System.Windows.Forms.DataGridViewTextBoxColumn id;
-        private System.Windows.Forms.ToolStripMenuItem oldAlgorithmToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newAlgorithmToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem approximationAlgorithmToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem customAlgorithmToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem customApproximationAlgorithmToolStripMenuItem;
     }
 }
 

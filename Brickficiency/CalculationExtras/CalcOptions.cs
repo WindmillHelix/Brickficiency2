@@ -14,8 +14,6 @@ namespace Brickficiency
     {
         #region vars and setup
         int checkbox_workaround = 0;
-        List<RadioButton> minRadio = new List<RadioButton>();
-        List<RadioButton> maxRadio = new List<RadioButton>();
         Blacklist blacklistWindow = new Blacklist();
 
         public CalcOptions()

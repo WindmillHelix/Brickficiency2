@@ -42,7 +42,7 @@ namespace Brickficiency.UI
         {
             base.OnShown(e);
 
-            var thread = new Thread(new ThreadStart(InitializeApplication));
+            var thread = new Thread(InitializeApplication);
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
         }

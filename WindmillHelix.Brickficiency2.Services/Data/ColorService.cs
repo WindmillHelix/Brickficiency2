@@ -5,12 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WindmillHelix.Brickficiency2.Common;
+using WindmillHelix.Brickficiency2.Common.Domain;
 using WindmillHelix.Brickficiency2.Common.Xml;
 using WindmillHelix.Brickficiency2.ExternalApi.Bricklink;
 
 namespace WindmillHelix.Brickficiency2.Services.Data
 {
-    internal class ColorService : CachedDataService<DBColour>, IColorService
+    internal class ColorService : CachedDataService<ItemColor>, IColorService
     {
         private readonly IBricklinkCatalogApi _bricklinkCatalogService;
 
@@ -26,25 +27,25 @@ namespace WindmillHelix.Brickficiency2.Services.Data
         {
             get
             {
-                const string appDataKey = "Colors_a676bfa9-4f23-413c-9e54-76c9816fb1bf.xml";
+                const string appDataKey = "Colors_fa0fc98f-c808-4f93-bac6-21623cf86958.xml";
                 return appDataKey;
             }
         }
 
-        public IReadOnlyCollection<DBColour> GetColors()
+        public IReadOnlyCollection<ItemColor> GetColors()
         {
             return base.GetItems();
         }
 
-        protected override List<DBColour> GetItemsFromSource()
+        protected override List<ItemColor> GetItemsFromSource()
         {
             var colors = _bricklinkCatalogService.DownloadColorList();
-            var converted = colors.Select(x => new DBColour
+            var converted = colors.Select(x => new ItemColor()
             {
-                id = x.ColorId.ToString(),
-                name = x.Name,
-                rgb = x.Rgb,
-                type = x.ColorType
+                ColorId = x.ColorId,
+                Name = x.Name,
+                Rgb = x.Rgb,
+                ColorTypeCode = x.ColorType
             }).ToList();
 
             return converted;

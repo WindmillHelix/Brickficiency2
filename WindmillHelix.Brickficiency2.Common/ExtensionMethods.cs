@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace WindmillHelix.Brickficiency2.Common
 {
-    public enum ItemCondition
+    public static partial class ExtensionMethods
     {
-        Used,
-        New
     }
 }

@@ -28,32 +28,31 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.typePick = new System.Windows.Forms.ComboBox();
+            this.ItemTypeComboBox = new System.Windows.Forms.ComboBox();
             this.catList = new System.Windows.Forms.ListBox();
             this.filterBox = new System.Windows.Forms.TextBox();
             this.closeButton = new System.Windows.Forms.Button();
             this.addButton = new System.Windows.Forms.Button();
-            this.colourGrid = new System.Windows.Forms.DataGridView();
-            this.Colour = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ColourName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColorGrid = new System.Windows.Forms.DataGridView();
             this.itemList = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.colourGrid)).BeginInit();
+            this.Color = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ColourName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ((System.ComponentModel.ISupportInitialize)(this.ColorGrid)).BeginInit();
             this.SuspendLayout();
             // 
-            // typePick
+            // ItemTypeComboBox
             // 
-            this.typePick.DropDownHeight = 170;
-            this.typePick.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.typePick.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.typePick.FormattingEnabled = true;
-            this.typePick.IntegralHeight = false;
-            this.typePick.Location = new System.Drawing.Point(12, 12);
-            this.typePick.Name = "typePick";
-            this.typePick.Size = new System.Drawing.Size(170, 28);
-            this.typePick.Sorted = true;
-            this.typePick.TabIndex = 0;
-            this.typePick.SelectedValueChanged += new System.EventHandler(this.typePick_SelectedValueChanged);
+            this.ItemTypeComboBox.DropDownHeight = 170;
+            this.ItemTypeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ItemTypeComboBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ItemTypeComboBox.FormattingEnabled = true;
+            this.ItemTypeComboBox.IntegralHeight = false;
+            this.ItemTypeComboBox.Location = new System.Drawing.Point(12, 12);
+            this.ItemTypeComboBox.Name = "ItemTypeComboBox";
+            this.ItemTypeComboBox.Size = new System.Drawing.Size(170, 28);
+            this.ItemTypeComboBox.Sorted = true;
+            this.ItemTypeComboBox.TabIndex = 0;
             // 
             // catList
             // 
@@ -100,46 +99,28 @@
             this.addButton.UseVisualStyleBackColor = true;
             this.addButton.Click += new System.EventHandler(this.addButton_Click);
             // 
-            // colourGrid
+            // ColorGrid
             // 
-            this.colourGrid.AllowUserToAddRows = false;
-            this.colourGrid.AllowUserToDeleteRows = false;
-            this.colourGrid.AllowUserToResizeColumns = false;
-            this.colourGrid.AllowUserToResizeRows = false;
-            this.colourGrid.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
-            this.colourGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            this.colourGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Colour,
+            this.ColorGrid.AllowUserToAddRows = false;
+            this.ColorGrid.AllowUserToDeleteRows = false;
+            this.ColorGrid.AllowUserToResizeColumns = false;
+            this.ColorGrid.AllowUserToResizeRows = false;
+            this.ColorGrid.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
+            this.ColorGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.ColorGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.Color,
             this.ColourName});
-            this.colourGrid.Location = new System.Drawing.Point(716, 13);
-            this.colourGrid.MultiSelect = false;
-            this.colourGrid.Name = "colourGrid";
-            this.colourGrid.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.colourGrid.RowHeadersVisible = false;
-            this.colourGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.colourGrid.Size = new System.Drawing.Size(178, 401);
-            this.colourGrid.StandardTab = true;
-            this.colourGrid.TabIndex = 4;
-            this.colourGrid.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.colourGrid_CellStateChanged);
-            this.colourGrid.MouseEnter += new System.EventHandler(this.colourGrid_MouseEnter);
-            // 
-            // Colour
-            // 
-            this.Colour.Frozen = true;
-            this.Colour.HeaderText = "Colour";
-            this.Colour.Name = "Colour";
-            this.Colour.ReadOnly = true;
-            this.Colour.Resizable = System.Windows.Forms.DataGridViewTriState.False;
-            this.Colour.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            this.Colour.Width = 45;
-            // 
-            // ColourName
-            // 
-            this.ColourName.Frozen = true;
-            this.ColourName.HeaderText = "Name";
-            this.ColourName.Name = "ColourName";
-            this.ColourName.ReadOnly = true;
-            this.ColourName.Width = 300;
+            this.ColorGrid.Location = new System.Drawing.Point(716, 13);
+            this.ColorGrid.MultiSelect = false;
+            this.ColorGrid.Name = "ColorGrid";
+            this.ColorGrid.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.ColorGrid.RowHeadersVisible = false;
+            this.ColorGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.ColorGrid.Size = new System.Drawing.Size(178, 401);
+            this.ColorGrid.StandardTab = true;
+            this.ColorGrid.TabIndex = 4;
+            this.ColorGrid.CellStateChanged += new System.Windows.Forms.DataGridViewCellStateChangedEventHandler(this.colourGrid_CellStateChanged);
+            this.ColorGrid.MouseEnter += new System.EventHandler(this.colourGrid_MouseEnter);
             // 
             // itemList
             // 
@@ -170,6 +151,24 @@
             this.label1.TabIndex = 7;
             this.label1.Text = "Filter:";
             // 
+            // Color
+            // 
+            this.Color.Frozen = true;
+            this.Color.HeaderText = "Colour";
+            this.Color.Name = "Color";
+            this.Color.ReadOnly = true;
+            this.Color.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.Color.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            this.Color.Width = 45;
+            // 
+            // ColourName
+            // 
+            this.ColourName.Frozen = true;
+            this.ColourName.HeaderText = "Name";
+            this.ColourName.Name = "ColourName";
+            this.ColourName.ReadOnly = true;
+            this.ColourName.Width = 300;
+            // 
             // AddItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -178,19 +177,19 @@
             this.ClientSize = new System.Drawing.Size(906, 466);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.itemList);
-            this.Controls.Add(this.colourGrid);
+            this.Controls.Add(this.ColorGrid);
             this.Controls.Add(this.addButton);
             this.Controls.Add(this.closeButton);
             this.Controls.Add(this.filterBox);
             this.Controls.Add(this.catList);
-            this.Controls.Add(this.typePick);
+            this.Controls.Add(this.ItemTypeComboBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
             this.Name = "AddItem";
             this.Text = "AddItem";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddItem_FormClosing);
             this.Load += new System.EventHandler(this.AddItem_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.colourGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.ColorGrid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -198,15 +197,15 @@
 
         #endregion
 
-        private System.Windows.Forms.ComboBox typePick;
+        private System.Windows.Forms.ComboBox ItemTypeComboBox;
         private System.Windows.Forms.ListBox catList;
         private System.Windows.Forms.TextBox filterBox;
         private System.Windows.Forms.Button closeButton;
         private System.Windows.Forms.Button addButton;
-        private System.Windows.Forms.DataGridView colourGrid;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Colour;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ColourName;
+        private System.Windows.Forms.DataGridView ColorGrid;
         private System.Windows.Forms.ListView itemList;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Color;
+        private System.Windows.Forms.DataGridViewTextBoxColumn ColourName;
     }
 }
