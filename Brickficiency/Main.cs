@@ -48,10 +48,6 @@ namespace Brickficiency
         //supplemental report when no matches are found
         //price guide info //////////////// what does this mean??
 
-        //put backups of code for both in gdrive
-        //error when DB is out of date
-
-
         ///////////////// add &v=D to pgpage get
         ///////////////// remove the thing that is saying "skip" while downloading pages
 
@@ -62,6 +58,7 @@ namespace Brickficiency
         private readonly IColorService _colorService;
         private readonly IItemTypeService _itemTypeService;
         private readonly ICategoryService _categoryService;
+        private readonly ICountryService _countryService;
         private readonly IItemService _itemService;
         private readonly IDataUpdateService _dataUpdateService;
 
@@ -141,11 +138,9 @@ namespace Brickficiency
         public const int RUN_APPROX = 2;
         private int whichAlgToRun = 1;
         private Boolean running = false;
-        //--------------------------------------------------------------------
 
-        //int storestotal = 0;
         public bool displayreport = false;
-        //public int shortcount = 0;
+
         public long longcount = 0;
         public bool matchesfound = false;
         public int storeprogresscounter = 0;
@@ -176,7 +171,6 @@ namespace Brickficiency
         Brickficiency.ContextMenuStuff.RemoveRemarks removeRemarksWindow = new Brickficiency.ContextMenuStuff.RemoveRemarks();
         #endregion
 
-
         #region Startup - read bricklink database files and create appdata folder structure
         private void InitStuff(object sender, EventArgs e)
         {
@@ -190,7 +184,6 @@ namespace Brickficiency
 
         private void loadWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-
             #region Create dir structure
             if (!Directory.Exists(programdata))
             {
@@ -219,75 +212,6 @@ namespace Brickficiency
             #endregion
 
             PopulateLookupsFromServices();
-
-            #region countries
-            db_countries.Add("Argentina", "AR");
-            db_countries.Add("Australia", "AU");
-            db_countries.Add("Austria", "AT");
-            db_countries.Add("Belarus", "BY");
-            db_countries.Add("Belgium", "BE");
-            db_countries.Add("Bolivia", "BO");
-            db_countries.Add("Bosnia and Herzegovina", "BA");
-            db_countries.Add("Brazil", "BR");
-            db_countries.Add("Bulgaria", "BG");
-            db_countries.Add("Canada", "CA");
-            db_countries.Add("Chile", "CL");
-            db_countries.Add("China", "CN");
-            db_countries.Add("Colombia", "CO");
-            db_countries.Add("Croatia", "HR");
-            db_countries.Add("Czech Republic", "CZ");
-            db_countries.Add("Denmark", "DK");
-            db_countries.Add("Ecuador", "EC");
-            db_countries.Add("El Salvador", "SV");
-            db_countries.Add("Estonia", "EE");
-            db_countries.Add("Finland", "FI");
-            db_countries.Add("France", "FR");
-            db_countries.Add("Germany", "DE");
-            db_countries.Add("Greece", "GR");
-            db_countries.Add("Hong Kong", "HK");
-            db_countries.Add("Hungary", "HU");
-            db_countries.Add("India", "IN");
-            db_countries.Add("Indonesia", "ID");
-            db_countries.Add("Ireland", "IE");
-            db_countries.Add("Israel", "IL");
-            db_countries.Add("Italy", "IT");
-            db_countries.Add("Japan", "JP");
-            db_countries.Add("Latvia", "LV");
-            db_countries.Add("Lithuania", "LT");
-            db_countries.Add("Luxembourg", "LU");
-            db_countries.Add("Macau", "MO");
-            db_countries.Add("Malaysia", "MY");
-            db_countries.Add("Mexico", "MX");
-            db_countries.Add("Monaco", "MC");
-            db_countries.Add("Netherlands", "NL");
-            db_countries.Add("New Zealand", "NZ");
-            db_countries.Add("Norway", "NO");
-            db_countries.Add("Pakistan", "PK");
-            db_countries.Add("Peru", "PE");
-            db_countries.Add("Philippines", "PH");
-            db_countries.Add("Poland", "PL");
-            db_countries.Add("Portugal", "PT");
-            db_countries.Add("Romania", "RO");
-            db_countries.Add("Russia", "RU");
-            db_countries.Add("San Marino", "SM");
-            db_countries.Add("Serbia", "RS");
-            db_countries.Add("Singapore", "SG");
-            db_countries.Add("Slovakia", "SK");
-            db_countries.Add("Slovenia", "SI");
-            db_countries.Add("South Africa", "ZA");
-            db_countries.Add("South Korea", "KR");
-            db_countries.Add("Spain", "ES");
-            db_countries.Add("Sweden", "SE");
-            db_countries.Add("Switzerland", "CH");
-            db_countries.Add("Syria", "SY");
-            db_countries.Add("Taiwan", "TW");
-            db_countries.Add("Thailand", "TH");
-            db_countries.Add("Turkey", "TR");
-            db_countries.Add("Ukraine", "UA");
-            db_countries.Add("United Kingdom", "UK");
-            db_countries.Add("USA", "US");
-            db_countries.Add("Venezuela", "VE");
-            #endregion
 
             #region Settings
             if (!File.Exists(settingsfilename))
@@ -412,6 +336,7 @@ namespace Brickficiency
             IColorService colorService,
             IItemTypeService itemTypeService,
             ICategoryService categoryService,
+            ICountryService countryService,
             IItemService itemService,
             IBricklinkLoginApi bricklinkLoginApi,
             ImportWantedListForm importWantedListForm,
@@ -426,6 +351,7 @@ namespace Brickficiency
             _colorService = colorService;
             _itemTypeService = itemTypeService;
             _categoryService = categoryService;
+            _countryService = countryService;
             _itemService = itemService;
             _dataUpdateService = dataUpdateService;
 
@@ -1564,6 +1490,8 @@ namespace Brickficiency
             });
 
             db_blitems = items.ToDictionary(x => x.id, x => x);
+
+            db_countries = _countryService.GetCountries().ToDictionary(x => x.Name, x => x.CountryCode);
         }
 
         private void DownloadBrickLinkDB()

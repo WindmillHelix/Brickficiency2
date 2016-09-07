@@ -53,6 +53,7 @@
     <Compile Include="Data\CachedDataService.cs" />
     <Compile Include="Data\CategoryService.cs" />
     <Compile Include="Data\ColorService.cs" />
+    <Compile Include="Data\CountryService.cs" />
     <Compile Include="Data\DataUpdateService.cs" />
     <Compile Include="Data\ICategoryService.cs" />
     <Compile Include="Data\IDataUpdateService.cs" />
@@ -63,6 +64,7 @@
     <Compile Include="Data\IColorService.cs" />
     <Compile Include="Data\IItemTypeService.cs" />
     <Compile Include="ICacheService.cs" />
+    <Compile Include="Data\ICountryService.cs" />
     <Compile Include="ICredentialService.cs" />
     <Compile Include="IImageService.cs" />
     <Compile Include="ImageService.cs" />

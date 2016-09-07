@@ -43,6 +43,7 @@
     <Compile Include="Actions.cs" />
     <Compile Include="AssemblyNames.cs" />
     <Compile Include="Domain\Category.cs" />
+    <Compile Include="Domain\Country.cs" />
     <Compile Include="Domain\ExternalSystem.cs" />
     <Compile Include="Domain\ItemColor.cs" />
     <Compile Include="Domain\MappingResult.cs" />

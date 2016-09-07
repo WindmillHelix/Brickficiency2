@@ -714,23 +714,6 @@ namespace Brickficiency
         }
         #endregion
 
-        // This method was here but isn't used.  I commented it out.  CAC, 2015-07-08
-        //#region find cheapest from a list
-        //private List<int> FindCheapest(params decimal[] pricesin) {
-        //    Dictionary<int, decimal> prices = new Dictionary<int, decimal>();
-        //    int tmpcount = 0;
-        //    foreach (decimal price in pricesin) {
-        //        prices.Add(tmpcount, price);
-        //        tmpcount++;
-        //    }
-        //    List<int> indexesout = new List<int>();
-        //    foreach (KeyValuePair<int, decimal> index in prices.OrderBy(i => i.Value)) {
-        //        indexesout.Add(index.Key);
-        //    }
-        //    return indexesout;
-        //}
-        //#endregion
-
         private long previousPrinted = 0;
         #region Matches Counter
         private void statusQueueTimer_Tick(object sender, EventArgs e)
