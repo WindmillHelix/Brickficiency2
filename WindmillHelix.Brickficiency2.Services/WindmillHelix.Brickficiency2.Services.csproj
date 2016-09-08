@@ -49,6 +49,13 @@
   <ItemGroup>
     <Compile Include="AppDataService.cs" />
     <Compile Include="CacheService.cs" />
+    <Compile Include="Calculator\CalculationStep.cs" />
+    <Compile Include="Calculator\CalculationStepStatus.cs" />
+    <Compile Include="Calculator\Calculator.cs" />
+    <Compile Include="Calculator\ICalculationStep.cs" />
+    <Compile Include="Calculator\ICalculator.cs" />
+    <Compile Include="Calculator\Store.cs" />
+    <Compile Include="Calculator\StoreType.cs" />
     <Compile Include="CredentialService.cs" />
     <Compile Include="Data\CachedDataService.cs" />
     <Compile Include="Data\CategoryService.cs" />

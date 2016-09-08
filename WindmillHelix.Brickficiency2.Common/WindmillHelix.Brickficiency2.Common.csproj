@@ -45,6 +45,7 @@
     <Compile Include="Domain\Category.cs" />
     <Compile Include="Domain\Country.cs" />
     <Compile Include="Domain\ExternalSystem.cs" />
+    <Compile Include="Domain\ISettings.cs" />
     <Compile Include="Domain\ItemColor.cs" />
     <Compile Include="Domain\MappingResult.cs" />
     <Compile Include="Domain\WantedList.cs" />
@@ -69,6 +70,7 @@
     <Compile Include="ParseUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\IBricklinkCredentialProvider.cs" />
+    <Compile Include="Providers\ISettingsProvider.cs" />
     <Compile Include="SerializableKeyValuePair.cs" />
     <Compile Include="Xml\TypedXmlSerializer.cs" />
   </ItemGroup>
