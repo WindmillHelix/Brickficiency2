@@ -11,6 +11,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Brickficiency.Classes;
+using WindmillHelix.Brickficiency2.Common.Utils;
 
 namespace Brickficiency
 {
@@ -211,7 +212,7 @@ namespace Brickficiency
             item.availstores = 0;
 
             List<string> itemcolours = new List<string>();
-            if (item.colour == "0" && live)
+            if (item.colour == "0" && live && ItemTypeUtil.DoesComeInColors(item.type))
             {
                 string colourpage;
                 if (db_blitems[item.id].pgcolourspage != null)
