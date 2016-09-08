@@ -70,6 +70,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\IBricklinkCredentialProvider.cs" />
     <Compile Include="SerializableKeyValuePair.cs" />
+    <Compile Include="Utils\ItemTypeUtil.cs" />
     <Compile Include="Xml\TypedXmlSerializer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
