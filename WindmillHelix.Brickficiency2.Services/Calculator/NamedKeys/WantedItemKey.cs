@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WindmillHelix.Brickficiency2.Services.Calculator
+namespace WindmillHelix.Brickficiency2.Services.Calculator.NamedKeys
 {
-    public enum StoreType
+    public enum WantedItemKey : int
     {
-        BrickLink
     }
 }

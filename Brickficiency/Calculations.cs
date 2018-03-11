@@ -141,7 +141,7 @@ namespace Brickficiency
 
             bool pagefail = false;
 
-            foreach (string country in settings.countries)
+            foreach (string country in settings.countries.Distinct())
             {
                 if (!calcWorker.CancellationPending)
                 {

@@ -20,10 +20,13 @@ namespace WindmillHelix.Brickficiency2.Common.Net
             }
 
             webRequest.UserAgent = UserAgent;
+            webRequest.CookieContainer = Cookies;
 
             return webRequest;
         }
 
         public string UserAgent { get; set; }
+
+        public CookieContainer Cookies { get; set; }
     }
 }

@@ -4,13 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WindmillHelix.Brickficiency2.Services.Calculator
+namespace WindmillHelix.Brickficiency2.Common.Domain
 {
-    public class Store
+    public class Region
     {
-        public StoreType StoreType { get; set; }
-
-        public string Id { get; set; }
+        public string RegionCode { get; set; }
 
         public string Name { get; set; }
     }

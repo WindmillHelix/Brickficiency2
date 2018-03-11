@@ -63,6 +63,7 @@
     <Compile Include="AppConfigBricklinkCredentialProvider.cs" />
     <Compile Include="BricklinkCatalogTests.cs" />
     <Compile Include="BricklinkImageTests.cs" />
+    <Compile Include="BricklinkItemAvailabilityTests.cs" />
     <Compile Include="BricklinkLoginTests.cs" />
     <Compile Include="BricklinkWantedListTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -83,7 +84,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="App.user.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -14,7 +14,9 @@ namespace WindmillHelix.Brickficiency2.Services.Tests
         [TestMethod]
         public void TestGetItems()
         {
-            var container = DependencyInjectionConfig.Setup();
+            var builder = new ContainerBuilder();
+            builder.RegisterType<AppConfigBricklinkCredentialProvider>().AsImplementedInterfaces().SingleInstance();
+            var container = DependencyInjectionConfig.Setup(builder);
             var itemService = container.Resolve<IItemService>();
 
             Assert.IsNotNull(itemService);

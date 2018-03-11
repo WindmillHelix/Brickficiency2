@@ -40,6 +40,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -56,6 +57,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="AppConfig.cs" />
+    <Compile Include="AppConfigBricklinkCredentialProvider.cs" />
+    <Compile Include="CalculatorTests.cs" />
     <Compile Include="ColorServiceTests.cs" />
     <Compile Include="ItemServiceTests.cs" />
     <Compile Include="LddMapperTests.cs" />
@@ -80,6 +84,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
+    <None Include="App.user.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

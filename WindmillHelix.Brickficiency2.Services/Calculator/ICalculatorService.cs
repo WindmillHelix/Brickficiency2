@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WindmillHelix.Brickficiency2.Services.Calculator
 {
-    public interface ICalculator : INotifyPropertyChanged
+    public interface ICalculatorService : INotifyPropertyChanged
     {
         void Abort();
     }

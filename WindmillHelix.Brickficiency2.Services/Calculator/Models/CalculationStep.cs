@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace WindmillHelix.Brickficiency2.Services.Calculator
+namespace WindmillHelix.Brickficiency2.Services.Calculator.Models
 {
     internal class CalculationStep : ICalculationStep
     {
@@ -14,6 +10,11 @@ namespace WindmillHelix.Brickficiency2.Services.Calculator
         private string _name;
         private int _percentComplete;
         private int _stepOrder;
+
+        public CalculationStep()
+        {
+            Status = CalculationStepStatus.Waiting;
+        }
 
         public CalculationStepStatus Status
         {
@@ -52,8 +53,11 @@ namespace WindmillHelix.Brickficiency2.Services.Calculator
 
             internal set
             {
-                _percentComplete = value;
-                OnPropertyChanged();
+                if (_percentComplete != value)
+                {
+                    _percentComplete = value;
+                    OnPropertyChanged();
+                }
             }
         }
 
