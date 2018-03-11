@@ -14,6 +14,15 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
 {
     internal class BricklinkCatalogApi : IBricklinkCatalogApi
     {
+        private const string CatalogUrl = "https://www.bricklink.com/catalogDownload.asp?a=a";
+
+        private readonly IBricklinkSessionService _sessionService;
+
+        public BricklinkCatalogApi(IBricklinkSessionService sessionService)
+        {
+            _sessionService = sessionService;
+        }
+
         public IReadOnlyCollection<BricklinkColor> DownloadColorList()
         {
             const string postString = "itemType=S&viewType=3&itemTypeInv=S&itemNo=&downloadType=X";
@@ -49,6 +58,9 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
 
         private IReadOnlyCollection<T> DownloadCatalog<T>(string postString)
         {
+            _sessionService.EnsureAuthenticated();
+            MakeInitialRequest();
+
             const string contentType = "application/x-www-form-urlencoded";
 
             var request = (HttpWebRequest)HttpWebRequest.Create("https://www.bricklink.com/catalogDownload.asp?a=a");
@@ -59,7 +71,10 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
             request.ContentLength = postString.Length;
             request.UserAgent = Constants.UserAgent;
             request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
-            request.Referer = "https://www.bricklink.com/catalogDownload.asp";
+            request.Referer = "https://www.bricklink.com/catalogDownload.asp?a=a";
+            request.CookieContainer = _sessionService.GetCookieContainer();
+            request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
 
             using (var requestWriter = new StreamWriter(request.GetRequestStream()))
             {
@@ -78,6 +93,28 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Bricklink
             var deserialized = serializer.Deserialize(xml);
 
             return deserialized.Items;
+        }
+
+        private void MakeInitialRequest()
+        {
+            _sessionService.EnsureAuthenticated();
+
+            var request = (HttpWebRequest)HttpWebRequest.Create(CatalogUrl);
+            request.Method = "GET";
+            request.UserAgent = Constants.UserAgent;
+            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+            request.Referer = "https://www.bricklink.com/";
+            request.CookieContainer = _sessionService.GetCookieContainer();
+            request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
+            request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+
+            using (var response = request.GetResponse())
+            {
+                if (response == null)
+                {
+                    throw new Exception("Response is null");
+                }
+            }
         }
     }
 }

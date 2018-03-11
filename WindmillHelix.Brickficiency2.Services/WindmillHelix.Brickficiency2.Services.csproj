@@ -49,6 +49,21 @@
   <ItemGroup>
     <Compile Include="AppDataService.cs" />
     <Compile Include="CacheService.cs" />
+    <Compile Include="Calculator\ICalculationSettings.cs" />
+    <Compile Include="Calculator\Models\BlacklistedStore.cs" />
+    <Compile Include="Calculator\Models\CalculationStep.cs" />
+    <Compile Include="Calculator\Models\CalculationStepStatus.cs" />
+    <Compile Include="Calculator\CalculatorService.cs" />
+    <Compile Include="Calculator\Models\CalculatorStatus.cs" />
+    <Compile Include="Calculator\ICalculationStep.cs" />
+    <Compile Include="Calculator\ICalculatorService.cs" />
+    <Compile Include="Calculator\Models\StoreInventory.cs" />
+    <Compile Include="Calculator\NamedKeys\StoreKey.cs" />
+    <Compile Include="Calculator\NamedKeys\WantedItemKey.cs" />
+    <Compile Include="Calculator\StepRunners\StoreInventoryStepRunner.cs" />
+    <Compile Include="Calculator\StepRunners\StoreListStepRunner.cs" />
+    <Compile Include="Calculator\Models\Store.cs" />
+    <Compile Include="Calculator\Models\StoreType.cs" />
     <Compile Include="CredentialService.cs" />
     <Compile Include="Data\CachedDataService.cs" />
     <Compile Include="Data\CategoryService.cs" />
@@ -95,6 +110,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

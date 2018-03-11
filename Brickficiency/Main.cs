@@ -1481,18 +1481,26 @@ namespace Brickficiency
             db_colours = colors;
 
             // todo: not accounting for items that contain other items
-            var items = _itemService.GetItems().Select(x => new DBBLItem()
+            try
             {
-                id = string.Format("{0}-{1}", x.ItemTypeCode.ToUpperInvariant(), x.ItemId),
-                number = x.ItemId, // todo: what is this??
-                type = x.ItemTypeCode,
-                name = x.Name,
-                catid = x.CategoryId.ToString(),
-            });
+                var items = _itemService.GetItems().Select(x => new DBBLItem()
+                {
+                    id = string.Format("{0}-{1}", x.ItemTypeCode.ToUpperInvariant(), x.ItemId),
+                    number = x.ItemId, // todo: what is this??
+                    type = x.ItemTypeCode,
+                    name = x.Name,
+                    catid = x.CategoryId.ToString(),
+                });
 
-            db_blitems = items.ToDictionary(x => x.id, x => x);
+                var dupes = items.Select(x => x.id).GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y).ToList();
+                db_blitems = items.ToDictionary(x => x.id, x => x);
 
-            db_countries = _countryService.GetCountries().ToDictionary(x => x.Name, x => x.CountryCode);
+                db_countries = _countryService.GetCountries().ToDictionary(x => x.Name, x => x.CountryCode);
+            }
+            catch(Exception thrown)
+            {
+
+            }
         }
 
         private void DownloadBrickLinkDB()
