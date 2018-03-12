@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using WindmillHelix.Brickficiency2.ExternalApi.Rebrickable.Models;
 
 namespace WindmillHelix.Brickficiency2.ExternalApi.Rebrickable
 {
@@ -16,43 +18,48 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Rebrickable
         public PartInfo GetPartInfo(string partNumber)
         {
             var url = string.Format(
-                "http://rebrickable.com/api/get_part?key={0}&part_id={1}&inc_ext=1",
-                HttpUtility.UrlEncode(RebrickableConstants.ApiKey),
+                "https://rebrickable.com/api/v3/lego/parts/?lego_id={0}",
                 HttpUtility.UrlEncode(partNumber));
 
-            string xml;
+            string json;
             using (var client = new WebClient())
             {
-                xml = client.DownloadString(url);
+                client.Headers.Add("Authorization", "key " + RebrickableConstants.ApiKey);
+                json = client.DownloadString(url);
             }
 
-            if (xml.Trim() == "NOPART")
+            var reader = new JsonTextReader(new StringReader(json));
+            var serializer = new JsonSerializer();
+
+            var searchResult = serializer.Deserialize<PartSearchResult>(reader);
+            if (searchResult.Count == 0)
             {
                 return null;
             }
 
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
+            var part = searchResult.Results[0];
+            var result = new PartInfo()
+            {
+                PartId = partNumber,
+                ImageUrl = part.ImageUrl
+            };
 
-            var doc = xmlDoc.DocumentElement;
+            result.BricklinkItemIds = new List<string>();
+            result.RebrickablePartIds = new List<string>();
 
-            var result = new PartInfo();
-            result.PartId = doc.SelectSingleNode("/root/part_id")?.InnerText;
-            result.ImageUrl = doc.SelectSingleNode("/root/part_imge_url")?.InnerText;
+            if(part.PartNumber != partNumber)
+            {
+                result.BricklinkItemIds.Add(part.PartNumber);
+                result.RebrickablePartIds.Add(part.PartNumber);
+            }
 
-            result.BricklinkItemIds = doc
-                .SelectNodes("/root/external_part_ids/bricklink")
-                ?.OfType<XmlNode>()
-                .Select(x => x.InnerText)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .ToList();
+            var key = part.ExternalIds?.Keys.SingleOrDefault(x => x.Equals("bricklink", StringComparison.InvariantCultureIgnoreCase));
 
-            result.RebrickablePartIds = doc
-                .SelectNodes("/root/rebrickable_part_ids/part_id")
-                ?.OfType<XmlNode>()
-                .Select(x => x.InnerText)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .ToList();
+            if(!string.IsNullOrEmpty(key))
+            {
+                var values = part.ExternalIds[key];
+                result.BricklinkItemIds.AddRange(values.Where(x => x != part.PartNumber && x != partNumber));
+            }
 
             return result;
         }
