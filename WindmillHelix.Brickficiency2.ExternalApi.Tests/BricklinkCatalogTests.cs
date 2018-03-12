@@ -60,17 +60,5 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Tests
             Assert.IsNotNull(avengersTower);
             Assert.AreEqual("Attack on Avengers Tower", avengersTower.Name);
         }
-
-        [TestMethod]
-        public void TestGetSets()
-        {
-            var figures = _service.DownloadItems("M");
-            Assert.IsNotNull(sets);
-            Assert.AreNotEqual(0, sets.Count);
-
-            var avengersTower = sets.SingleOrDefault(x => x.ItemId == "76038-1");
-            Assert.IsNotNull(avengersTower);
-            Assert.AreEqual("Attack on Avengers Tower", avengersTower.Name);
-        }
     }
 }

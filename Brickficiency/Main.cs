@@ -16,7 +16,6 @@ using System.Net;
 using System.Xml.Serialization;
 using System.Threading;
 using System.Globalization;
-using System.Data.SqlServerCe;
 using Ionic.Zip;
 using Brickficiency.Classes;
 using System.Diagnostics;

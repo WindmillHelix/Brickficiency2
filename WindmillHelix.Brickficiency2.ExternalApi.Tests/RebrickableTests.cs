@@ -16,10 +16,10 @@ namespace WindmillHelix.Brickficiency2.ExternalApi.Tests
         {
             var api = new RebrickableApi();
 
-            var part = api.GetPartInfo("92409");
+            var part = api.GetPartInfo("42611");
 
             Assert.IsNotNull(part);
-            Assert.AreEqual("92409", part.PartId);
+            Assert.AreEqual("42611", part.PartId);
             Assert.IsNotNull(part.BricklinkItemIds);
             Assert.AreEqual(1, part.BricklinkItemIds.Count);
             Assert.AreEqual("51011", part.BricklinkItemIds[0]);
